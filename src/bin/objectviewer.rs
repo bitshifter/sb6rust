@@ -133,7 +133,7 @@ impl sb6::App for MyApp {
         let time = time as f32;
 
         let info = self.get_app_info();
-        let aspect = info.windowWidth as f32 / info.windowWidth as f32;
+        let aspect = info.windowWidth as f32 / info.windowHeight as f32;
         let proj_matrix =  Mat4::perspective(50.0, aspect, 0.1, 1000.0);
         let mv_matrix = Mat4::translate(0.0, 0.0, -3.0) *
             Mat4::rotate(time * 45.0, 0.0, 1.0, 0.0) *

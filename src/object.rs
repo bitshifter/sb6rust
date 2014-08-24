@@ -115,7 +115,7 @@ impl ObjectReader {
         }
         Ok(unsafe {
             mem::transmute(Slice {
-                data: self.buf.as_ptr().offset(self.pos as int),
+                data: self.buf.as_ptr().offset(start as int),
                 len: end - start })
         })
     }
