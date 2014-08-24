@@ -127,7 +127,6 @@ struct MyApp {
     buffer: GLuint,
     mv_location: GLint,
     proj_location: GLint,
-    aspect: f32,
     proj_matrix: Mat4
 }
 
@@ -140,9 +139,13 @@ impl MyApp {
             buffer: 0,
             mv_location: -1,
             proj_location: -1,
-            aspect: init.windowWidth as f32 / init.windowHeight as f32,
             proj_matrix: Mat4::identity()
         }
+    }
+
+    fn update_proj_matrix(&mut self) {
+        let aspect = self.info.windowWidth as f32 / self.info.windowHeight as f32;
+        self.proj_matrix = Mat4::perspective(50.0, aspect, 0.1, 1000.0);
     }
 }
 
@@ -195,7 +198,7 @@ impl sb6::App for MyApp {
             gl::Enable(gl::DEPTH_TEST);
             gl::DepthFunc(gl::LEQUAL);
         }
-        self.on_resize(800, 600);
+        self.update_proj_matrix();
     }
 
     fn shutdown(&mut self) {
@@ -212,8 +215,9 @@ impl sb6::App for MyApp {
     }
 
     fn on_resize(&mut self, width: int, height: int) {
-        self.aspect = width as f32 / height as f32;
-        self.proj_matrix = Mat4::perspective(50.0, self.aspect, 0.1, 1000.0);
+        self.info.windowWidth = width as u32;
+        self.info.windowHeight = height as u32;
+        self.update_proj_matrix();
     }
 
     fn render(&self, time: f64) {

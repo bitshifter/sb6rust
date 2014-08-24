@@ -106,15 +106,6 @@ pub fn check_link_status(program: GLuint) {
     }
 }
 
-fn handle_window_event(window: &glfw::Window, event: glfw::WindowEvent) {
-    match event {
-        glfw::KeyEvent(glfw::KeyEscape, _, glfw::Press, _) => {
-            window.set_should_close(true)
-        }
-        _ => {}
-    }
-}
-
 pub trait App
 {
     fn get_app_info(&self) -> &AppInfo;
@@ -122,6 +113,19 @@ pub trait App
     fn render(&self, time: f64);
     fn shutdown(&mut self);
     fn on_resize(&mut self, _: int, _: int) {}
+}
+
+fn handle_window_event<T: App>(app: &mut T, window: &glfw::Window,
+                               event: glfw::WindowEvent) {
+    match event {
+        glfw::KeyEvent(glfw::KeyEscape, _, glfw::Press, _) => {
+            window.set_should_close(true)
+        }
+        glfw::SizeEvent(w, h) => {
+            app.on_resize(w as int, h as int)
+        }
+        _ => ()
+    }
 }
 
 pub fn run<T: App>(app: &mut T) {
@@ -138,6 +142,7 @@ pub fn run<T: App>(app: &mut T) {
     };
 
     window.set_key_polling(true);
+    window.set_size_polling(true);
     window.make_current();
 
     // Load the OpenGL function pointers
@@ -152,7 +157,7 @@ pub fn run<T: App>(app: &mut T) {
 
         glfw.poll_events();
         for (_, event) in glfw::flush_messages(&events) {
-            handle_window_event(&window, event);
+            handle_window_event::<T>(app, &window, event);
         }
     }
 
