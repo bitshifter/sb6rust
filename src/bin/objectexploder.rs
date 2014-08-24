@@ -14,7 +14,7 @@ use vmath::Mat4;
 mod vmath;
 
 static VS_SRC: &'static str = "\
-#version 410 core                                                  \n\
+#version 330 core                                                  \n\
                                                                    \n\
 layout (location = 0) in vec4 position;                            \n\
 layout (location = 1) in vec3 normal;                              \n\
@@ -37,7 +37,7 @@ void main(void)                                                    \n\
 ";
 
 static GS_SRC: &'static str = "\
-#version 410 core                                                      \n\
+#version 330 core                                                      \n\
                                                                        \n\
 layout (triangles) in;                                                 \n\
 layout (triangle_strip, max_vertices = 3) out;                         \n\
@@ -73,7 +73,7 @@ void main(void)                                                        \n\
 ";
 
 static FS_SRC: &'static str = "\
-#version 410 core                                                  \n\
+#version 330 core                                                  \n\
                                                                    \n\
 out vec4 color;                                                    \n\
                                                                    \n\
@@ -153,7 +153,7 @@ impl sb6::App for MyApp {
                 |ptr| gl::GetUniformLocation(self.program, ptr));
             self.proj_location = "proj_matrix".with_c_str(
                 |ptr| gl::GetUniformLocation(self.program, ptr));
-            self.proj_location = "explode_factor".with_c_str(
+            self.explode_factor_location = "explode_factor".with_c_str(
                 |ptr| gl::GetUniformLocation(self.program, ptr));
         }
 
@@ -212,6 +212,8 @@ impl sb6::App for MyApp {
 fn main() {
     let mut init = sb6::AppInfo::default();
     init.title = "OpenGL SuperBible - Exploder";
+    init.majorVersion = 3;
+    init.minorVersion = 3;
     let mut app = MyApp::new(init);
     sb6::run(&mut app);
 }
