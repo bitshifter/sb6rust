@@ -298,7 +298,7 @@ impl Object {
             gl::GenBuffers(1, &mut self.vertex_buffer);
             gl::BindBuffer(gl::ARRAY_BUFFER, self.vertex_buffer);
             gl::BufferData(gl::ARRAY_BUFFER,
-                           vertex_data_chunk.data_size as i64,
+                           vertex_data_chunk.data_size as int,
                            mem::transmute(vertex_data.as_ptr()),
                            gl::STATIC_DRAW);
             gl::GenVertexArrays(1, &mut self.vao);
@@ -346,7 +346,7 @@ impl Object {
                     gl::GenBuffers(1, &mut self.index_buffer);
                     gl::BindBuffer(gl::ELEMENT_ARRAY_BUFFER, self.index_buffer);
                     gl::BufferData(gl::ELEMENT_ARRAY_BUFFER,
-                                   index_data_size as i64,
+                                   index_data_size as int,
                                    mem::transmute(index_data.as_ptr()),
                                    gl::STATIC_DRAW);
                 }
