@@ -5,8 +5,7 @@ version = "0.0.1"
 authors = ["Cameron Hart <cam@bitshifter.net.nz>"]
 
 [dependencies.gl]
-git = "https://github.com/bitshifter/gl-rs"
-branch = "int_ptrdiff_t"
+git = "https://github.com/bjz/gl-rs"
 
 [dependencies.glfw]
 git = "https://github.com/bjz/glfw-rs.git"
