@@ -47,6 +47,7 @@ struct Header {
 #[deriving(Clone, PartialEq, Show)]
 pub enum LoadError {
     MagicError,
+    HeaderError,
     IoError(io::IoErrorKind, &'static str),
 }
 
@@ -58,7 +59,7 @@ macro_rules! read(
     ($e:expr) => (match $e { Ok(e) => e, Err(e) => return Err(io_error_to_error(e)) })
 )
 
-static IDENTIFIER: [u8, ..12] = 
+static IDENTIFIER: [u8, ..12] =
     [ 0xAB, 0x4B, 0x54, 0x58, 0x20, 0x31, 0x31, 0xBB, 0x0D, 0x0A, 0x1A, 0x0A ];
 
 pub fn load(filename: &str) -> Result<GLuint, LoadError> {
@@ -88,5 +89,54 @@ pub fn load(filename: &str) -> Result<GLuint, LoadError> {
 
     println!("ktx header: {}", header);
 
-    Ok(0)
+    // check for insanity
+    if header.pixel_width == 0 || (header.pixel_height == 0 && header.pixel_depth != 0) {
+        return Err(HeaderError)
+    }
+
+    // guess the target (texture type)
+    let target = if header.pixel_height == 0 {
+        if header.array_elements == 0 {
+            gl::TEXTURE_1D
+        }
+        else {
+            gl::TEXTURE_1D_ARRAY
+        }
+    }
+    else if header.pixel_depth == 0 {
+        if header.array_elements == 0 {
+            if header.faces == 0 {
+                gl::TEXTURE_2D
+            }
+            else {
+                gl::TEXTURE_CUBE_MAP
+            }
+        }
+        else {
+            if header.faces == 0 {
+                gl::TEXTURE_2D_ARRAY
+            }
+            else {
+                gl::TEXTURE_CUBE_MAP_ARRAY
+            }
+        }
+    }
+    else {
+        gl::TEXTURE_3D
+    };
+
+    let mut tex:u32 = 0;
+    unsafe {
+        gl::GenTextures(1, &mut tex);
+    }
+    gl::BindTexture(target, tex);
+
+    let data_start = reader.bytes_read() + header.key_pair_bytes as uint;
+    let data_size = reader.len() - data_start;
+    // skip unused key pair bytes
+    read!(reader.seek(data_start));
+
+    let data = read!(reader.pop_slice::<u8>(data_size));
+
+    Ok(tex)
 }

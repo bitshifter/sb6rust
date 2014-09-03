@@ -20,8 +20,20 @@ impl BufferReader {
         }
     }
 
+    /// Returns the buffer length
+    pub fn len(&self) -> uint { self.buf.len() }
+
     /// Returns the number of bytes read from the buffer
     pub fn bytes_read(&self) -> uint { self.pos }
+
+    /// Seek to the given byte offset
+    pub fn seek(&mut self, pos: uint) -> Result<(), io::IoError> {
+        if pos > self.buf.len() {
+            return Err(io::standard_error(io::EndOfFile))
+        }
+        self.pos = pos;
+        Ok(())
+    }
 
     /// Pop a slice of T items
     pub fn pop_slice<'a, T>(&mut self, size: uint) -> Result<&'a [T], io::IoError> {
