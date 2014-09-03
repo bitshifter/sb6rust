@@ -144,7 +144,7 @@ impl MyApp {
     }
 
     fn update_proj_matrix(&mut self) {
-        let aspect = self.info.windowWidth as f32 / self.info.windowHeight as f32;
+        let aspect = self.info.window_width as f32 / self.info.window_height as f32;
         self.proj_matrix = Mat4::perspective(50.0, aspect, 0.1, 1000.0);
     }
 }
@@ -215,8 +215,8 @@ impl sb6::App for MyApp {
     }
 
     fn on_resize(&mut self, width: int, height: int) {
-        self.info.windowWidth = width as u32;
-        self.info.windowHeight = height as u32;
+        self.info.window_width = width as u32;
+        self.info.window_height = height as u32;
         self.update_proj_matrix();
     }
 
@@ -225,8 +225,8 @@ impl sb6::App for MyApp {
         static one: GLfloat = 1.0;
 
         unsafe {
-            gl::Viewport(0, 0, self.info.windowWidth as i32,
-                         self.info.windowHeight as i32);
+            gl::Viewport(0, 0, self.info.window_width as i32,
+                         self.info.window_height as i32);
 
             gl::ClearBufferfv(gl::COLOR, 0, green.as_ptr());
             gl::ClearBufferfv(gl::DEPTH, 0, &one);

@@ -31,10 +31,10 @@ use std::str;
 
 pub struct AppInfo {
     pub title: &'static str,
-    pub windowWidth: u32,
-    pub windowHeight: u32,
-    pub majorVersion: u32,
-    pub minorVersion: u32,
+    pub window_width: u32,
+    pub window_height: u32,
+    pub major_version: u32,
+    pub minor_version: u32,
     pub samples: uint,
     pub fullscreen: bool,
     pub vsync: bool,
@@ -52,10 +52,10 @@ impl AppInfo {
         let (major, minor) = AppInfo::version();
         AppInfo {
         title: "SuperBible6 Example",
-        windowWidth: 800,
-        windowHeight: 600,
-        majorVersion: major,
-        minorVersion: minor,
+        window_width: 800,
+        window_height: 600,
+        major_version: major,
+        minor_version: minor,
         samples: 0,
         fullscreen: false,
         vsync: false,
@@ -133,11 +133,11 @@ pub fn run<T: App>(app: &mut T) {
     let (window, events) = {
         let info = app.get_app_info();
         glfw.window_hint(glfw::ContextVersion(
-                info.majorVersion, info.minorVersion));
+                info.major_version, info.minor_version));
         glfw.window_hint(glfw::OpenglProfile(glfw::OpenGlCoreProfile));
         glfw.window_hint(glfw::OpenglForwardCompat(true));
         glfw.create_window(
-            info.windowWidth, info.windowHeight, info.title.as_slice(),
+            info.window_width, info.window_height, info.title.as_slice(),
             glfw::Windowed).expect("Failed to create GLFW window.")
     };
 

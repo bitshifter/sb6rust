@@ -26,10 +26,10 @@ extern crate gl;
 use gl::types::*;
 use reader::BufferReader;
 use std::io;
+use std::mem;
 
+#[deriving(Show)]
 struct Header {
-    identifier: [u8, ..12],
-    endianness: u32,
     gl_type: u32,
     gl_type_size: u32,
     gl_format: u32,
@@ -44,18 +44,49 @@ struct Header {
     key_pair_bytes: u32
 }
 
-#[deriving(Show)]
-pub enum KtxError {
-    FileError,
+#[deriving(Clone, PartialEq, Show)]
+pub enum LoadError {
     MagicError,
-    SizeError,
+    IoError(io::IoErrorKind, &'static str),
 }
 
-pub fn load(filename: &str) -> Result<GLuint, KtxError> {
-    let bytes = match io::File::open(&Path::new(filename)).read_to_end() {
-        Ok(v) => v,
-        Err(_) => return Err(FileError)
-    };
-    //let reader = BufferReader::new(bytes);
-    Err(MagicError)
+fn io_error_to_error(io: io::IoError) -> LoadError {
+    IoError(io.kind, io.desc)
+}
+
+macro_rules! read(
+    ($e:expr) => (match $e { Ok(e) => e, Err(e) => return Err(io_error_to_error(e)) })
+)
+
+static IDENTIFIER: [u8, ..12] = 
+    [ 0xAB, 0x4B, 0x54, 0x58, 0x20, 0x31, 0x31, 0xBB, 0x0D, 0x0A, 0x1A, 0x0A ];
+
+pub fn load(filename: &str) -> Result<GLuint, LoadError> {
+    let bytes = read!(io::File::open(&Path::new(filename)).read_to_end());
+    let mut reader = BufferReader::new(bytes);
+    let mut bytes_read = 0u;
+
+    // check header magic
+    let id = read!(reader.pop_slice::<u8>(IDENTIFIER.len()));
+    if id != IDENTIFIER {
+        println!("identifier: {} != {}", IDENTIFIER.as_slice(), id);
+        return Err(MagicError)
+    }
+    bytes_read += id.len();
+
+    // check endianness
+    let endianness = read!(reader.pop_value::<u32>());
+    if *endianness == 0x01020304 {
+        // swap not impemented
+        return Err(MagicError)
+    }
+    bytes_read += mem::size_of::<u32>();
+
+    // read the rest of the header
+    let header = read!(reader.pop_value::<Header>());
+    bytes_read += mem::size_of::<u32>();
+
+    println!("ktx header: {}", header);
+
+    Ok(0)
 }

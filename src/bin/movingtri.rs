@@ -124,8 +124,8 @@ impl sb6::App for MyApp {
 
         gl::UseProgram(self.program);
 
-        let (sinTime, cosTime) = (time as f32).sin_cos();
-        let attrib: [GLfloat, ..4] = [ sinTime * 0.5, cosTime * 0.6, 0.0, 0.0 ];
+        let (sin_time, cos_time) = (time as f32).sin_cos();
+        let attrib: [GLfloat, ..4] = [ sin_time * 0.5, cos_time * 0.6, 0.0, 0.0 ];
 
         unsafe {
             gl::VertexAttrib4fv(0, attrib.as_ptr());

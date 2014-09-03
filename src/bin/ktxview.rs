@@ -78,6 +78,11 @@ impl sb6::App for MyApp {
     fn get_app_info(&self) -> &sb6::AppInfo { &self.info }
     fn startup(&mut self) {
         unsafe {
+            // Load texture from file
+            self.texture = match sb6::ktx::load("media/textures/Tree.ktx") {
+                Ok(v) => v,
+                Err(e) => fail!("failed to load: {}", e)
+            };
             self.program = gl::CreateProgram();
 
             let fs = gl::CreateShader(gl::FRAGMENT_SHADER);
@@ -122,8 +127,8 @@ impl sb6::App for MyApp {
         unsafe {
             gl::ClearBufferfv(gl::COLOR, 0, green.as_ptr());
             gl::UseProgram(self.program);
-            gl::Viewport(0, 0, self.info.windowWidth as i32,
-                         self.info.windowHeight as i32);
+            gl::Viewport(0, 0, self.info.window_width as i32,
+                         self.info.window_height as i32);
             gl::DrawArrays(gl::TRIANGLE_STRIP, 0, 4);
         }
     }
@@ -132,8 +137,8 @@ impl sb6::App for MyApp {
 fn main() {
     let mut init = sb6::AppInfo::default();
     init.title = "OpenGL SuperBible - KTX Viewer";
-    init.majorVersion = 3;
-    init.minorVersion = 3;
+    init.major_version = 3;
+    init.minor_version = 3;
     let mut app = MyApp::new(init);
     sb6::run(&mut app);
 }

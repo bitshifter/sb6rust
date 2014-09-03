@@ -27,8 +27,8 @@ use gl::types::*;
 use std::io;
 use std::mem;
 use std::ptr;
-use std::raw::Slice;
 use std::str;
+use reader::BufferReader;
 
 macro_rules! fourcc(
     ($a:expr, $b:expr, $c:expr, $d:expr) => (
@@ -85,73 +85,24 @@ struct SubObjectDecl {
     count: u32
 }
 
-/// Reads from an owned byte vector.
-/// This is similar to the built in std::io::MemReader, the main differences
-/// being we are not concerned with endian conversion, and we don't copy the
-/// data out of the buffer, we just return references to in the internal
-/// buffer.
-struct ObjectReader {
-    buf: Vec<u8>,
-    pos: uint
+#[deriving(Clone, PartialEq, Show)]
+pub enum LoadError {
+    MagicError(Option<String>),
+    ChunkTypeError(u32),
+    ChunkSizeError(uint, uint),
+    VertexDataError,
+    VertexAttribDataError,
+    IoError(io::IoErrorKind, &'static str),
 }
 
-impl ObjectReader {
-    pub fn new(buf: Vec<u8>) -> ObjectReader {
-        ObjectReader {
-            buf: buf,
-            pos: 0
-        }
-    }
-
-    /// Returns the number of bytes read from the buffer
-    pub fn bytes_read(&self) -> uint { self.pos }
-
-    /// Pop a slice of T items
-    pub fn pop_slice<'a, T>(&mut self, size: uint) -> Result<&'a [T], ObjectError> {
-        let pop_bytes = mem::size_of::<T>() * size;
-        let pop_end = self.pos + pop_bytes;
-        if pop_end > self.buf.len() {
-            return Err(SizeError)
-        }
-        let ptr = unsafe { self.buf.as_ptr().offset(self.pos as int) };
-        let out = unsafe { mem::transmute(
-                Slice { data: ptr as *const T, len: size } ) };
-        self.pos = pop_end;
-        Ok(out)
-    }
-
-    /// Pop a reference to T
-    pub fn pop_value<'a, T>(&mut self) -> Result<&'a T, ObjectError> {
-        let pop_end = self.pos + mem::size_of::<T>();
-        if pop_end > self.buf.len() {
-            return Err(SizeError)
-        }
-        let ptr = unsafe { self.buf.as_ptr().offset(self.pos as int) };
-        self.pos = pop_end;
-        Ok(unsafe { &*(ptr as *const T) })
-    }
-
-    pub fn peek_slice<'a>(&'a self, start: uint, end: uint) -> Result<&'a [u8], ObjectError> {
-        assert!(start <= end);
-        if end > self.buf.len() {
-            return Err(SizeError)
-        }
-        Ok(unsafe {
-            mem::transmute(Slice {
-                data: self.buf.as_ptr().offset(start as int),
-                len: end - start })
-        })
-    }
+fn io_error_to_error(io: io::IoError) -> LoadError {
+    IoError(io.kind, io.desc)
 }
 
-
-#[deriving(Show)]
-pub enum ObjectError {
-    FileError,
-    MagicError,
-    ChunkError,
-    SizeError,
-}
+// Converts an IoError to a LoadError
+macro_rules! read(
+    ($e:expr) => (match $e { Ok(e) => e, Err(e) => return Err(io_error_to_error(e)) })
+)
 
 pub struct Object {
     vertex_buffer: GLuint,
@@ -176,25 +127,23 @@ impl Object {
         }
     }
 
-    pub fn load(&mut self, filename: &str) -> Result<(), ObjectError> {
-        let bytes = match io::File::open(&Path::new(filename)).read_to_end() {
-            Ok(v) => v,
-            Err(_) => return Err(FileError)
-        };
+    pub fn load(&mut self, filename: &str) -> Result<(), LoadError> {
+        let bytes = read!(io::File::open(&Path::new(filename)).read_to_end());
 
-        let mut reader = ObjectReader::new(bytes);
+        let mut reader = BufferReader::new(bytes);
         let mut bytes_read = 0u;
 
         // check header magic
-        let magic = try!(reader.pop_slice::<u8>(4));
+        let magic = read!(reader.pop_slice::<u8>(4));
         match str::from_utf8(magic) {
             Some(v) if v == "SB6M" => (),
-            _ => return Err(MagicError)
+            Some(v) => return Err(MagicError(Some(String::from_str(v)))),
+            None => return Err(MagicError(None))
         }
 
         println!("{}", str::from_utf8(magic));
 
-        let header = try!(reader.pop_value::<MeshHeader>());
+        let header = read!(reader.pop_value::<MeshHeader>());
         bytes_read += header.size as uint;
 
         println!("size: {}, num_chunks: {}, flags: {}",
@@ -207,7 +156,7 @@ impl Object {
         let mut sub_object_data_ref: Option<&[SubObjectDecl]> = None;
 
         for i in range(0, header.num_chunks) {
-            let chunk_header = try!(reader.pop_value::<ChunkHeader>());
+            let chunk_header = read!(reader.pop_value::<ChunkHeader>());
             let chunk_type: Option<ChunkType> =
                 FromPrimitive::from_u32(chunk_header.chunk_type);
             match chunk_type {
@@ -215,45 +164,45 @@ impl Object {
                     println!("INDX");
                     // read in index data struct
                     index_data_chunk_ref = Some(
-                        try!(reader.pop_value::<IndexData>()));
+                        read!(reader.pop_value::<IndexData>()));
                 }
                 Some(VertexDataType) => {
                     println!("VRTX");
                     // read in vertex data struct
                     vertex_data_chunk_ref = Some(
-                        try!(reader.pop_value::<VertexData>()));
+                        read!(reader.pop_value::<VertexData>()));
                 },
                 Some(VertexAttribsType) => {
                     println!("ATRB");
                     // read attribute count
-                    let attrib_count = try!(reader.pop_value::<u32>());
+                    let attrib_count = read!(reader.pop_value::<u32>());
                     // read in all the attributes
                     vertex_attrib_data_ref = Some(
-                        try!(reader.pop_slice::<VertexAttribDecl>(
+                        read!(reader.pop_slice::<VertexAttribDecl>(
                                 *attrib_count as uint))); 
                 },
                 Some(SubObjectListType) => {
                     println!("OLST");
                     // read sub object count
-                    let sub_object_count = try!(reader.pop_value::<u32>());
+                    let sub_object_count = read!(reader.pop_value::<u32>());
                     println!("sub_object_count: {}", sub_object_count);
                     // read in sub object data
                     sub_object_data_ref = Some(
-                        try!(reader.pop_slice::<SubObjectDecl>(
+                        read!(reader.pop_slice::<SubObjectDecl>(
                                 *sub_object_count as uint)));
                 },
                 Some(CommentType) => {
                     println!("CMNT");
                     let comment_len = chunk_header.size as uint -
                         mem::size_of::<ChunkHeader>();
-                    let comment_bytes_ref = try!(reader.pop_slice::<u8>(
+                    let comment_bytes_ref = read!(reader.pop_slice::<u8>(
                             comment_len));
                     match str::from_utf8(comment_bytes_ref) {
                         Some(v) => println!("{}", v),
                         _ => fail!("couldn't read comment")
                     };
                 },
-                _ => return Err(ChunkError)
+                _ => return Err(ChunkTypeError(chunk_header.chunk_type))
             }
             bytes_read += chunk_header.size as uint;
             assert!(bytes_read == reader.bytes_read());
@@ -261,19 +210,19 @@ impl Object {
 
         // check the expected number of bytes read
         if bytes_read != reader.bytes_read() {
-            return Err(ChunkError)
+            return Err(ChunkSizeError(bytes_read, reader.bytes_read()))
         }
 
         // vertex data required
         let vertex_data_chunk = match vertex_data_chunk_ref {
             Some(v) => v,
-            None => return Err(ChunkError)
+            None => return Err(VertexDataError)
         };
 
         // vertex attribute required
         let vertex_attrib_data = match vertex_attrib_data_ref {
             Some(v) => v,
-            None => return Err(ChunkError)
+            None => return Err(VertexAttribDataError)
         };
 
         match sub_object_data_ref {
@@ -293,7 +242,7 @@ impl Object {
         // bind vertex data
         let vertex_data_start = vertex_data_chunk.data_offset as uint;
         let vertex_data_end = vertex_data_start + vertex_data_chunk.data_size as uint;
-        let vertex_data = try!(reader.peek_slice(vertex_data_start, vertex_data_end));
+        let vertex_data = read!(reader.peek_slice(vertex_data_start, vertex_data_end));
         unsafe {
             gl::GenBuffers(1, &mut self.vertex_buffer);
             gl::BindBuffer(gl::ARRAY_BUFFER, self.vertex_buffer);
@@ -340,7 +289,7 @@ impl Object {
                 let index_data_start =
                     index_data_chunk.index_data_offset as uint;
                 let index_data_end = index_data_start + index_data_size;
-                let index_data = try!(reader.peek_slice(index_data_start,
+                let index_data = read!(reader.peek_slice(index_data_start,
                                                         index_data_end));
                 unsafe {
                     gl::GenBuffers(1, &mut self.index_buffer);

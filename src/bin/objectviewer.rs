@@ -31,7 +31,7 @@ extern crate sb6;
 use gl::types::*;
 use std::ptr;
 use sb6::{ AppInfo, App, check_compile_status, check_link_status };
-use sb6::{ Object };
+use sb6::object::{ Object };
 use vmath::Mat4;
 
 mod vmath;
@@ -156,15 +156,15 @@ impl sb6::App for MyApp {
         let time = time as f32;
 
         let info = self.get_app_info();
-        let aspect = info.windowWidth as f32 / info.windowHeight as f32;
+        let aspect = info.window_width as f32 / info.window_height as f32;
         let proj_matrix =  Mat4::perspective(50.0, aspect, 0.1, 1000.0);
         let mv_matrix = Mat4::translate(0.0, 0.0, -3.0) *
             Mat4::rotate(time * 45.0, 0.0, 1.0, 0.0) *
             Mat4::rotate(time * 81.0, 1.0, 0.0, 0.0);
 
         unsafe {
-            gl::Viewport(0, 0, info.windowWidth as i32,
-                info.windowHeight as i32);
+            gl::Viewport(0, 0, info.window_width as i32,
+                info.window_height as i32);
             gl::ClearBufferfv(gl::COLOR, 0, black.as_ptr());
             gl::ClearBufferfv(gl::DEPTH, 0, &one);
 
@@ -184,8 +184,8 @@ impl sb6::App for MyApp {
 fn main() {
     let mut init = sb6::AppInfo::default();
     init.title = "OpenGL SuperBible - Object Viewer";
-    init.majorVersion = 3;
-    init.minorVersion = 3;
+    init.major_version = 3;
+    init.minor_version = 3;
     let mut app = MyApp::new(init);
     sb6::run(&mut app);
 }

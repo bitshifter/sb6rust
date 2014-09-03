@@ -115,8 +115,8 @@ impl sb6::App for MyApp {
     }
 
     fn render(&self, time: f64) {
-        let (sinTime, cosTime) = (time as f32).sin_cos();
-        gl::ClearColor(0.5 + sinTime * 0.5, 0.5 + cosTime * 0.5, 0.3, 1.0);
+        let (sin_time, cos_time) = (time as f32).sin_cos();
+        gl::ClearColor(0.5 + sin_time * 0.5, 0.5 + cos_time * 0.5, 0.3, 1.0);
         gl::Clear(gl::COLOR_BUFFER_BIT);
         gl::DrawArrays(gl::TRIANGLES, 0, 3);
     }

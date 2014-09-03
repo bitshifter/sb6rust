@@ -37,8 +37,7 @@ pub use app::check_compile_status;
 pub use app::check_link_status;
 pub use app::run;
 
-pub use object::Object;
-pub use object::ObjectError;
-
 mod app;
-mod object;
+pub mod ktx;
+pub mod object;
+mod reader;
