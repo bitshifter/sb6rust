@@ -26,12 +26,13 @@ impl BufferReader {
     /// Returns the number of bytes read from the buffer
     pub fn bytes_read(&self) -> uint { self.pos }
 
-    /// Seek to the given byte offset
-    pub fn seek(&mut self, pos: uint) -> Result<(), io::IoError> {
-        if pos > self.buf.len() {
+    /// Skip the given number of bytes
+    pub fn skip_bytes(&mut self, bytes: uint) -> Result<(), io::IoError> {
+        let skip_end = self.pos + bytes;
+        if skip_end > self.buf.len() {
             return Err(io::standard_error(io::EndOfFile))
         }
-        self.pos = pos;
+        self.pos = skip_end;
         Ok(())
     }
 
