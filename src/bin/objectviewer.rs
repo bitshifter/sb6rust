@@ -30,8 +30,6 @@ extern crate sb6;
 
 use gl::types::*;
 use std::ptr;
-use sb6::{ AppInfo, App, check_compile_status, check_link_status };
-use sb6::object::{ Object };
 use vmath::Mat4;
 
 mod vmath;
@@ -81,7 +79,7 @@ struct MyApp {
     program: GLuint,
     mv_location: GLint,
     proj_location: GLint,
-    object: Object,
+    object: sb6::object::Object,
 }
 
 impl MyApp {
@@ -91,7 +89,7 @@ impl MyApp {
             program: 0,
             mv_location: -1,
             proj_location: -1,
-            object: Object::new()
+            object: sb6::object::Object::new()
         }
     }
 }
@@ -115,13 +113,13 @@ impl sb6::App for MyApp {
         gl::CompileShader(vs);
         gl::CompileShader(fs);
 
-        sb6::check_compile_status(vs);
-        sb6::check_compile_status(fs);
+        sb6::shader::assert_compile_status(vs);
+        sb6::shader::assert_compile_status(fs);
 
         gl::AttachShader(self.program, vs);
         gl::AttachShader(self.program, fs);
         gl::LinkProgram(self.program);
-        sb6::check_link_status(self.program);
+        sb6::program::assert_link_status(self.program);
 
         gl::DeleteShader(vs);
         gl::DeleteShader(fs);

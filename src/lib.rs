@@ -33,11 +33,11 @@ extern crate glfw;
 
 pub use app::AppInfo;
 pub use app::App;
-pub use app::check_compile_status;
-pub use app::check_link_status;
 pub use app::run;
 
 mod app;
 pub mod ktx;
 pub mod object;
+pub mod program;
+pub mod shader;
 mod reader;

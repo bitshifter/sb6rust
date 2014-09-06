@@ -24,10 +24,7 @@
 extern crate gl;
 extern crate glfw;
 
-use gl::types::*;
 use glfw::Context;
-use std::ptr;
-use std::str;
 
 pub struct AppInfo {
     pub title: &'static str,
@@ -62,46 +59,6 @@ impl AppInfo {
         cursor: true,
         stereo: false,
         debug: false
-        }
-    }
-}
-
-pub fn check_compile_status(shader: GLuint) {
-        unsafe {
-            // Get the compile status
-            let mut status = gl::FALSE as GLint;
-            gl::GetShaderiv(shader, gl::COMPILE_STATUS, &mut status);
-
-            // Fail on error
-            if status != (gl::TRUE as GLint) {
-                let mut len = 0;
-                gl::GetShaderiv(shader, gl::INFO_LOG_LENGTH, &mut len);
-                // subtract 1 to skip the trailing null character
-                let mut buf = Vec::from_elem(len as uint - 1, 0u8);
-                gl::GetShaderInfoLog(shader, len, ptr::mut_null(),
-                    buf.as_mut_ptr() as *mut GLchar);
-                fail!("{}", str::from_utf8(buf.as_slice()).expect(
-                        "ShaderInfoLog not valid utf8"));
-            }
-        }
-}
-
-pub fn check_link_status(program: GLuint) {
-    unsafe {
-        // Get the link status
-        let mut status = gl::FALSE as GLint;
-        gl::GetProgramiv(program, gl::LINK_STATUS, &mut status);
-
-        // Fail on error
-        if status != (gl::TRUE as GLint) {
-            let mut len: GLint = 0;
-            gl::GetProgramiv(program, gl::INFO_LOG_LENGTH, &mut len);
-            // subtract 1 to skip the trailing null character
-            let mut buf = Vec::from_elem(len as uint - 1, 0u8);
-            gl::GetProgramInfoLog(program, len, ptr::mut_null(),
-                buf.as_mut_ptr() as *mut GLchar);
-            fail!("{}", str::from_utf8(buf.as_slice()).expect(
-                    "ProgramInfoLog not valid utf8"));
         }
     }
 }
