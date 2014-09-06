@@ -102,8 +102,6 @@ pub fn load(filename: &str) -> Result<GLuint, LoadError> {
     // read the rest of the header
     let h = read!(reader.pop_value::<Header>());
 
-    println!("ktx header: {}", h);
-
     // check for insanity
     if h.pixel_width == 0 || (h.pixel_height == 0 && h.pixel_depth != 0) {
         return Err(HeaderError)
@@ -163,12 +161,13 @@ pub fn load(filename: &str) -> Result<GLuint, LoadError> {
                 gl::TexStorage1D(gl::TEXTURE_1D, mip_levels,
                     h.gl_internal_format, h.pixel_width);
                 gl::TexSubImage1D(gl::TEXTURE_1D, 0, 0, h.pixel_width,
-                    h.gl_format, h.gl_internal_format, mem::transmute(&data));
+                    h.gl_format, h.gl_internal_format,
+                    mem::transmute(data.as_ptr()));
             },
             gl::TEXTURE_2D => {
                 gl::TexStorage2D(gl::TEXTURE_2D, mip_levels,
                     h.gl_internal_format, h.pixel_width, h.pixel_height);
-                let mut ptr = mem::transmute(&data);
+                let mut ptr = mem::transmute(data.as_ptr());
                 let mut height = h.pixel_height;
                 let mut width = h.pixel_width;
                 gl::PixelStorei(gl::UNPACK_ALIGNMENT, 1);
@@ -205,7 +204,7 @@ pub fn load(filename: &str) -> Result<GLuint, LoadError> {
             gl::TEXTURE_CUBE_MAP => {
                 gl::TexStorage2D(gl::TEXTURE_CUBE_MAP, mip_levels,
                     h.gl_internal_format, h.pixel_width, h.pixel_height);
-                let mut ptr = mem::transmute(&data);
+                let mut ptr = mem::transmute(data.as_ptr());
                 let face_size = try!(calculate_face_size(h));
                 for i in range(0, h.faces as u32)
                 {
