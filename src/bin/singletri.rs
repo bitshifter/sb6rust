@@ -78,7 +78,7 @@ impl sb6::App for MyApp {
                 |ptr| gl::ShaderSource(fs, 1, &ptr, ptr::null()));
             gl::CompileShader(fs);
         }
-        sb6::shader::assert_compile_status(fs);
+        sb6::shader::check_compile_status(fs).unwrap();
 
         let vs = gl::CreateShader(gl::VERTEX_SHADER);
         unsafe {
@@ -86,12 +86,12 @@ impl sb6::App for MyApp {
                 |ptr| gl::ShaderSource(vs, 1, &ptr, ptr::null()));
             gl::CompileShader(vs);
         }
-        sb6::shader::assert_compile_status(vs);
+        sb6::shader::check_compile_status(vs).unwrap();
 
         gl::AttachShader(self.program, vs);
         gl::AttachShader(self.program, fs);
         gl::LinkProgram(self.program);
-        sb6::program::assert_link_status(self.program);
+        sb6::program::check_link_status(self.program).unwrap();
 
         gl::DeleteShader(vs);
         gl::DeleteShader(fs);

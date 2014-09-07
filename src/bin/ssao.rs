@@ -61,7 +61,6 @@ struct SSAOUniforms {
     ssao_level: GLint,
     object_level: GLint,
     ssao_radius: GLint,
-    weight_by_angle: GLint,
     randomize_points: GLint,
     point_count: GLint
 }
@@ -72,7 +71,6 @@ impl SSAOUniforms {
             ssao_level: -1,
             object_level: -1,
             ssao_radius: -1,
-            weight_by_angle: -1,
             randomize_points: -1,
             point_count: -1
         }
@@ -143,12 +141,12 @@ impl MyApp {
         self.render_program = sb6::program::link_from_shaders(
             render_shaders).unwrap();
 
-        self.render.mv_matrix = "mv_matrix".with_c_str(
-            |ptr| unsafe { gl::GetUniformLocation(self.render_program, ptr) });
-        self.render.proj_matrix = "proj_matrix".with_c_str(
-            |ptr| unsafe { gl::GetUniformLocation(self.render_program, ptr) });
-        self.render.shading_level = "shading_level".with_c_str(
-            |ptr| unsafe { gl::GetUniformLocation(self.render_program, ptr) });
+        self.render.mv_matrix = sb6::program::get_uniform_location(
+            self.render_program, "mv_matrix").unwrap();
+        self.render.proj_matrix = sb6::program::get_uniform_location(
+            self.render_program, "proj_matrix").unwrap();
+        self.render.shading_level = sb6::program::get_uniform_location(
+            self.render_program, "shading_level").unwrap();
 
         let ssao_shaders = [
             sb6::shader::load("media/shaders/ssao/ssao.vs.glsl",
@@ -160,18 +158,16 @@ impl MyApp {
         self.ssao_program = sb6::program::link_from_shaders(
             ssao_shaders).unwrap();
 
-        self.ssao.ssao_radius = "ssao_radius".with_c_str(
-            |ptr| unsafe { gl::GetUniformLocation(self.ssao_program, ptr) });
-        self.ssao.ssao_level = "ssao_level".with_c_str(
-            |ptr| unsafe { gl::GetUniformLocation(self.ssao_program, ptr) });
-        self.ssao.object_level = "object_level".with_c_str(
-            |ptr| unsafe { gl::GetUniformLocation(self.ssao_program, ptr) });
-        self.ssao.weight_by_angle = "weight_by_angle".with_c_str(
-            |ptr| unsafe { gl::GetUniformLocation(self.ssao_program, ptr) });
-        self.ssao.randomize_points = "randomize_points".with_c_str(
-            |ptr| unsafe { gl::GetUniformLocation(self.ssao_program, ptr) });
-        self.ssao.point_count = "point_count".with_c_str(
-            |ptr| unsafe { gl::GetUniformLocation(self.ssao_program, ptr) });
+        self.ssao.ssao_radius = sb6::program::get_uniform_location(
+            self.ssao_program, "ssao_radius").unwrap();
+        self.ssao.ssao_level = sb6::program::get_uniform_location(
+            self.ssao_program, "ssao_level").unwrap();
+        self.ssao.object_level = sb6::program::get_uniform_location(
+            self.ssao_program, "object_level").unwrap();
+        self.ssao.randomize_points = sb6::program::get_uniform_location(
+            self.ssao_program, "randomize_points").unwrap();
+        self.ssao.point_count = sb6::program::get_uniform_location(
+            self.ssao_program, "point_count").unwrap();
     }
 }
 

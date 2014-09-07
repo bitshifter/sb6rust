@@ -61,13 +61,6 @@ pub fn check_compile_status(shader: GLuint) -> Result<(), ShaderError> {
     Ok(())
 }
 
-pub fn assert_compile_status(shader: GLuint) {
-    match check_compile_status(shader) {
-        Ok(_) => (),
-        Err(ShaderInfoLog(msg)) => fail!(msg)
-    }
-}
-
 pub fn load(filename: &str, shader_type: GLenum) -> Result<GLuint, LoadError> {
     let src = match io::File::open(&Path::new(filename)).read_to_string() {
         Ok(src) => src,

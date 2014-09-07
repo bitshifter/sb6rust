@@ -159,26 +159,26 @@ impl sb6::App for MyApp {
             FS_SRC.with_c_str(
                 |ptr| gl::ShaderSource(fs, 1, &ptr, ptr::null()));
             gl::CompileShader(fs);
-            sb6::shader::assert_compile_status(fs);
+            sb6::shader::check_compile_status(fs).unwrap();
 
             let vs = gl::CreateShader(gl::VERTEX_SHADER);
             VS_SRC.with_c_str(
                 |ptr| gl::ShaderSource(vs, 1, &ptr, ptr::null()));
             gl::CompileShader(vs);
-            sb6::shader::assert_compile_status(vs);
+            sb6::shader::check_compile_status(vs).unwrap();
 
             gl::AttachShader(self.program, vs);
             gl::AttachShader(self.program, fs);
             gl::LinkProgram(self.program);
-            sb6::program::assert_link_status(self.program);
+            sb6::program::check_link_status(self.program).unwrap();
 
             gl::DeleteShader(vs);
             gl::DeleteShader(fs);
 
-            self.mv_location = "mv_matrix".with_c_str(
-                |ptr| gl::GetUniformLocation(self.program, ptr));
-            self.proj_location = "proj_matrix".with_c_str(
-                |ptr| gl::GetUniformLocation(self.program, ptr));
+            self.mv_location = sb6::program::get_uniform_location(
+                self.program, "mv_matrix").unwrap();
+            self.proj_location = sb6::program::get_uniform_location(
+                self.program, "proj_matrix").unwrap();
 
             gl::GenVertexArrays(1, &mut self.vao);
             gl::BindVertexArray(self.vao);

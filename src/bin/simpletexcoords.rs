@@ -72,15 +72,15 @@ impl MyApp {
         gl::AttachShader(self.render_prog, vs);
         gl::AttachShader(self.render_prog, fs);
         gl::LinkProgram(self.render_prog);
-        sb6::program::assert_link_status(self.render_prog);
+        sb6::program::check_link_status(self.render_prog).unwrap();
 
         gl::DeleteShader(vs);
         gl::DeleteShader(fs);
 
-        self.mv_matrix = "mv_matrix".with_c_str(
-            |ptr| unsafe { gl::GetUniformLocation(self.render_prog, ptr) });
-        self.proj_matrix = "proj_matrix".with_c_str(
-            |ptr| unsafe { gl::GetUniformLocation(self.render_prog, ptr) });
+        self.mv_matrix = sb6::program::get_uniform_location(
+            self.render_prog, "mv_matrix").unwrap();
+        self.proj_matrix = sb6::program::get_uniform_location(
+            self.render_prog, "proj_matrix").unwrap();
     }
 }
 

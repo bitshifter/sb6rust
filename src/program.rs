@@ -52,13 +52,6 @@ pub fn check_link_status(program: GLuint) -> Result<(), ProgramError> {
     Ok(())
 }
 
-pub fn assert_link_status(shader: GLuint) {
-    match check_link_status(shader) {
-        Ok(_) => (),
-        Err(ProgramInfoLog(msg)) => fail!(msg)
-    }
-}
-
 pub fn link_from_shaders(shaders: &[GLuint]) -> Result<GLuint, ProgramError> {
     let program = gl::CreateProgram();
 
@@ -74,4 +67,21 @@ pub fn link_from_shaders(shaders: &[GLuint]) -> Result<GLuint, ProgramError> {
     }
 
     Ok(program)
+}
+
+#[deriving(Clone, PartialEq, Show)]
+pub enum UniformError {
+    UniformNotFound(GLuint, String, GLint)
+}
+
+pub fn get_uniform_location(program: GLuint, name: &str) -> Result<GLint, UniformError> {
+    let result = name.with_c_str(|ptr| unsafe {
+        gl::GetUniformLocation(program, ptr)
+    });
+    if result >= 0 {
+        Ok(result)
+    }
+    else {
+        Err(UniformNotFound(program, String::from_str(name), result))
+    }
 }
