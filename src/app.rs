@@ -67,6 +67,7 @@ pub trait App
 {
     fn get_app_info(&self) -> &AppInfo;
     fn startup(&mut self);
+    fn update(&mut self, _: f64) {}
     fn render(&self, time: f64);
     fn shutdown(&mut self);
     fn on_resize(&mut self, _: int, _: int) {}
@@ -112,7 +113,9 @@ pub fn run<T: App>(app: &mut T) {
     app.startup();
 
     while !window.should_close() {
-        app.render(glfw.get_time());
+        let time = glfw.get_time();
+        app.update(time);
+        app.render(time);
 
         window.swap_buffers();
 
