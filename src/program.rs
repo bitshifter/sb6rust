@@ -26,6 +26,7 @@ extern crate gl;
 use gl::types::*;
 use std::ptr;
 
+#[deriving(Clone, PartialEq, Show)]
 pub enum ProgramError {
     ProgramInfoLog(String)
 }
