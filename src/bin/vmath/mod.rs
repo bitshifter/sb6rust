@@ -16,11 +16,72 @@ impl Vec3 {
     pub fn identity() -> Vec3 {
         Vec3 { v: [1.0, 1.0, 1.0] }
     }
+    pub fn scale(&self, s: f32) -> Vec3 {
+        Vec3 { v: [
+            self.v[0] * s,
+            self.v[1] * s,
+            self.v[2] * s]
+        }
+    }
+    pub fn dot(&self, rhs: &Vec3) -> f32 {
+        (self.v[0] * rhs.v[0]) + (self.v[1] * rhs.v[1]) +
+            (self.v[1] * rhs.v[2])
+    }
+    pub fn cross(&self, rhs: &Vec3) -> Vec3 {
+        Vec3 { v: [
+            self.v[1] * rhs.v[2] - rhs.v[1] * self.v[2],
+            self.v[2] * rhs.v[0] - rhs.v[2] * self.v[0],
+            self.v[0] * rhs.v[1] - rhs.v[0] * self.v[1]]
+        }
+    }
+    pub fn length(&self) -> f32 {
+        self.dot(self).sqrt()
+    }
+    pub fn normalize(&self) -> Vec3 {
+        let inv_length = self.dot(self).rsqrt();
+        self.scale(inv_length)
+    }
 }
 
 impl fmt::Show for Vec3 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "[{}, {}, {}]", self.v[0], self.v[1], self.v[2])
+    }
+}
+
+impl Mul<Vec3, Vec3> for Vec3 {
+    fn mul(&self, rhs: &Vec3) -> Vec3 {
+        Vec3 { v: [
+            self.v[0] * rhs.v[0],
+            self.v[1] * rhs.v[1],
+            self.v[2] * rhs.v[2]]
+        }
+    }
+}
+
+impl Add<Vec3, Vec3> for Vec3 {
+    fn add(&self, rhs: &Vec3) -> Vec3 {
+        Vec3 { v: [
+            self.v[0] + rhs.v[0],
+            self.v[1] + rhs.v[1],
+            self.v[2] + rhs.v[2]]
+        }
+    }
+}
+
+impl Sub<Vec3, Vec3> for Vec3 {
+    fn sub(&self, rhs: &Vec3) -> Vec3 {
+        Vec3 { v: [
+            self.v[0] - rhs.v[0],
+            self.v[1] - rhs.v[1],
+            self.v[2] - rhs.v[2]]
+        }
+    }
+}
+
+impl Index<uint, f32> for Vec3 {
+    fn index<'a>(&'a self, i: &uint) -> &'a f32 {
+        &self.v[*i]
     }
 }
 
@@ -47,6 +108,17 @@ impl Vec4 {
             self.v[2] * s,
             self.v[3] * s]
         }
+    }
+    pub fn dot(&self, rhs: &Vec4) -> f32 {
+        (self.v[0] * rhs.v[0]) + (self.v[1] * rhs.v[1]) +
+            (self.v[1] * rhs.v[2]) + (self.v[3] * rhs.v[3])
+    }
+    pub fn length(&self) -> f32 {
+        self.dot(self).sqrt()
+    }
+    pub fn normalize(&self) -> Vec4 {
+        let inv_length = self.dot(self).rsqrt();
+        self.scale(inv_length)
     }
 }
 
@@ -114,6 +186,10 @@ impl Mat4 {
         &self.col[0][0] as *const f32
     }
 
+    pub fn new(col0: &Vec4, col1: &Vec4, col2: &Vec4, col3: &Vec4) -> Mat4 {
+        Mat4 { col: [ *col0, *col1, *col2, *col3 ] }
+    }
+
     pub fn zero() -> Mat4 {
         Mat4 { col: [ Vec4::zero(), Vec4::zero(), Vec4::zero(), Vec4::zero() ] }
     }
@@ -147,6 +223,28 @@ impl Mat4 {
             Vec4::new(0.0, 1.0, 0.0, 0.0),
             Vec4::new(0.0, 0.0, 1.0, 0.0),
             Vec4::new(x, y, z, 1.0)]
+        }
+    }
+
+    pub fn lookat(eye: &Vec3, center: &Vec3, up: &Vec3) -> Mat4 {
+        let f = (*center - *eye).normalize();
+        let up_n = up.normalize();
+        let s = f.cross(&up_n);
+        let u = s.cross(&f);
+        Mat4 { col: [
+            Vec4::new(s[0], u[0], -f[0], 0.0),
+            Vec4::new(s[1], u[1], -f[1], 0.0),
+            Vec4::new(s[2], u[2], -f[2], 0.0),
+            Vec4::new(0.0, 0.0, 0.0, 1.0)]
+        } * Mat4::translate(-eye[0], -eye[1], -eye[2])
+    }
+
+    pub fn scale(x: f32, y: f32, z: f32) -> Mat4 {
+        Mat4 { col: [
+            Vec4::new(  x, 0.0, 0.0, 0.0),
+            Vec4::new(0.0,   y, 0.0, 0.0),
+            Vec4::new(0.0, 0.0,   z, 0.0),
+            Vec4::new(0.0, 0.0, 0.0, 1.0)]
         }
     }
 
