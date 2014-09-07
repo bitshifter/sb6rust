@@ -28,8 +28,6 @@ extern crate native;
 extern crate sb6;
 
 use gl::types::*;
-use sb6::shader;
-use sb6::program;
 use std::ptr;
 
 static VS_SRC: &'static str = "\
@@ -133,27 +131,27 @@ impl sb6::App for MyApp {
             VS_SRC.with_c_str(
                 |ptr| gl::ShaderSource(vs, 1, &ptr, ptr::null()));
             gl::CompileShader(vs);
-            shader::check_compile_status(vs);
+            sb6::shader::assert_compile_status(vs);
 
             TCS_SRC.with_c_str(
                 |ptr| gl::ShaderSource(tcs, 1, &ptr, ptr::null()));
             gl::CompileShader(tcs);
-            shader::check_compile_status(tcs);
+            sb6::shader::assert_compile_status(tcs);
 
             TES_SRC.with_c_str(
                 |ptr| gl::ShaderSource(tes, 1, &ptr, ptr::null()));
             gl::CompileShader(tes);
-            shader::check_compile_status(tes);
+            sb6::shader::assert_compile_status(tes);
 
             GS_SRC.with_c_str(
                 |ptr| gl::ShaderSource(gs, 1, &ptr, ptr::null()));
             gl::CompileShader(gs);
-            shader::check_compile_status(gs);
+            sb6::shader::assert_compile_status(gs);
 
             FS_SRC.with_c_str(
                 |ptr| gl::ShaderSource(fs, 1, &ptr, ptr::null()));
             gl::CompileShader(fs);
-            shader::check_compile_status(fs);
+            sb6::shader::assert_compile_status(fs);
         }
 
         gl::AttachShader(self.program, vs);
@@ -163,7 +161,7 @@ impl sb6::App for MyApp {
         gl::AttachShader(self.program, fs);
 
         gl::LinkProgram(self.program);
-        program::check_link_status(self.program);
+        sb6::program::assert_link_status(self.program);
 
         gl::DeleteShader(vs);
         gl::DeleteShader(tcs);
