@@ -70,6 +70,7 @@ pub trait App
     fn render(&self, time: f64);
     fn shutdown(&mut self);
     fn on_resize(&mut self, _: int, _: int) {}
+    fn on_key(&mut self, _: glfw::Key, _: glfw::Action) {}
 }
 
 fn handle_window_event<T: App>(app: &mut T, window: &glfw::Window,
@@ -78,6 +79,9 @@ fn handle_window_event<T: App>(app: &mut T, window: &glfw::Window,
         glfw::KeyEvent(glfw::KeyEscape, _, glfw::Press, _) => {
             window.set_should_close(true)
         }
+        glfw::KeyEvent(key, _, action, _) => {
+            app.on_key(key, action)
+        },
         glfw::SizeEvent(w, h) => {
             app.on_resize(w as int, h as int)
         }
