@@ -1,6 +1,6 @@
 /*
- * Copyright © 2012-2013 Graham Sellers
- * Copyright © 2014 Cameron Hart
+ * Copyright (c) 2012-2013 Graham Sellers
+ * Copyright (c) 2014 Cameron Hart
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -21,7 +21,6 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
  */
-
 extern crate gl;
 
 use gl::types::*;
