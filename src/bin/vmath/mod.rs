@@ -25,7 +25,7 @@ impl Vec3 {
     }
     pub fn dot(&self, rhs: &Vec3) -> f32 {
         (self.v[0] * rhs.v[0]) + (self.v[1] * rhs.v[1]) +
-            (self.v[1] * rhs.v[2])
+            (self.v[2] * rhs.v[2])
     }
     pub fn cross(&self, rhs: &Vec3) -> Vec3 {
         Vec3 { v: [
@@ -111,7 +111,7 @@ impl Vec4 {
     }
     pub fn dot(&self, rhs: &Vec4) -> f32 {
         (self.v[0] * rhs.v[0]) + (self.v[1] * rhs.v[1]) +
-            (self.v[1] * rhs.v[2]) + (self.v[3] * rhs.v[3])
+            (self.v[2] * rhs.v[2]) + (self.v[3] * rhs.v[3])
     }
     pub fn length(&self) -> f32 {
         self.dot(self).sqrt()
