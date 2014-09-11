@@ -92,6 +92,12 @@ fn handle_window_event<T: App>(app: &mut T, window: &glfw::Window,
 }
 
 pub fn run<T: App>(app: &mut T) {
+    // TODO: workaround for rust issue:
+    // https://github.com/rust-lang/rust/issues/13259
+    if cfg!(windows) {
+        unsafe { ::std::rt::stack::record_sp_limit(0); }
+    }
+
     let glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
     let (window, events) = {
         let info = app.get_app_info();
