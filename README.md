@@ -30,9 +30,8 @@ To build the samples simple run:
 cargo build
 ~~~
 
-If you are not installing to a standard library directory you will need to
-specify the directory containing the GLFW libraries when you build the SB6
-samples:
+If GLFW is not installed to a standard location you will need to specify the
+directory containing the GLFW libraries when you build the SB6 samples:
 
 ~~~
 LIBRARY_PATH=path/to/glfw/lib/directory cargo build
