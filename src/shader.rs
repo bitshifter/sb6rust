@@ -51,7 +51,7 @@ pub fn check_compile_status(shader: GLuint) -> Result<(), ShaderError> {
             gl::GetShaderiv(shader, gl::INFO_LOG_LENGTH, &mut len);
             // subtract 1 to skip the trailing null character
             let mut buf = Vec::from_elem(len as uint - 1, 0u8);
-            gl::GetShaderInfoLog(shader, len, ptr::mut_null(),
+            gl::GetShaderInfoLog(shader, len, ptr::null_mut(),
                 buf.as_mut_ptr() as *mut GLchar);
             return Err(ShaderInfoLog(String::from_utf8(buf).unwrap_or(
                 String::from_str("ShaderInfoLog not valid utf8"))));

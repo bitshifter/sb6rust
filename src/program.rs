@@ -43,7 +43,7 @@ pub fn check_link_status(program: GLuint) -> Result<(), ProgramError> {
             gl::GetProgramiv(program, gl::INFO_LOG_LENGTH, &mut len);
             // subtract 1 to skip the trailing null character
             let mut buf = Vec::from_elem(len as uint - 1, 0u8);
-            gl::GetProgramInfoLog(program, len, ptr::mut_null(),
+            gl::GetProgramInfoLog(program, len, ptr::null_mut(),
                 buf.as_mut_ptr() as *mut GLchar);
             return Err(ProgramInfoLog(String::from_utf8(buf).unwrap_or(
                 String::from_str("ProgramInfoLog not valid utf8"))));

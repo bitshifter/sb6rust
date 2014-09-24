@@ -156,7 +156,7 @@ impl Object {
         let mut index_data_chunk_ref: Option<&IndexData> = None;
         let mut sub_object_data_ref: Option<&[SubObjectDecl]> = None;
 
-        for i in range(0, header.num_chunks) {
+        for _ in range(0, header.num_chunks) {
             let chunk_header = read!(reader.pop_value::<ChunkHeader>());
             let chunk_type: Option<ChunkType> =
                 FromPrimitive::from_u32(chunk_header.chunk_type);
