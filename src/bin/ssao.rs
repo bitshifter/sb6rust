@@ -25,7 +25,6 @@
 #![feature(globs)]
 
 extern crate gl;
-extern crate glfw;
 extern crate native;
 extern crate sb6;
 
@@ -360,19 +359,19 @@ impl sb6::App for MyApp {
         gl::DrawArrays(gl::TRIANGLE_STRIP, 0, 4);
     }
 
-    fn on_key(&mut self, key: glfw::Key, action: glfw::Action)
+    fn on_key(&mut self, key: sb6::Key, action: sb6::Action)
     {
-        if action == glfw::Release {
+        if action == sb6::Release {
             match key {
-                glfw::KeyR => self.randomize_points = !self.randomize_points,
-                glfw::KeyS => self.point_count += 1,
-                glfw::KeyX => self.point_count -= 1,
-                glfw::KeyQ => self.show_shading = !self.show_shading,
-                glfw::KeyW => self.show_ao = !self.show_ao,
-                glfw::KeyA => self.ssao_radius += 0.01,
-                glfw::KeyZ => self.ssao_radius -= 0.01,
-                glfw::KeyP => self.paused = !self.paused,
-                glfw::KeyL => self.load_shaders(),
+                sb6::KeyR => self.randomize_points = !self.randomize_points,
+                sb6::KeyS => self.point_count += 1,
+                sb6::KeyX => self.point_count -= 1,
+                sb6::KeyQ => self.show_shading = !self.show_shading,
+                sb6::KeyW => self.show_ao = !self.show_ao,
+                sb6::KeyA => self.ssao_radius += 0.01,
+                sb6::KeyZ => self.ssao_radius -= 0.01,
+                sb6::KeyP => self.paused = !self.paused,
+                sb6::KeyL => self.load_shaders(),
                 _ => ()
             };
         }

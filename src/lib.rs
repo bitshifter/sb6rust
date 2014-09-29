@@ -32,9 +32,7 @@
 extern crate gl;
 extern crate glfw;
 
-pub use app::AppInfo;
-pub use app::App;
-pub use app::run;
+pub use app::*;
 
 mod app;
 pub mod ktx;

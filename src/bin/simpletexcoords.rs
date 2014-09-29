@@ -25,7 +25,6 @@
 #![feature(globs)]
 
 extern crate gl;
-extern crate glfw;
 extern crate native;
 extern crate sb6;
 
@@ -172,12 +171,12 @@ impl sb6::App for MyApp {
         self.object.render();
     }
 
-    fn on_key(&mut self, key: glfw::Key, action: glfw::Action)
+    fn on_key(&mut self, key: sb6::Key, action: sb6::Action)
     {
-        if action == glfw::Release {
+        if action == sb6::Release {
             match key {
-                glfw::KeyR => self.load_shaders(),
-                glfw::KeyT => self.tex_index = (self.tex_index + 1) % 2,
+                sb6::KeyR => self.load_shaders(),
+                sb6::KeyT => self.tex_index = (self.tex_index + 1) % 2,
                 _ => ()
             };
         }
