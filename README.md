@@ -10,15 +10,33 @@ supporting sample application classes are mostly complete and for the most
 part have a similar interface. The Rust implementation should be able to load
 all of the SB6 media pack models, texture and shaders.
 
-## Prerequisites
+## Building the samples
 
-The samples can be compiled with nightly versions of
-[Rust](http://www.rust-lang.org) and the [Cargo](http://crates.io) build
-system.
+1. Make sure you have the following dependencies installed:
+    * `rust` [recent nightly][rust_nightly]
+    * `cargo` [recent nightly][cargo_nightly]
+    * `g++` 4.7 or later
+    * GNU `make` 3.81 or later
+    * `cmake` 2.8 or later
+    * `git`
 
-### Windows specific prerequisites
+2. Build the samples:
+    Simply build the samples by running `make`. This will run cargo build and
+    copy required media files to the `target` directory.
 
-To easily build on Windows you can use
+3. Copy media files:
+    Unzip the media archive from http://www.openglsuperbible.com/example-code/
+    into the `target` directory.
+
+3. Run the samples:
+    `cd` to the `target` directory and run the sample you want.
+
+[rust_nightly]: http://www.rust-lang.org
+[cargo_nightly]: http://crates.io
+
+### Building on Windows
+
+To install the required prerequsites on Windows you can use
 [MSYS2](http://sourceforge.net/projects/msys2/):
 
 1. Download and run the latest MSYS2 installer.
@@ -27,32 +45,14 @@ To easily build on Windows you can use
 
         $ pacman -S mingw-w64-i686-toolchain
         $ pacman -S mingw-w64-i686-cmake
-		$ pacman -S base-devel
+	$ pacman -S base-devel
 
-3. With that now start `mingw32_shell.bat` from where you installed MSYS2
-   (i.e. `C:\msys64`).
-
-## Compiling the and running the samples
-
-To build the samples simple run:
-
-~~~
-cargo build
-~~~
-
-Cargo will output the sample executables into the target directory.
-
-Make sure you have unpacked the media archive downloaded from
-http://www.openglsuperbible.com/example-code/ into the target directory before
-running the samples.
+3. Start `mingw32_shell.bat` from where you installed MSYS2 (i.e. `C:\msys64`).
 
 ## TODO
 
-The media archive doesn't contain shaders, currently these have to be copied
-from the SB6 example code.
-
 Running `cargo clean` deletes the target directory which is where we copied
-the media to run the samples. Ideally cargo build would make sure that meida
+the media to run the samples. Ideally cargo build would make sure that media
 is copied to the right place.
 
 ## License
