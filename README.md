@@ -45,7 +45,7 @@ To install the required prerequsites on Windows you can use
 
         $ pacman -S mingw-w64-i686-toolchain
         $ pacman -S mingw-w64-i686-cmake
-	$ pacman -S base-devel
+        $ pacman -S base-devel
 
 3. Start `mingw32_shell.bat` from where you installed MSYS2 (i.e. `C:\msys64`).
 
