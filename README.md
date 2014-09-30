@@ -13,14 +13,24 @@ all of the SB6 media pack models, texture and shaders.
 ## Prerequisites
 
 The samples can be compiled with nightly versions of
-[Rust](http://www.rust-lang.org) and the [Cargo](http://crates.io) build system.
+[Rust](http://www.rust-lang.org) and the [Cargo](http://crates.io) build
+system.
 
-The application sample framework depends on
-[GLFW](http://www.glfw.org/download) 3.x. Either install it through your
-system's package manager, download a prebuilt binary or compile it from source.
+### Windows specific prerequisites
 
-If you compile GLFW with CMake on Linux you must invoke CMake with
-`-DCMAKE_C_FLAGS=-fPIC`.
+To easily build on Windows you can use
+[MSYS2](http://sourceforge.net/projects/msys2/):
+
+1. Download and run the latest MSYS2 installer.
+2. From the MSYS2 terminal install the mingw64 toolchain and the other required
+   tools:
+
+        $ pacman -S mingw-w64-i686-toolchain
+        $ pacman -S mingw-w64-i686-cmake
+		$ pacman -S base-devel
+
+3. With that now start `mingw32_shell.bat` from where you installed MSYS2
+   (i.e. `C:\msys64`).
 
 ## Compiling the and running the samples
 
@@ -30,18 +40,20 @@ To build the samples simple run:
 cargo build
 ~~~
 
-If GLFW is not installed to a standard location you will need to specify the
-directory containing the GLFW libraries when you build the SB6 samples:
-
-~~~
-LIBRARY_PATH=path/to/glfw/lib/directory cargo build
-~~~
-
 Cargo will output the sample executables into the target directory.
 
 Make sure you have unpacked the media archive downloaded from
 http://www.openglsuperbible.com/example-code/ into the target directory before
 running the samples.
+
+## TODO
+
+The media archive doesn't contain shaders, currently these have to be copied
+from the SB6 example code.
+
+Running `cargo clean` deletes the target directory which is where we copied
+the media to run the samples. Ideally cargo build would make sure that meida
+is copied to the right place.
 
 ## License
 

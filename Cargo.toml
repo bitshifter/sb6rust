@@ -8,4 +8,4 @@ authors = ["Cameron Hart <cam@bitshifter.net.nz>"]
 git = "https://github.com/bjz/gl-rs"
 
 [dependencies.glfw]
-git = "https://github.com/bjz/glfw-rs.git"
+git = "https://github.com/bitshifter/glfw-rs.git"
