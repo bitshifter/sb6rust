@@ -2,8 +2,9 @@ This is a Rust port of the OpenGL SuperBible 6th Edition sample code.
 
 The original C++ sample code can be found at
 https://github.com/openglsuperbible/sb6code. The media archive used by the
-samples can be downloaded from the book's website at
-http://www.openglsuperbible.com.
+samples is available on the book's website http://www.openglsuperbible.com.
+Note that the provided `Makefile` will automatically download the media
+archive as part of the build process.
 
 Only a small number of the C++ samples have been ported to Rust, however the
 supporting sample application classes are mostly complete and for the most
@@ -19,14 +20,12 @@ all of the SB6 media pack models, texture and shaders.
     * GNU `make` 3.81 or later
     * `cmake` 2.8 or later
     * `git`
+    * `curl`
+    * `unzip`
 
 2. Build the samples:
     Simply build the samples by running `make`. This will run cargo build and
     copy required media files to the `target` directory.
-
-3. Copy media files:
-    Unzip the media archive from http://www.openglsuperbible.com/example-code/
-    into the `target` directory.
 
 3. Run the samples:
     `cd` to the `target` directory and run the sample you want.
@@ -46,14 +45,9 @@ To install the required prerequsites on Windows you can use
         $ pacman -S mingw-w64-i686-toolchain
         $ pacman -S mingw-w64-i686-cmake
         $ pacman -S base-devel
+        $ pacman -S unzip
 
 3. Start `mingw32_shell.bat` from where you installed MSYS2 (i.e. `C:\msys64`).
-
-## TODO
-
-Running `cargo clean` deletes the target directory which is where we copied
-the media to run the samples. Ideally cargo build would make sure that media
-is copied to the right place.
 
 ## License
 
