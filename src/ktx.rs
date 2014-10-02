@@ -89,7 +89,7 @@ pub fn load(filename: &str) -> Result<GLuint, LoadError> {
     // check header magic
     let id = read!(reader.pop_slice::<u8>(IDENTIFIER.len()));
     if id != IDENTIFIER {
-        println!("identifier: {} != {}", IDENTIFIER.as_slice(), id);
+        debug!("identifier: {} != {}", IDENTIFIER.as_slice(), id);
         return Err(MagicError)
     }
 
