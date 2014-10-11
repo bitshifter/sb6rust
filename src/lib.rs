@@ -28,6 +28,10 @@
 
 #![feature(globs)]
 #![feature(macro_rules)]
+#![feature(phase)]
+
+#[phase(plugin, link)]
+extern crate log;
 
 extern crate gl;
 extern crate glfw;

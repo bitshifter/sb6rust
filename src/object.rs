@@ -142,12 +142,12 @@ impl Object {
             None => return Err(MagicError(None))
         }
 
-        println!("{}", str::from_utf8(magic));
+        debug!("magic: {}", str::from_utf8(magic));
 
         let header = read!(reader.pop_value::<MeshHeader>());
         bytes_read += header.size as uint;
 
-        println!("size: {}, num_chunks: {}, flags: {}",
+        debug!("size: {}, num_chunks: {}, flags: {}",
             header.size, header.num_chunks, header.flags)
         assert!(bytes_read == reader.bytes_read());
 
@@ -162,19 +162,19 @@ impl Object {
                 FromPrimitive::from_u32(chunk_header.chunk_type);
             match chunk_type {
                 Some(IndexDataType) => {
-                    println!("INDX");
+                    debug!("INDX");
                     // read in index data struct
                     index_data_chunk_ref = Some(
                         read!(reader.pop_value::<IndexData>()));
                 }
                 Some(VertexDataType) => {
-                    println!("VRTX");
+                    debug!("VRTX");
                     // read in vertex data struct
                     vertex_data_chunk_ref = Some(
                         read!(reader.pop_value::<VertexData>()));
                 },
                 Some(VertexAttribsType) => {
-                    println!("ATRB");
+                    debug!("ATRB");
                     // read attribute count
                     let attrib_count = read!(reader.pop_value::<u32>());
                     // read in all the attributes
@@ -183,23 +183,23 @@ impl Object {
                                 *attrib_count as uint))); 
                 },
                 Some(SubObjectListType) => {
-                    println!("OLST");
+                    debug!("OLST");
                     // read sub object count
                     let sub_object_count = read!(reader.pop_value::<u32>());
-                    println!("sub_object_count: {}", sub_object_count);
+                    debug!("sub_object_count: {}", sub_object_count);
                     // read in sub object data
                     sub_object_data_ref = Some(
                         read!(reader.pop_slice::<SubObjectDecl>(
                                 *sub_object_count as uint)));
                 },
                 Some(CommentType) => {
-                    println!("CMNT");
+                    debug!("CMNT");
                     let comment_len = chunk_header.size as uint -
                         mem::size_of::<ChunkHeader>();
                     let comment_bytes_ref = read!(reader.pop_slice::<u8>(
                             comment_len));
                     match str::from_utf8(comment_bytes_ref) {
-                        Some(v) => println!("{}", v),
+                        Some(v) => debug!("{}", v),
                         _ => fail!("couldn't read comment")
                     };
                 },
@@ -228,7 +228,7 @@ impl Object {
 
         match sub_object_data_ref {
             Some(sub_object_data) => {
-                println!("sub_object_count: {}", sub_object_data.len());
+                debug!("sub_object_count: {}", sub_object_data.len());
                 self.num_sub_objects = sub_object_data.len();
                 for i in range(0, self.num_sub_objects) {
                     self.sub_object[i] = sub_object_data[i];
