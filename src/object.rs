@@ -46,7 +46,7 @@ enum ChunkType {
     CommentType = fourcc!('C','M','N','T'),
 }
 
-static VERTEX_ATTRIB_FLAG_NORMALIZED: u32 = 0x00000001;
+const VERTEX_ATTRIB_FLAG_NORMALIZED: u32 = 0x00000001;
 
 struct MeshHeader {
     size: u32,

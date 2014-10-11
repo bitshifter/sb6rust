@@ -35,7 +35,7 @@ use vmath::Mat4;
 
 mod vmath;
 
-static vertex_positions: [GLfloat, ..108] = [
+const VERTEX_POSITIONS: [GLfloat, ..108] = [
     -0.25,  0.25, -0.25,
     -0.25, -0.25, -0.25,
      0.25, -0.25, -0.25,
@@ -85,7 +85,7 @@ static vertex_positions: [GLfloat, ..108] = [
     -0.25,  0.25, -0.25
 ];
 
-static VS_SRC: &'static str = "\
+const VS_SRC: &'static str = "\
 #version 330 core                                                  \n
                                                                    \n
 in vec4 position;                                                  \n
@@ -105,7 +105,7 @@ void main(void)                                                    \n
 }                                                                  \n
 ";
 
-static FS_SRC: &'static str = "\
+const FS_SRC: &'static str = "\
 #version 330 core                                                  \n\
                                                                    \n\
 out vec4 color;                                                    \n\
@@ -187,8 +187,8 @@ impl sb6::App for MyApp {
             gl::GenBuffers(1, &mut self.buffer);
             gl::BindBuffer(gl::ARRAY_BUFFER, self.buffer);
             gl::BufferData(gl::ARRAY_BUFFER,
-                           mem::size_of_val(&vertex_positions) as GLsizeiptr,
-                           mem::transmute(vertex_positions.as_ptr()),
+                           mem::size_of_val(&VERTEX_POSITIONS) as GLsizeiptr,
+                           mem::transmute(VERTEX_POSITIONS.as_ptr()),
                            gl::STATIC_DRAW);
             gl::VertexAttribPointer(0, 3, gl::FLOAT, gl::FALSE, 0, ptr::null());
             gl::EnableVertexAttribArray(0);
@@ -222,15 +222,15 @@ impl sb6::App for MyApp {
     }
 
     fn render(&self, time: f64) {
-        static green: [GLfloat, ..4] = [ 0.0, 0.25, 0.0, 1.0 ];
-        static one: GLfloat = 1.0;
+        const GREEN: [GLfloat, ..4] = [ 0.0, 0.25, 0.0, 1.0 ];
+        const ONE: GLfloat = 1.0;
 
         unsafe {
             gl::Viewport(0, 0, self.info.window_width as i32,
                          self.info.window_height as i32);
 
-            gl::ClearBufferfv(gl::COLOR, 0, green.as_ptr());
-            gl::ClearBufferfv(gl::DEPTH, 0, &one);
+            gl::ClearBufferfv(gl::COLOR, 0, GREEN.as_ptr());
+            gl::ClearBufferfv(gl::DEPTH, 0, &ONE);
 
             gl::UseProgram(self.program);
 

@@ -203,10 +203,10 @@ impl sb6::App for MyApp {
         gl::FramebufferTexture(gl::FRAMEBUFFER, gl::COLOR_ATTACHMENT1, self.fbo_textures[1], 0);
         gl::FramebufferTexture(gl::FRAMEBUFFER, gl::DEPTH_ATTACHMENT, self.fbo_textures[2], 0);
 
-        static draw_buffers: [GLint, ..2] = [ gl::COLOR_ATTACHMENT0 as GLint,
+        const DRAW_BUFFERS: [GLint, ..2] = [ gl::COLOR_ATTACHMENT0 as GLint,
             gl::COLOR_ATTACHMENT1 as GLint ];
 
-        unsafe { gl::DrawBuffers(2, mem::transmute(draw_buffers.as_ptr())) };
+        unsafe { gl::DrawBuffers(2, mem::transmute(DRAW_BUFFERS.as_ptr())) };
 
         gl::BindFramebuffer(gl::FRAMEBUFFER, 0);
 
@@ -274,8 +274,8 @@ impl sb6::App for MyApp {
     }
 
     fn render(&self, _: f64) {
-        static black: [GLfloat, ..4] = [ 0.0, 0.0, 0.0, 0.0 ];
-        static one: GLfloat = 1.0;
+        const BLACK: [GLfloat, ..4] = [ 0.0, 0.0, 0.0, 0.0 ];
+        const ONE: GLfloat = 1.0;
 
         let f = self.total_time as f32;
 
@@ -286,9 +286,9 @@ impl sb6::App for MyApp {
         gl::Enable(gl::DEPTH_TEST);
 
         unsafe {
-            gl::ClearBufferfv(gl::COLOR, 0, black.as_ptr());
-            gl::ClearBufferfv(gl::COLOR, 1, black.as_ptr());
-            gl::ClearBufferfv(gl::DEPTH, 0, &one);
+            gl::ClearBufferfv(gl::COLOR, 0, BLACK.as_ptr());
+            gl::ClearBufferfv(gl::COLOR, 1, BLACK.as_ptr());
+            gl::ClearBufferfv(gl::DEPTH, 0, &ONE);
         }
 
         gl::BindBufferBase(gl::UNIFORM_BUFFER, 0, self.points_buffer);

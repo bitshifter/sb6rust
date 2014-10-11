@@ -32,7 +32,7 @@ use gl::types::*;
 use std::ptr;
 
 #[cfg(not(screen_space_color))]
-static VS_SRC: &'static str = "\
+const VS_SRC: &'static str = "\
 #version 420 core                                                          \n\
                                                                            \n\
 void main(void)                                                            \n\
@@ -46,7 +46,7 @@ void main(void)                                                            \n\
 ";
 
 #[cfg(not(screen_space_color))]
-static FS_SRC: &'static str = "\
+const FS_SRC: &'static str = "\
 #version 420 core                                                          \n\
                                                                            \n\
 out vec4 color;                                                            \n\
@@ -61,7 +61,7 @@ void main(void)                                                            \n\
 ";
 
 #[cfg(screen_space_color)]
-static VS_SRC: &'static str = "\
+const VS_SRC: &'static str = "\
 #version 420 core                                                          \n\
                                                                            \n\
 out vec4 vs_color;                                                         \n\
@@ -80,7 +80,7 @@ void main(void)                                                            \n\
 ";
 
 #[cfg(screen_space_color)]
-static FS_SRC: &'static str = "\
+const FS_SRC: &'static str = "\
 #version 420 core                                                          \n\
                                                                            \n\
 in vec4 vs_color;                                                          \n\
@@ -150,9 +150,9 @@ impl sb6::App for MyApp {
     }
 
     fn render(&self, _: f64) {
-        static green: [GLfloat, ..4] = [ 0.0, 0.25, 0.0, 1.0 ];
+        const GREEN: [GLfloat, ..4] = [ 0.0, 0.25, 0.0, 1.0 ];
         unsafe {
-            gl::ClearBufferfv(gl::COLOR, 0, green.as_ptr());
+            gl::ClearBufferfv(gl::COLOR, 0, GREEN.as_ptr());
         }
 
         gl::UseProgram(self.program);

@@ -60,7 +60,7 @@ macro_rules! read(
     ($e:expr) => (match $e { Ok(e) => e, Err(e) => return Err(io_error_to_error(e)) })
 )
 
-static IDENTIFIER: [u8, ..12] =
+const IDENTIFIER: [u8, ..12] =
     [ 0xAB, 0x4B, 0x54, 0x58, 0x20, 0x31, 0x31, 0xBB, 0x0D, 0x0A, 0x1A, 0x0A ];
 
 fn calculate_stride(h: &Header, width: i32, pad: uint) -> Result<int, LoadError> {

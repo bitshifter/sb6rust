@@ -31,7 +31,7 @@ extern crate sb6;
 use gl::types::*;
 use std::ptr;
 
-static VS_SRC: &'static str = "\
+const VS_SRC: &'static str = "\
 #version 410 core                                                 \n\
                                                                   \n\
 layout (location = 0) in vec4 offset;                             \n\
@@ -47,7 +47,7 @@ void main(void)                                                   \n\
 }                                                                 \n\
 ";
 
-static FS_SRC: &'static str = "\
+const FS_SRC: &'static str = "\
 #version 410 core                                                 \n\
                                                                   \n\
 out vec4 color;                                                   \n\
@@ -118,9 +118,9 @@ impl sb6::App for MyApp {
     }
 
     fn render(&self, time: f64) {
-        static green: [GLfloat, ..4] = [ 0.0, 0.25, 0.0, 1.0 ];
+        const GREEN: [GLfloat, ..4] = [ 0.0, 0.25, 0.0, 1.0 ];
         unsafe {
-            gl::ClearBufferfv(gl::COLOR, 0, green.as_ptr());
+            gl::ClearBufferfv(gl::COLOR, 0, GREEN.as_ptr());
         }
 
         gl::UseProgram(self.program);

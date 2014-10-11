@@ -88,13 +88,12 @@ impl sb6::App for MyApp {
     fn get_app_info(&self) -> &sb6::AppInfo { &self.info }
     fn startup(&mut self) {
         // generate a 16 x 16 checker texture
-        static tex_dim: uint = 16;
-        let mut tex_data : [u32, ..(tex_dim * tex_dim)] =
-            [0, ..(tex_dim * tex_dim)];
+        const TEX_DIM: uint = 16;
+        let mut tex_data : [u32, ..(TEX_DIM * TEX_DIM)] = [0, ..(TEX_DIM * TEX_DIM)];
         for i in range(0, tex_data.len())
         {
-            let col = i % tex_dim;
-            let row = i / tex_dim;
+            let col = i % TEX_DIM;
+            let row = i / TEX_DIM;
             if row % 2 == 0 {
                 if col % 2 == 0 {
                     tex_data[i] = 0xffffffff;

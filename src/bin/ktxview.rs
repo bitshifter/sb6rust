@@ -31,7 +31,7 @@ extern crate sb6;
 use gl::types::*;
 use std::ptr;
 
-static VS_SRC: &'static str = "\
+const VS_SRC: &'static str = "\
 #version 330 core                                                              \n\
                                                                                \n\
 void main(void)                                                                \n\
@@ -45,7 +45,7 @@ void main(void)                                                                \
 }                                                                              \n\
 ";
 
-static FS_SRC: &'static str = "\
+const FS_SRC: &'static str = "\
 #version 330 core                                                              \n\
                                                                                \n\
 uniform sampler2D s;                                                           \n\
@@ -123,10 +123,10 @@ impl sb6::App for MyApp {
     }
 
     fn render(&self, _: f64) {
-        static green: [GLfloat, ..4] = [ 0.0, 0.25, 0.0, 1.0 ];
+        const GREEN: [GLfloat, ..4] = [ 0.0, 0.25, 0.0, 1.0 ];
 
         unsafe {
-            gl::ClearBufferfv(gl::COLOR, 0, green.as_ptr());
+            gl::ClearBufferfv(gl::COLOR, 0, GREEN.as_ptr());
             gl::UseProgram(self.program);
             gl::Viewport(0, 0, self.info.window_width as i32,
                          self.info.window_height as i32);

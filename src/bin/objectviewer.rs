@@ -35,7 +35,7 @@ use vmath::Mat4;
 
 mod vmath;
 
-static VS_SRC: &'static str = "\
+const VS_SRC: &'static str = "\
 #version 330 core                                                  \n\
                                                                    \n\
 layout (location = 0) in vec4 position;                            \n\
@@ -58,7 +58,7 @@ void main(void)                                                    \n\
 }                                                                  \n\
 ";
 
-static FS_SRC: &'static str = "\
+const FS_SRC: &'static str = "\
 #version 330 core                                                  \n\
                                                                    \n\
 out vec4 color;                                                    \n\
@@ -145,8 +145,8 @@ impl sb6::App for MyApp {
     }
 
     fn render(&self, time: f64) {
-        static black: [GLfloat, ..4] = [ 0.0, 0.0, 0.0, 1.0 ];
-        static one: GLfloat = 1.0;
+        const BLACK: [GLfloat, ..4] = [ 0.0, 0.0, 0.0, 1.0 ];
+        const ONE: GLfloat = 1.0;
         let time = time as f32;
 
         let info = self.get_app_info();
@@ -159,8 +159,8 @@ impl sb6::App for MyApp {
         unsafe {
             gl::Viewport(0, 0, info.window_width as i32,
                 info.window_height as i32);
-            gl::ClearBufferfv(gl::COLOR, 0, black.as_ptr());
-            gl::ClearBufferfv(gl::DEPTH, 0, &one);
+            gl::ClearBufferfv(gl::COLOR, 0, BLACK.as_ptr());
+            gl::ClearBufferfv(gl::DEPTH, 0, &ONE);
 
             gl::UseProgram(self.program);
 
