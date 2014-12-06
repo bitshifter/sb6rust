@@ -25,7 +25,6 @@
 #![feature(globs)]
 
 extern crate gl;
-extern crate native;
 extern crate sb6;
 
 use gl::types::*;
@@ -82,7 +81,7 @@ impl sb6::App for MyApp {
             // Load texture from file
             self.texture = match sb6::ktx::load("media/textures/Tree.ktx") {
                 Ok(v) => v,
-                Err(e) => fail!("failed to load: {}", e)
+                Err(e) => panic!("failed to load: {}", e)
             };
             self.program = gl::CreateProgram();
 
@@ -142,10 +141,5 @@ fn main() {
     init.minor_version = 3;
     let mut app = MyApp::new(init);
     sb6::run(&mut app);
-}
-
-#[start]
-fn start(argc: int, argv: *const *const u8) -> int {
-    native::start(argc, argv, main)
 }
 

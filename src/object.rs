@@ -97,7 +97,7 @@ pub enum LoadError {
 }
 
 fn io_error_to_error(io: io::IoError) -> LoadError {
-    IoError(io.kind, io.desc)
+    LoadError::IoError(io.kind, io.desc)
 }
 
 // Converts an IoError to a LoadError
@@ -138,8 +138,8 @@ impl Object {
         let magic = read!(reader.pop_slice::<u8>(4));
         match str::from_utf8(magic) {
             Some(v) if v == "SB6M" => (),
-            Some(v) => return Err(MagicError(Some(String::from_str(v)))),
-            None => return Err(MagicError(None))
+            Some(v) => return Err(LoadError::MagicError(Some(String::from_str(v)))),
+            None => return Err(LoadError::MagicError(None))
         }
 
         debug!("magic: {}", str::from_utf8(magic));
@@ -161,19 +161,19 @@ impl Object {
             let chunk_type: Option<ChunkType> =
                 FromPrimitive::from_u32(chunk_header.chunk_type);
             match chunk_type {
-                Some(IndexDataType) => {
+                Some(ChunkType::IndexDataType) => {
                     debug!("INDX");
                     // read in index data struct
                     index_data_chunk_ref = Some(
                         read!(reader.pop_value::<IndexData>()));
                 }
-                Some(VertexDataType) => {
+                Some(ChunkType::VertexDataType) => {
                     debug!("VRTX");
                     // read in vertex data struct
                     vertex_data_chunk_ref = Some(
                         read!(reader.pop_value::<VertexData>()));
                 },
-                Some(VertexAttribsType) => {
+                Some(ChunkType::VertexAttribsType) => {
                     debug!("ATRB");
                     // read attribute count
                     let attrib_count = read!(reader.pop_value::<u32>());
@@ -182,7 +182,7 @@ impl Object {
                         read!(reader.pop_slice::<VertexAttribDecl>(
                                 *attrib_count as uint))); 
                 },
-                Some(SubObjectListType) => {
+                Some(ChunkType::SubObjectListType) => {
                     debug!("OLST");
                     // read sub object count
                     let sub_object_count = read!(reader.pop_value::<u32>());
@@ -192,7 +192,7 @@ impl Object {
                         read!(reader.pop_slice::<SubObjectDecl>(
                                 *sub_object_count as uint)));
                 },
-                Some(CommentType) => {
+                Some(ChunkType::CommentType) => {
                     debug!("CMNT");
                     let comment_len = chunk_header.size as uint -
                         mem::size_of::<ChunkHeader>();
@@ -200,10 +200,10 @@ impl Object {
                             comment_len));
                     match str::from_utf8(comment_bytes_ref) {
                         Some(v) => debug!("{}", v),
-                        _ => fail!("couldn't read comment")
+                        _ => panic!("couldn't read comment")
                     };
                 },
-                _ => return Err(ChunkTypeError(chunk_header.chunk_type))
+                _ => return Err(LoadError::ChunkTypeError(chunk_header.chunk_type))
             }
             bytes_read += chunk_header.size as uint;
             assert!(bytes_read == reader.bytes_read());
@@ -211,19 +211,19 @@ impl Object {
 
         // check the expected number of bytes read
         if bytes_read != reader.bytes_read() {
-            return Err(ChunkSizeError(bytes_read, reader.bytes_read()))
+            return Err(LoadError::ChunkSizeError(bytes_read, reader.bytes_read()))
         }
 
         // vertex data required
         let vertex_data_chunk = match vertex_data_chunk_ref {
             Some(v) => v,
-            None => return Err(VertexDataError)
+            None => return Err(LoadError::VertexDataError)
         };
 
         // vertex attribute required
         let vertex_attrib_data = match vertex_attrib_data_ref {
             Some(v) => v,
-            None => return Err(VertexAttribDataError)
+            None => return Err(LoadError::VertexAttribDataError)
         };
 
         match sub_object_data_ref {
@@ -308,8 +308,10 @@ impl Object {
             }
         }
 
-        gl::BindVertexArray(0);
-        gl::BindBuffer(gl::ELEMENT_ARRAY_BUFFER, 0);
+        unsafe {
+            gl::BindVertexArray(0);
+            gl::BindBuffer(gl::ELEMENT_ARRAY_BUFFER, 0);
+        }
 
         Ok(())
     }
@@ -337,10 +339,11 @@ impl Object {
 
     pub fn render_sub_object(&self, object_index: u32, instance_count: u32,
                              base_instance: u32) {
-        gl::BindVertexArray(self.vao);
 
-        if self.index_buffer != 0 {
-            unsafe {
+        unsafe {
+            gl::BindVertexArray(self.vao);
+
+            if self.index_buffer != 0 {
                 gl::DrawElementsInstancedBaseInstance(
                     gl::TRIANGLES,
                     self.num_indices as i32,
@@ -348,14 +351,14 @@ impl Object {
                     ptr::null(),
                     instance_count as i32,
                     base_instance);
+            } else {
+                gl::DrawArraysInstancedBaseInstance(
+                    gl::TRIANGLES,
+                    self.sub_object[object_index as uint].first as i32,
+                    self.sub_object[object_index as uint].count as i32,
+                    instance_count as i32,
+                    base_instance);
             }
-        } else {
-            gl::DrawArraysInstancedBaseInstance(
-                gl::TRIANGLES,
-                self.sub_object[object_index as uint].first as i32,
-                self.sub_object[object_index as uint].count as i32,
-                instance_count as i32,
-                base_instance);
         }
     }
 }

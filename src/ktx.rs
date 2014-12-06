@@ -53,7 +53,7 @@ pub enum LoadError {
 }
 
 fn io_error_to_error(io: io::IoError) -> LoadError {
-    IoError(io.kind, io.desc)
+    LoadError::IoError(io.kind, io.desc)
 }
 
 macro_rules! read(
@@ -71,7 +71,7 @@ fn calculate_stride(h: &Header, width: i32, pad: uint) -> Result<int, LoadError>
         gl::RGB => 3,
         gl::BGRA => 4,
         gl::RGBA => 4,
-        _ => return Err(HeaderError)
+        _ => return Err(LoadError::HeaderError)
     };
     Ok((((h.gl_type_size * channels * width as u32) as uint +
      ((pad - 1)) & !(pad - 1))) as int)
@@ -88,16 +88,16 @@ pub fn load(filename: &str) -> Result<GLuint, LoadError> {
 
     // check header magic
     let id = read!(reader.pop_slice::<u8>(IDENTIFIER.len()));
-    if id != IDENTIFIER {
+    if id != &IDENTIFIER {
         debug!("identifier: {} != {}", IDENTIFIER.as_slice(), id);
-        return Err(MagicError)
+        return Err(LoadError::MagicError)
     }
 
     // check endianness
     let endianness = read!(reader.pop_value::<u32>());
     if *endianness == 0x01020304 {
         // swap not impemented
-        return Err(MagicError)
+        return Err(LoadError::MagicError)
     }
 
     // read the rest of the header
@@ -105,7 +105,7 @@ pub fn load(filename: &str) -> Result<GLuint, LoadError> {
 
     // check for insanity
     if h.pixel_width == 0 || (h.pixel_height == 0 && h.pixel_depth != 0) {
-        return Err(HeaderError)
+        return Err(LoadError::HeaderError)
     }
 
     // guess the target (texture type)
@@ -142,8 +142,8 @@ pub fn load(filename: &str) -> Result<GLuint, LoadError> {
     let mut tex:u32 = 0;
     unsafe {
         gl::GenTextures(1, &mut tex);
+        gl::BindTexture(target, tex);
     }
-    gl::BindTexture(target, tex);
 
     // skip unused key pair bytes
     read!(reader.skip_bytes(h.key_pair_bytes as uint));
@@ -223,12 +223,11 @@ pub fn load(filename: &str) -> Result<GLuint, LoadError> {
                     h.pixel_width, h.pixel_height, h.faces * h.array_elements,
                     h.gl_format, h.gl_type, mem::transmute(data.as_ptr()));
             },
-            _ => return Err(HeaderError)
+            _ => return Err(LoadError::HeaderError)
         }
-    }
-
-    if mip_levels == 1 {
-        gl::GenerateMipmap(target);
+        if mip_levels == 1 {
+            gl::GenerateMipmap(target);
+        }
     }
 
     Ok(tex)

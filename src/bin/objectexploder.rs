@@ -26,10 +26,10 @@
 #![feature(macro_rules)]
 
 extern crate gl;
-extern crate native;
 extern crate sb6;
 
 use gl::types::*;
+use std::num::FloatMath;
 use std::ptr;
 use vmath::Mat4;
 
@@ -137,55 +137,55 @@ impl sb6::App for MyApp {
     fn get_app_info(&self) -> &sb6::AppInfo { &self.info }
 
     fn startup(&mut self) {
-        self.program = gl::CreateProgram();
-
-        let vs = gl::CreateShader(gl::VERTEX_SHADER);
-        let gs = gl::CreateShader(gl::GEOMETRY_SHADER);
-        let fs = gl::CreateShader(gl::FRAGMENT_SHADER);
-
         unsafe {
+            self.program = gl::CreateProgram();
+
+            let vs = gl::CreateShader(gl::VERTEX_SHADER);
+            let gs = gl::CreateShader(gl::GEOMETRY_SHADER);
+            let fs = gl::CreateShader(gl::FRAGMENT_SHADER);
+
             VS_SRC.with_c_str(
                 |ptr| gl::ShaderSource(vs, 1, &ptr, ptr::null()));
             GS_SRC.with_c_str(
                 |ptr| gl::ShaderSource(gs, 1, &ptr, ptr::null()));
             FS_SRC.with_c_str(
                 |ptr| gl::ShaderSource(fs, 1, &ptr, ptr::null()));
+
+            gl::CompileShader(vs);
+            gl::CompileShader(gs);
+            gl::CompileShader(fs);
+
+            sb6::shader::check_compile_status(vs).unwrap();
+            sb6::shader::check_compile_status(gs).unwrap();
+            sb6::shader::check_compile_status(fs).unwrap();
+
+            gl::AttachShader(self.program, vs);
+            gl::AttachShader(self.program, gs);
+            gl::AttachShader(self.program, fs);
+            gl::LinkProgram(self.program);
+            sb6::program::check_link_status(self.program).unwrap();
+
+            gl::DeleteShader(vs);
+            gl::DeleteShader(gs);
+            gl::DeleteShader(fs);
+
+            self.mv_location = sb6::program::get_uniform_location(
+                self.program, "mv_matrix").unwrap();
+            self.proj_location = sb6::program::get_uniform_location(
+                self.program, "proj_matrix").unwrap();
+            self.explode_factor_location = sb6::program::get_uniform_location(
+                self.program, "explode_factor").unwrap();
+
+            self.object.load("media/objects/bunny_1k.sbm").unwrap();
+
+            gl::Enable(gl::DEPTH_TEST);
+            gl::DepthFunc(gl::LEQUAL);
         }
-
-        gl::CompileShader(vs);
-        gl::CompileShader(gs);
-        gl::CompileShader(fs);
-
-        sb6::shader::check_compile_status(vs).unwrap();
-        sb6::shader::check_compile_status(gs).unwrap();
-        sb6::shader::check_compile_status(fs).unwrap();
-
-        gl::AttachShader(self.program, vs);
-        gl::AttachShader(self.program, gs);
-        gl::AttachShader(self.program, fs);
-        gl::LinkProgram(self.program);
-        sb6::program::check_link_status(self.program).unwrap();
-
-        gl::DeleteShader(vs);
-        gl::DeleteShader(gs);
-        gl::DeleteShader(fs);
-        
-        self.mv_location = sb6::program::get_uniform_location(
-            self.program, "mv_matrix").unwrap();
-        self.proj_location = sb6::program::get_uniform_location(
-            self.program, "proj_matrix").unwrap();
-        self.explode_factor_location = sb6::program::get_uniform_location(
-            self.program, "explode_factor").unwrap();
-
-        self.object.load("media/objects/bunny_1k.sbm").unwrap();
-
-        gl::Enable(gl::DEPTH_TEST);
-        gl::DepthFunc(gl::LEQUAL);
     }
 
     fn shutdown(&mut self) {
         self.object.free();
-        gl::DeleteProgram(self.program);
+        unsafe { gl::DeleteProgram(self.program); }
         self.mv_location = -1;
         self.proj_location = -1;
         self.explode_factor_location = -1;
@@ -220,9 +220,9 @@ impl sb6::App for MyApp {
                 mv_matrix.as_ptr());
 
             gl::Uniform1f(self.explode_factor_location, explode_factor);
-
-            self.object.render();
         }
+
+        self.object.render();
     }
 }
 
@@ -234,10 +234,4 @@ fn main() {
     let mut app = MyApp::new(init);
     sb6::run(&mut app);
 }
-
-#[start]
-fn start(argc: int, argv: *const *const u8) -> int {
-    native::start(argc, argv, main)
-}
-
 

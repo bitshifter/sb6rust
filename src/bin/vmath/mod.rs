@@ -22,6 +22,8 @@
  * DEALINGS IN THE SOFTWARE.
  */
 use std::fmt;
+use std::num::Float;
+use std::num::FloatMath;
 
 #[allow(dead_code)]
 pub struct Vec3 {
@@ -138,6 +140,7 @@ impl Vec4 {
     }
     pub fn length(&self) -> f32 {
         self.dot(self).sqrt()
+
     }
     pub fn normalize(&self) -> Vec4 {
         let inv_length = self.dot(self).rsqrt();

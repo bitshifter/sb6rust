@@ -25,10 +25,10 @@
 #![feature(globs)]
 
 extern crate gl;
-extern crate native;
 extern crate sb6;
 
 use gl::types::*;
+use std::num::FloatMath;
 use std::ptr;
 
 const VS_SRC: &'static str = "\
@@ -74,65 +74,56 @@ impl sb6::App for MyApp {
     fn get_app_info(&self) -> &sb6::AppInfo { &self.info }
 
     fn startup(&mut self) {
-        self.program = gl::CreateProgram();
-
-        let fs = gl::CreateShader(gl::FRAGMENT_SHADER);
         unsafe {
+            self.program = gl::CreateProgram();
+
+            let fs = gl::CreateShader(gl::FRAGMENT_SHADER);
             FS_SRC.with_c_str(
                 |ptr| gl::ShaderSource(fs, 1, &ptr, ptr::null()));
             gl::CompileShader(fs);
-        }
-        sb6::shader::check_compile_status(fs).unwrap();
+            sb6::shader::check_compile_status(fs).unwrap();
 
-        let vs = gl::CreateShader(gl::VERTEX_SHADER);
-        unsafe {
+            let vs = gl::CreateShader(gl::VERTEX_SHADER);
             VS_SRC.with_c_str(
                 |ptr| gl::ShaderSource(vs, 1, &ptr, ptr::null()));
             gl::CompileShader(vs);
-        }
-        sb6::shader::check_compile_status(vs).unwrap();
+            sb6::shader::check_compile_status(vs).unwrap();
 
-        gl::AttachShader(self.program, vs);
-        gl::AttachShader(self.program, fs);
-        gl::LinkProgram(self.program);
-        sb6::program::check_link_status(self.program).unwrap();
+            gl::AttachShader(self.program, vs);
+            gl::AttachShader(self.program, fs);
+            gl::LinkProgram(self.program);
+            sb6::program::check_link_status(self.program).unwrap();
 
-        gl::DeleteShader(vs);
-        gl::DeleteShader(fs);
+            gl::DeleteShader(vs);
+            gl::DeleteShader(fs);
 
-        gl::UseProgram(self.program);
-        self.vao = 0;
-        unsafe {
+            gl::UseProgram(self.program);
+            self.vao = 0;
             gl::GenVertexArrays(1, &mut self.vao);
+            gl::BindVertexArray(self.vao);
         }
-        gl::BindVertexArray(self.vao);
     }
 
     fn shutdown(&mut self) {
         unsafe {
             gl::DeleteVertexArrays(1, &self.vao);
+            gl::DeleteProgram(self.program);
         }
-        gl::DeleteProgram(self.program);
         self.vao = 0;
         self.program = 0;
     }
 
     fn render(&self, time: f64) {
         const GREEN: [GLfloat, ..4] = [ 0.0, 0.25, 0.0, 1.0 ];
-        unsafe {
-            gl::ClearBufferfv(gl::COLOR, 0, GREEN.as_ptr());
-        }
-
-        gl::UseProgram(self.program);
-
         let (sin_time, cos_time) = (time as f32).sin_cos();
         let attrib: [GLfloat, ..4] = [ sin_time * 0.5, cos_time * 0.6, 0.0, 0.0 ];
 
         unsafe {
+            gl::ClearBufferfv(gl::COLOR, 0, GREEN.as_ptr());
+            gl::UseProgram(self.program);
             gl::VertexAttrib4fv(0, attrib.as_ptr());
+            gl::DrawArrays(gl::TRIANGLES, 0, 3);
         }
-
-        gl::DrawArrays(gl::TRIANGLES, 0, 3);
     }
 }
 
@@ -141,10 +132,5 @@ fn main() {
     init.title = "OpenGL SuperBible - Moving Triangle";
     let mut app = MyApp::new(init);
     sb6::run(&mut app);
-}
-
-#[start]
-fn start(argc: int, argv: *const *const u8) -> int {
-    native::start(argc, argv, main)
 }
 

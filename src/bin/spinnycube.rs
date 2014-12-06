@@ -25,11 +25,11 @@
 #![feature(globs)]
 
 extern crate gl;
-extern crate native;
 extern crate sb6;
 
 use gl::types::*;
 use std::mem;
+use std::num::FloatMath;
 use std::ptr;
 use vmath::Mat4;
 
@@ -258,10 +258,5 @@ fn main() {
     init.title = "OpenGL SuperBible - Moving Triangle";
     let mut app = MyApp::new(init);
     sb6::run(&mut app);
-}
-
-#[start]
-fn start(argc: int, argv: *const *const u8) -> int {
-    native::start(argc, argv, main)
 }
 

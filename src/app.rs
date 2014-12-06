@@ -31,6 +31,7 @@ use glfw::Context;
 pub use glfw::Key;
 pub use glfw::Action;
 
+/*
 // Reexport glfw::Action enum values
 pub use glfw::{
     Release,
@@ -163,6 +164,7 @@ pub use glfw::{
     KeyRightSuper,
     KeyMenu,
 };
+*/
 
 pub struct AppInfo {
     pub title: &'static str,
@@ -215,13 +217,13 @@ pub trait App
 fn handle_window_event<T: App>(app: &mut T, window: &glfw::Window,
                                event: glfw::WindowEvent) {
     match event {
-        glfw::KeyEvent(glfw::KeyEscape, _, glfw::Press, _) => {
+        glfw::WindowEvent::KeyEvent(glfw::Key::Escape, _, glfw::Action::Press, _) => {
             window.set_should_close(true)
         }
-        glfw::KeyEvent(key, _, action, _) => {
+        glfw::WindowEvent::KeyEvent(key, _, action, _) => {
             app.on_key(key, action)
         },
-        glfw::SizeEvent(w, h) => {
+        glfw::WindowEvent::SizeEvent(w, h) => {
             app.on_resize(w as int, h as int)
         }
         _ => ()
@@ -229,22 +231,16 @@ fn handle_window_event<T: App>(app: &mut T, window: &glfw::Window,
 }
 
 pub fn run<T: App>(app: &mut T) {
-    // TODO: workaround for rust issue:
-    // https://github.com/rust-lang/rust/issues/13259
-    if cfg!(windows) {
-        unsafe { ::std::rt::stack::record_sp_limit(0); }
-    }
-
     let glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
     let (window, events) = {
         let info = app.get_app_info();
-        glfw.window_hint(glfw::ContextVersion(
+        glfw.window_hint(glfw::WindowHint::ContextVersion(
                 info.major_version, info.minor_version));
-        glfw.window_hint(glfw::OpenglProfile(glfw::OpenGlCoreProfile));
-        glfw.window_hint(glfw::OpenglForwardCompat(true));
+        glfw.window_hint(glfw::WindowHint::OpenglProfile(glfw::OpenGlProfileHint::Core));
+        glfw.window_hint(glfw::WindowHint::OpenglForwardCompat(true));
         glfw.create_window(
             info.window_width, info.window_height, info.title.as_slice(),
-            glfw::Windowed).expect("Failed to create GLFW window.")
+            glfw::WindowMode::Windowed).expect("Failed to create GLFW window.")
     };
 
     window.set_key_polling(true);

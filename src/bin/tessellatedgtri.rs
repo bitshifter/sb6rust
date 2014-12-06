@@ -25,7 +25,6 @@
 #![feature(globs)]
 
 extern crate gl;
-extern crate native;
 extern crate sb6;
 
 use gl::types::*;
@@ -120,15 +119,15 @@ impl sb6::App for MyApp {
     fn get_app_info(&self) -> &sb6::AppInfo { &self.info }
 
     fn startup(&mut self) {
-        self.program = gl::CreateProgram();
-
-        let vs = gl::CreateShader(gl::VERTEX_SHADER);
-        let tcs = gl::CreateShader(gl::TESS_CONTROL_SHADER);
-        let tes = gl::CreateShader(gl::TESS_EVALUATION_SHADER);
-        let gs = gl::CreateShader(gl::GEOMETRY_SHADER);
-        let fs = gl::CreateShader(gl::FRAGMENT_SHADER);
-
         unsafe {
+            self.program = gl::CreateProgram();
+
+            let vs = gl::CreateShader(gl::VERTEX_SHADER);
+            let tcs = gl::CreateShader(gl::TESS_CONTROL_SHADER);
+            let tes = gl::CreateShader(gl::TESS_EVALUATION_SHADER);
+            let gs = gl::CreateShader(gl::GEOMETRY_SHADER);
+            let fs = gl::CreateShader(gl::FRAGMENT_SHADER);
+
             VS_SRC.with_c_str(
                 |ptr| gl::ShaderSource(vs, 1, &ptr, ptr::null()));
             gl::CompileShader(vs);
@@ -153,36 +152,34 @@ impl sb6::App for MyApp {
                 |ptr| gl::ShaderSource(fs, 1, &ptr, ptr::null()));
             gl::CompileShader(fs);
             sb6::shader::check_compile_status(fs).unwrap();
-        }
 
-        gl::AttachShader(self.program, vs);
-        gl::AttachShader(self.program, tcs);
-        gl::AttachShader(self.program, tes);
-        gl::AttachShader(self.program, gs);
-        gl::AttachShader(self.program, fs);
+            gl::AttachShader(self.program, vs);
+            gl::AttachShader(self.program, tcs);
+            gl::AttachShader(self.program, tes);
+            gl::AttachShader(self.program, gs);
+            gl::AttachShader(self.program, fs);
 
-        gl::LinkProgram(self.program);
-        sb6::program::check_link_status(self.program).unwrap();
+            gl::LinkProgram(self.program);
+            sb6::program::check_link_status(self.program).unwrap();
 
-        gl::DeleteShader(vs);
-        gl::DeleteShader(tcs);
-        gl::DeleteShader(tes);
-        gl::DeleteShader(gs);
-        gl::DeleteShader(fs);
+            gl::DeleteShader(vs);
+            gl::DeleteShader(tcs);
+            gl::DeleteShader(tes);
+            gl::DeleteShader(gs);
+            gl::DeleteShader(fs);
 
-        unsafe {
             gl::GenVertexArrays(1, &mut self.vao);
-        }
-        gl::BindVertexArray(self.vao);
+            gl::BindVertexArray(self.vao);
 
-        gl::PolygonMode(gl::FRONT_AND_BACK, gl::LINE);
+            gl::PolygonMode(gl::FRONT_AND_BACK, gl::LINE);
+        }
     }
 
     fn shutdown(&mut self) {
         unsafe {
             gl::DeleteVertexArrays(1, &self.vao);
+            gl::DeleteProgram(self.program);
         }
-        gl::DeleteProgram(self.program);
         self.vao = 0;
         self.program = 0;
     }
@@ -191,11 +188,10 @@ impl sb6::App for MyApp {
         const GREEN: [GLfloat, ..4] = [ 0.0, 0.25, 0.0, 1.0 ];
         unsafe {
             gl::ClearBufferfv(gl::COLOR, 0, GREEN.as_ptr());
+            gl::UseProgram(self.program);
+            gl::PointSize(5.0);
+            gl::DrawArrays(gl::PATCHES, 0, 3);
         }
-
-        gl::UseProgram(self.program);
-        gl::PointSize(5.0);
-        gl::DrawArrays(gl::PATCHES, 0, 3);
     }
 }
 
@@ -204,10 +200,5 @@ fn main() {
     init.title = "OpenGL SuperBible - Tessellation and Geometry Shaders";
     let mut app = MyApp::new(init);
     sb6::run(&mut app);
-}
-
-#[start]
-fn start(argc: int, argv: *const *const u8) -> int {
-    native::start(argc, argv, main)
 }
 

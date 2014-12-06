@@ -45,7 +45,7 @@ pub fn check_link_status(program: GLuint) -> Result<(), ProgramError> {
             let mut buf = Vec::from_elem(len as uint - 1, 0u8);
             gl::GetProgramInfoLog(program, len, ptr::null_mut(),
                 buf.as_mut_ptr() as *mut GLchar);
-            return Err(ProgramInfoLog(String::from_utf8(buf).unwrap_or(
+            return Err(ProgramError::ProgramInfoLog(String::from_utf8(buf).unwrap_or(
                 String::from_str("ProgramInfoLog not valid utf8"))));
         }
     }
@@ -53,20 +53,22 @@ pub fn check_link_status(program: GLuint) -> Result<(), ProgramError> {
 }
 
 pub fn link_from_shaders(shaders: &[GLuint]) -> Result<GLuint, ProgramError> {
-    let program = gl::CreateProgram();
+    unsafe {
+        let program = gl::CreateProgram();
 
-    for shader in shaders.iter() {
-        gl::AttachShader(program, *shader);
+        for shader in shaders.iter() {
+            gl::AttachShader(program, *shader);
+        }
+
+        gl::LinkProgram(program);
+        try!(check_link_status(program));
+
+        for shader in shaders.iter() {
+            gl::DeleteShader(*shader);
+        }
+
+        Ok(program)
     }
-
-    gl::LinkProgram(program);
-    try!(check_link_status(program));
-
-    for shader in shaders.iter() {
-        gl::DeleteShader(*shader);
-    }
-
-    Ok(program)
 }
 
 #[deriving(Clone, PartialEq, Show)]
@@ -82,6 +84,6 @@ pub fn get_uniform_location(program: GLuint, name: &str) -> Result<GLint, Unifor
         Ok(result)
     }
     else {
-        Err(UniformNotFound(program, String::from_str(name), result))
+        Err(UniformError::UniformNotFound(program, String::from_str(name), result))
     }
 }

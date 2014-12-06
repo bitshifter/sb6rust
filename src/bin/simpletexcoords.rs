@@ -25,7 +25,6 @@
 #![feature(globs)]
 
 extern crate gl;
-extern crate native;
 extern crate sb6;
 
 use gl::types::*;
@@ -57,25 +56,27 @@ impl MyApp {
     }
 
     fn load_shaders(&mut self) {
-        if self.render_prog != 0 {
-            gl::DeleteProgram(self.render_prog);
+        unsafe {
+            if self.render_prog != 0 {
+                gl::DeleteProgram(self.render_prog);
+            }
+
+            let vs = sb6::shader::load(
+                "media/shaders/simpletexcoords/render.vs.glsl",
+                gl::VERTEX_SHADER).unwrap();
+            let fs = sb6::shader::load(
+                "media/shaders/simpletexcoords/render.fs.glsl",
+                gl::FRAGMENT_SHADER).unwrap();
+
+            self.render_prog = gl::CreateProgram();
+            gl::AttachShader(self.render_prog, vs);
+            gl::AttachShader(self.render_prog, fs);
+            gl::LinkProgram(self.render_prog);
+            sb6::program::check_link_status(self.render_prog).unwrap();
+
+            gl::DeleteShader(vs);
+            gl::DeleteShader(fs);
         }
-
-        let vs = sb6::shader::load(
-            "media/shaders/simpletexcoords/render.vs.glsl",
-            gl::VERTEX_SHADER).unwrap();
-        let fs = sb6::shader::load(
-            "media/shaders/simpletexcoords/render.fs.glsl",
-            gl::FRAGMENT_SHADER).unwrap();
-
-        self.render_prog = gl::CreateProgram();
-        gl::AttachShader(self.render_prog, vs);
-        gl::AttachShader(self.render_prog, fs);
-        gl::LinkProgram(self.render_prog);
-        sb6::program::check_link_status(self.render_prog).unwrap();
-
-        gl::DeleteShader(vs);
-        gl::DeleteShader(fs);
 
         self.mv_matrix = sb6::program::get_uniform_location(
             self.render_prog, "mv_matrix").unwrap();
@@ -125,13 +126,17 @@ impl sb6::App for MyApp {
 
         self.load_shaders();
 
-        gl::Enable(gl::DEPTH_TEST);
-        gl::DepthFunc(gl::LEQUAL);
+        unsafe {
+            gl::Enable(gl::DEPTH_TEST);
+            gl::DepthFunc(gl::LEQUAL);
+        }
     }
 
     fn shutdown(&mut self) {
-        gl::DeleteProgram(self.render_prog);
-        unsafe { gl::DeleteTextures(2, self.tex_object.as_ptr()) };
+        unsafe {
+            gl::DeleteProgram(self.render_prog);
+            gl::DeleteTextures(2, self.tex_object.as_ptr());
+        }
         self.object.free();
         self.render_prog = 0;
         self.tex_object = [0, ..2];
@@ -143,18 +148,6 @@ impl sb6::App for MyApp {
         let gray = [ 0.2, 0.2, 0.2, 1.0 ];
         let ones = [ 1.0 ];
 
-        unsafe {
-            gl::ClearBufferfv(gl::COLOR, 0, gray.as_ptr());
-            gl::ClearBufferfv(gl::DEPTH, 0, ones.as_ptr());
-        }
-
-        gl::Viewport(0, 0, self.info.window_width as i32,
-            self.info.window_height as i32);
-
-        gl::BindTexture(gl::TEXTURE_2D, self.tex_object[self.tex_index as uint]);
-
-        gl::UseProgram(self.render_prog);
-
         let aspect = self.info.window_width as f32 /
             self.info.window_height as f32;
         let proj_matrix = vmath::Mat4::perspective(60.0, aspect, 0.1, 1000.0);
@@ -163,6 +156,12 @@ impl sb6::App for MyApp {
             vmath::Mat4::rotate(current_time as f32 * 21.1, 0.0, 0.0, 1.0);
 
         unsafe {
+            gl::ClearBufferfv(gl::COLOR, 0, gray.as_ptr());
+            gl::ClearBufferfv(gl::DEPTH, 0, ones.as_ptr());
+            gl::Viewport(0, 0, self.info.window_width as i32,
+                self.info.window_height as i32);
+            gl::BindTexture(gl::TEXTURE_2D, self.tex_object[self.tex_index as uint]);
+            gl::UseProgram(self.render_prog);
             gl::UniformMatrix4fv(self.mv_matrix, 1, gl::FALSE, mv_matrix.as_ptr());
             gl::UniformMatrix4fv(self.proj_matrix, 1, gl::FALSE, proj_matrix.as_ptr());
         }
@@ -172,10 +171,10 @@ impl sb6::App for MyApp {
 
     fn on_key(&mut self, key: sb6::Key, action: sb6::Action)
     {
-        if action == sb6::Release {
+        if action == sb6::Action::Release {
             match key {
-                sb6::KeyR => self.load_shaders(),
-                sb6::KeyT => self.tex_index = (self.tex_index + 1) % 2,
+                sb6::Key::R => self.load_shaders(),
+                sb6::Key::T => self.tex_index = (self.tex_index + 1) % 2,
                 _ => ()
             };
         }
@@ -188,10 +187,4 @@ fn main() {
     let mut app = MyApp::new(init);
     sb6::run(&mut app);
 }
-
-#[start]
-fn start(argc: int, argv: *const *const u8) -> int {
-    native::start(argc, argv, main)
-}
-
 

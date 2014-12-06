@@ -25,7 +25,6 @@
 #![feature(globs)]
 
 extern crate gl;
-extern crate native;
 extern crate sb6;
 
 use gl::types::*;
@@ -128,7 +127,7 @@ impl MyApp {
 
     fn load_shaders(&mut self) {
         if self.render_program != 0 {
-            gl::DeleteProgram(self.render_program);
+            unsafe { gl::DeleteProgram(self.render_program); }
         }
 
         let render_shaders = [
@@ -139,7 +138,7 @@ impl MyApp {
             ];
 
         self.render_program = sb6::program::link_from_shaders(
-            render_shaders).unwrap();
+            &render_shaders).unwrap();
 
         self.render.mv_matrix = sb6::program::get_uniform_location(
             self.render_program, "mv_matrix").unwrap();
@@ -156,7 +155,7 @@ impl MyApp {
             ];
 
         self.ssao_program = sb6::program::link_from_shaders(
-            ssao_shaders).unwrap();
+            &ssao_shaders).unwrap();
 
         self.ssao.ssao_radius = sb6::program::get_uniform_location(
             self.ssao_program, "ssao_radius").unwrap();
@@ -180,44 +179,46 @@ impl sb6::App for MyApp {
             gl::GenFramebuffers(1, &mut self.render_fbo);
             gl::BindFramebuffer(gl::FRAMEBUFFER, self.render_fbo);
             gl::GenTextures(3, mem::transmute(self.fbo_textures.as_ptr()));
+
+            gl::BindTexture(gl::TEXTURE_2D, self.fbo_textures[0]);
+            gl::TexStorage2D(gl::TEXTURE_2D, 1, gl::RGB16F, 2048, 2048);
+            gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MIN_FILTER, gl::NEAREST as GLint);
+            gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MAG_FILTER, gl::NEAREST as GLint);
+
+            gl::BindTexture(gl::TEXTURE_2D, self.fbo_textures[1]);
+            gl::TexStorage2D(gl::TEXTURE_2D, 1, gl::RGBA32F, 2048, 2048);
+            gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MIN_FILTER, gl::NEAREST as GLint);
+            gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MAG_FILTER, gl::NEAREST as GLint);
+
+            gl::BindTexture(gl::TEXTURE_2D, self.fbo_textures[2]);
+            gl::TexStorage2D(gl::TEXTURE_2D, 1, gl::DEPTH_COMPONENT32F, 2048, 2048);
+            gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MIN_FILTER, gl::NEAREST as GLint);
+            gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MAG_FILTER, gl::NEAREST as GLint);
+            gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_WRAP_S, gl::CLAMP_TO_EDGE as GLint);
+            gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_WRAP_T, gl::CLAMP_TO_EDGE as GLint);
+
+            gl::FramebufferTexture(gl::FRAMEBUFFER, gl::COLOR_ATTACHMENT0, self.fbo_textures[0], 0);
+            gl::FramebufferTexture(gl::FRAMEBUFFER, gl::COLOR_ATTACHMENT1, self.fbo_textures[1], 0);
+            gl::FramebufferTexture(gl::FRAMEBUFFER, gl::DEPTH_ATTACHMENT, self.fbo_textures[2], 0);
+
+            const DRAW_BUFFERS: [GLint, ..2] = [ gl::COLOR_ATTACHMENT0 as GLint,
+                gl::COLOR_ATTACHMENT1 as GLint ];
+
+            gl::DrawBuffers(2, mem::transmute(DRAW_BUFFERS.as_ptr()));
+
+            gl::BindFramebuffer(gl::FRAMEBUFFER, 0);
+
+            gl::GenVertexArrays(1, &mut self.quad_vao);
+            gl::BindVertexArray(self.quad_vao);
         }
-
-        gl::BindTexture(gl::TEXTURE_2D, self.fbo_textures[0]);
-        gl::TexStorage2D(gl::TEXTURE_2D, 1, gl::RGB16F, 2048, 2048);
-        gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MIN_FILTER, gl::NEAREST as GLint);
-        gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MAG_FILTER, gl::NEAREST as GLint);
-
-        gl::BindTexture(gl::TEXTURE_2D, self.fbo_textures[1]);
-        gl::TexStorage2D(gl::TEXTURE_2D, 1, gl::RGBA32F, 2048, 2048);
-        gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MIN_FILTER, gl::NEAREST as GLint);
-        gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MAG_FILTER, gl::NEAREST as GLint);
-
-        gl::BindTexture(gl::TEXTURE_2D, self.fbo_textures[2]);
-        gl::TexStorage2D(gl::TEXTURE_2D, 1, gl::DEPTH_COMPONENT32F, 2048, 2048);
-        gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MIN_FILTER, gl::NEAREST as GLint);
-        gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MAG_FILTER, gl::NEAREST as GLint);
-        gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_WRAP_S, gl::CLAMP_TO_EDGE as GLint);
-        gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_WRAP_T, gl::CLAMP_TO_EDGE as GLint);
-
-        gl::FramebufferTexture(gl::FRAMEBUFFER, gl::COLOR_ATTACHMENT0, self.fbo_textures[0], 0);
-        gl::FramebufferTexture(gl::FRAMEBUFFER, gl::COLOR_ATTACHMENT1, self.fbo_textures[1], 0);
-        gl::FramebufferTexture(gl::FRAMEBUFFER, gl::DEPTH_ATTACHMENT, self.fbo_textures[2], 0);
-
-        const DRAW_BUFFERS: [GLint, ..2] = [ gl::COLOR_ATTACHMENT0 as GLint,
-            gl::COLOR_ATTACHMENT1 as GLint ];
-
-        unsafe { gl::DrawBuffers(2, mem::transmute(DRAW_BUFFERS.as_ptr())) };
-
-        gl::BindFramebuffer(gl::FRAMEBUFFER, 0);
-
-        unsafe { gl::GenVertexArrays(1, &mut self.quad_vao) };
-        gl::BindVertexArray(self.quad_vao);
 
         self.object.load("media/objects/dragon.sbm").unwrap();
         self.cube.load("media/objects/cube.sbm").unwrap();
 
-        gl::Enable(gl::DEPTH_TEST);
-        gl::Enable(gl::CULL_FACE);
+        unsafe {
+            gl::Enable(gl::DEPTH_TEST);
+            gl::Enable(gl::CULL_FACE);
+        }
 
         let mut rng = rand::weak_rng();
         let mut point_data = SamplePoints {
@@ -255,8 +256,10 @@ impl sb6::App for MyApp {
     }
 
     fn shutdown(&mut self) {
-        gl::DeleteProgram(self.render_program);
-        unsafe { gl::DeleteTextures(3, self.fbo_textures.as_ptr()) };
+        unsafe {
+            gl::DeleteProgram(self.render_program);
+            gl::DeleteTextures(3, self.fbo_textures.as_ptr());
+        }
         self.object.free();
         self.cube.free();
         self.render_program = 0;
@@ -279,99 +282,101 @@ impl sb6::App for MyApp {
 
         let f = self.total_time as f32;
 
-        gl::Viewport(0, 0, self.info.window_width as GLint,
-            self.info.window_height as GLint);
-
-        gl::BindFramebuffer(gl::FRAMEBUFFER, self.render_fbo);
-        gl::Enable(gl::DEPTH_TEST);
-
-        unsafe {
-            gl::ClearBufferfv(gl::COLOR, 0, BLACK.as_ptr());
-            gl::ClearBufferfv(gl::COLOR, 1, BLACK.as_ptr());
-            gl::ClearBufferfv(gl::DEPTH, 0, &ONE);
-        }
-
-        gl::BindBufferBase(gl::UNIFORM_BUFFER, 0, self.points_buffer);
-
-        gl::UseProgram(self.render_program);
-
         let lookat_matrix = vmath::Mat4::lookat(
             &vmath::Vec3::new(0.0, 3.0, 15.0),
             &vmath::Vec3::new(0.0, 0.0, 0.0),
             &vmath::Vec3::new(0.0, 1.0, 0.0));
-
         let aspect = self.info.window_width as f32 /
             self.info.window_height as f32;
         let proj_matrix = vmath::Mat4::perspective(50.0, aspect, 0.1, 1000.0);
-        unsafe { gl::UniformMatrix4fv(self.render.proj_matrix, 1, gl::FALSE,
-            proj_matrix.as_ptr()); }
 
-        {
+        let shading_level =
+            if self.show_shading { if self.show_ao { 0.7 } else { 1.0 } } 
+            else { 0.0 };
+
+        let ssao_level =
+            if self.show_ao { if self.show_shading { 0.3 } else { 1.0 } }
+            else { 0.0 };
+
+        unsafe {
+            gl::Viewport(0, 0, self.info.window_width as GLint,
+                         self.info.window_height as GLint);
+
+            gl::BindFramebuffer(gl::FRAMEBUFFER, self.render_fbo);
+            gl::Enable(gl::DEPTH_TEST);
+
+            gl::ClearBufferfv(gl::COLOR, 0, BLACK.as_ptr());
+            gl::ClearBufferfv(gl::COLOR, 1, BLACK.as_ptr());
+            gl::ClearBufferfv(gl::DEPTH, 0, &ONE);
+
+            gl::BindBufferBase(gl::UNIFORM_BUFFER, 0, self.points_buffer);
+
+            gl::UseProgram(self.render_program);
+
+            gl::UniformMatrix4fv(self.render.proj_matrix, 1, gl::FALSE,
+                                 proj_matrix.as_ptr());
+
             let mv_matrix = vmath::Mat4::translate(0.0, -5.0, 0.0) *
                 vmath::Mat4::rotate(f * 5.0, 0.0, 1.0, 0.0) *
                 vmath::Mat4::identity();
-            unsafe { gl::UniformMatrix4fv(self.render.mv_matrix, 1, gl::FALSE,
-                (lookat_matrix * mv_matrix).as_ptr()); }
+            gl::UniformMatrix4fv(self.render.mv_matrix, 1, gl::FALSE,
+                                 (lookat_matrix * mv_matrix).as_ptr());
 
-            let shading_level =
-                if self.show_shading { if self.show_ao { 0.7 } else { 1.0 } } 
-                else { 0.0 };
             gl::Uniform1f(self.render.shading_level, shading_level);
 
             self.object.render();
         }
 
-        {
+        unsafe {
             let mv_matrix = vmath::Mat4::translate(0.0, -4.5, 0.0) *
                 vmath::Mat4::rotate(f * 5.0, 0.0, 1.0, 0.0) *
                 vmath::Mat4::scale(4000.0, 0.1, 4000.0) *
                 vmath::Mat4::identity();
-            unsafe { gl::UniformMatrix4fv(self.render.mv_matrix, 1, gl::FALSE,
-                (lookat_matrix * mv_matrix).as_ptr()); }
+            gl::UniformMatrix4fv(self.render.mv_matrix, 1, gl::FALSE,
+                (lookat_matrix * mv_matrix).as_ptr());
 
             self.cube.render();
         }
 
-        gl::BindFramebuffer(gl::FRAMEBUFFER, 0);
+        unsafe {
+            gl::BindFramebuffer(gl::FRAMEBUFFER, 0);
 
-        gl::UseProgram(self.ssao_program);
+            gl::UseProgram(self.ssao_program);
 
-        gl::Uniform1f(self.ssao.ssao_radius, self.ssao_radius *
-            self.info.window_width as f32 / 1000.0);
+            gl::Uniform1f(self.ssao.ssao_radius, self.ssao_radius *
+                self.info.window_width as f32 / 1000.0);
 
-        let ssao_level =
-            if self.show_ao { if self.show_shading { 0.3 } else { 1.0 } }
-            else { 0.0 };
-        gl::Uniform1f(self.ssao.ssao_level, ssao_level);
-        // let weight_by_angle = if self.weight_by_angle { 1 } else { 0 };
-        // gl::Uniform1i(self.ssao.weight_by_angle, weight_by_angle);
-        let randomize_points = if self.randomize_points { 1 } else { 0 };
-        gl::Uniform1i(self.ssao.randomize_points, randomize_points);
-        gl::Uniform1ui(self.ssao.point_count, self.point_count);
+            gl::Uniform1f(self.ssao.ssao_level, ssao_level);
+            // let weight_by_angle = if self.weight_by_angle { 1 } else { 0 };
+            // gl::Uniform1i(self.ssao.weight_by_angle, weight_by_angle);
+            let randomize_points = if self.randomize_points { 1 } else { 0 };
+            gl::Uniform1i(self.ssao.randomize_points, randomize_points);
+            gl::Uniform1ui(self.ssao.point_count, self.point_count);
 
-        gl::ActiveTexture(gl::TEXTURE0);
-        gl::BindTexture(gl::TEXTURE_2D, self.fbo_textures[0]);
-        gl::ActiveTexture(gl::TEXTURE1);
-        gl::BindTexture(gl::TEXTURE_2D, self.fbo_textures[1]);
+            gl::ActiveTexture(gl::TEXTURE0);
+            gl::BindTexture(gl::TEXTURE_2D, self.fbo_textures[0]);
+            gl::ActiveTexture(gl::TEXTURE1);
+            gl::BindTexture(gl::TEXTURE_2D, self.fbo_textures[1]);
 
-        gl::Disable(gl::DEPTH_TEST);
-        gl::BindVertexArray(self.quad_vao);
-        gl::DrawArrays(gl::TRIANGLE_STRIP, 0, 4);
+            gl::Disable(gl::DEPTH_TEST);
+            gl::BindVertexArray(self.quad_vao);
+            gl::DrawArrays(gl::TRIANGLE_STRIP, 0, 4);
+        }
     }
 
     fn on_key(&mut self, key: sb6::Key, action: sb6::Action)
     {
-        if action == sb6::Release {
+        if action == sb6::Action::Release {
             match key {
-                sb6::KeyR => self.randomize_points = !self.randomize_points,
-                sb6::KeyS => self.point_count += 1,
-                sb6::KeyX => self.point_count -= 1,
-                sb6::KeyQ => self.show_shading = !self.show_shading,
-                sb6::KeyW => self.show_ao = !self.show_ao,
-                sb6::KeyA => self.ssao_radius += 0.01,
-                sb6::KeyZ => self.ssao_radius -= 0.01,
-                sb6::KeyP => self.paused = !self.paused,
-                sb6::KeyL => self.load_shaders(),
+                sb6::Key::R => self.randomize_points = !self.randomize_points,
+                sb6::Key::S => self.point_count += 1,
+                sb6::Key::X => self.point_count -= 1,
+                sb6::Key::Q => self.show_shading = !self.show_shading,
+                sb6::Key::W => self.show_ao = !self.show_ao,
+                sb6::Key::A => self.ssao_radius += 0.01,
+                sb6::Key::Z => self.ssao_radius -= 0.01,
+                sb6::Key::P => self.paused = !self.paused,
+                sb6::Key::L => self.load_shaders(),
                 _ => ()
             };
         }
@@ -384,11 +389,4 @@ fn main() {
     let mut app = MyApp::new(init);
     sb6::run(&mut app);
 }
-
-#[start]
-fn start(argc: int, argv: *const *const u8) -> int {
-    native::start(argc, argv, main)
-}
-
-
 

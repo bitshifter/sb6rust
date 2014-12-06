@@ -53,7 +53,7 @@ pub fn check_compile_status(shader: GLuint) -> Result<(), ShaderError> {
             let mut buf = Vec::from_elem(len as uint - 1, 0u8);
             gl::GetShaderInfoLog(shader, len, ptr::null_mut(),
                 buf.as_mut_ptr() as *mut GLchar);
-            return Err(ShaderInfoLog(String::from_utf8(buf).unwrap_or(
+            return Err(ShaderError::ShaderInfoLog(String::from_utf8(buf).unwrap_or(
                 String::from_str("ShaderInfoLog not valid utf8"))));
         }
     }
@@ -63,16 +63,16 @@ pub fn check_compile_status(shader: GLuint) -> Result<(), ShaderError> {
 pub fn load(filename: &str, shader_type: GLenum) -> Result<GLuint, LoadError> {
     let src = match io::File::open(&Path::new(filename)).read_to_string() {
         Ok(src) => src,
-        Err(io) => return Err(IoError(io.kind, io.desc))
+        Err(io) => return Err(LoadError::IoError(io.kind, io.desc))
     };
 
-    let result = gl::CreateShader(shader_type);
     unsafe {
+        let result = gl::CreateShader(shader_type);
         src.with_c_str(|ptr| gl::ShaderSource(result, 1, &ptr, ptr::null()));
-    }
-    gl::CompileShader(result);
-    match check_compile_status(result) {
-        Ok(_) => Ok(result),
-        Err(ShaderInfoLog(msg)) => Err(CompileError(msg))
+        gl::CompileShader(result);
+        match check_compile_status(result) {
+            Ok(_) => Ok(result),
+            Err(ShaderError::ShaderInfoLog(msg)) => Err(LoadError::CompileError(msg))
+        }
     }
 }
