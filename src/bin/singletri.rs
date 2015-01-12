@@ -22,14 +22,11 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-#![feature(globs)]
-
 extern crate gl;
 extern crate sb6;
 
 use gl::types::*;
-use std::num::FloatMath;
-use std::ptr;
+use std::num::Float;
 
 const VS_SRC: &'static str = "\
 #version 420 core                                                 \n\
@@ -74,17 +71,8 @@ impl sb6::App for MyApp {
         unsafe {
             self.program = gl::CreateProgram();
 
-            let fs = gl::CreateShader(gl::FRAGMENT_SHADER);
-            FS_SRC.with_c_str(
-                |ptr| gl::ShaderSource(fs, 1, &ptr, ptr::null()));
-            gl::CompileShader(fs);
-            sb6::shader::check_compile_status(fs).unwrap();
-
-            let vs = gl::CreateShader(gl::VERTEX_SHADER);
-            VS_SRC.with_c_str(
-                |ptr| gl::ShaderSource(vs, 1, &ptr, ptr::null()));
-            gl::CompileShader(vs);
-            sb6::shader::check_compile_status(vs).unwrap();
+            let fs = sb6::shader::create_from_source(FS_SRC, gl::FRAGMENT_SHADER).unwrap();
+            let vs = sb6::shader::create_from_source(VS_SRC, gl::VERTEX_SHADER).unwrap();
 
             gl::AttachShader(self.program, vs);
             gl::AttachShader(self.program, fs);

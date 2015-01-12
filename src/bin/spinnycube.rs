@@ -22,20 +22,18 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-#![feature(globs)]
-
 extern crate gl;
 extern crate sb6;
 
 use gl::types::*;
 use std::mem;
-use std::num::FloatMath;
+use std::num::Float;
 use std::ptr;
 use vmath::Mat4;
 
 mod vmath;
 
-const VERTEX_POSITIONS: [GLfloat, ..108] = [
+const VERTEX_POSITIONS: [GLfloat; 108] = [
     -0.25,  0.25, -0.25,
     -0.25, -0.25, -0.25,
      0.25, -0.25, -0.25,
@@ -156,17 +154,8 @@ impl sb6::App for MyApp {
         unsafe {
             self.program = gl::CreateProgram();
 
-            let fs = gl::CreateShader(gl::FRAGMENT_SHADER);
-            FS_SRC.with_c_str(
-                |ptr| gl::ShaderSource(fs, 1, &ptr, ptr::null()));
-            gl::CompileShader(fs);
-            sb6::shader::check_compile_status(fs).unwrap();
-
-            let vs = gl::CreateShader(gl::VERTEX_SHADER);
-            VS_SRC.with_c_str(
-                |ptr| gl::ShaderSource(vs, 1, &ptr, ptr::null()));
-            gl::CompileShader(vs);
-            sb6::shader::check_compile_status(vs).unwrap();
+            let fs = sb6::shader::create_from_source(FS_SRC, gl::FRAGMENT_SHADER).unwrap();
+            let vs = sb6::shader::create_from_source(VS_SRC, gl::VERTEX_SHADER).unwrap();
 
             gl::AttachShader(self.program, vs);
             gl::AttachShader(self.program, fs);
@@ -215,14 +204,14 @@ impl sb6::App for MyApp {
         self.program = 0;
     }
 
-    fn on_resize(&mut self, width: int, height: int) {
+    fn on_resize(&mut self, width: isize, height: isize) {
         self.info.window_width = width as u32;
         self.info.window_height = height as u32;
         self.update_proj_matrix();
     }
 
     fn render(&self, time: f64) {
-        const GREEN: [GLfloat, ..4] = [ 0.0, 0.25, 0.0, 1.0 ];
+        const GREEN: [GLfloat; 4] = [ 0.0, 0.25, 0.0, 1.0 ];
         const ONE: GLfloat = 1.0;
 
         unsafe {

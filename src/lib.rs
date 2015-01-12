@@ -22,16 +22,7 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-#![crate_type = "lib"]
-#![crate_name = "sb6"]
-#![comment = "OpenGL Super Bible Application Framework"]
-
-#![feature(globs)]
-#![feature(macro_rules)]
-#![feature(phase)]
-
-#[phase(plugin, link)]
-extern crate log;
+#[macro_use] extern crate log;
 
 extern crate gl;
 extern crate glfw;

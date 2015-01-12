@@ -22,7 +22,7 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-#![feature(globs)]
+#![allow(unstable)]
 
 extern crate gl;
 extern crate sb6;
@@ -36,8 +36,8 @@ mod vmath;
 
 struct SamplePoints
 {
-    point: [vmath::Vec4, ..256],
-    random_vectors: [vmath::Vec4, ..256]
+    point: [vmath::Vec4; 256],
+    random_vectors: [vmath::Vec4; 256]
 }
 
 struct RenderUniforms {
@@ -81,7 +81,7 @@ struct MyApp {
     render_program: GLuint,
     ssao_program: GLuint,
     render_fbo: GLuint,
-    fbo_textures: [GLuint, ..3],
+    fbo_textures: [GLuint; 3],
     quad_vao: GLuint,
     points_buffer: GLuint,
     object: sb6::object::Object,
@@ -106,7 +106,7 @@ impl MyApp {
             render_program: 0,
             ssao_program: 0,
             render_fbo: 0,
-            fbo_textures: [0, ..3],
+            fbo_textures: [0; 3],
             quad_vao: 0,
             points_buffer: 0,
             object: sb6::object::Object::new(),
@@ -201,7 +201,7 @@ impl sb6::App for MyApp {
             gl::FramebufferTexture(gl::FRAMEBUFFER, gl::COLOR_ATTACHMENT1, self.fbo_textures[1], 0);
             gl::FramebufferTexture(gl::FRAMEBUFFER, gl::DEPTH_ATTACHMENT, self.fbo_textures[2], 0);
 
-            const DRAW_BUFFERS: [GLint, ..2] = [ gl::COLOR_ATTACHMENT0 as GLint,
+            const DRAW_BUFFERS: [GLint; 2] = [ gl::COLOR_ATTACHMENT0 as GLint,
                 gl::COLOR_ATTACHMENT1 as GLint ];
 
             gl::DrawBuffers(2, mem::transmute(DRAW_BUFFERS.as_ptr()));
@@ -222,11 +222,11 @@ impl sb6::App for MyApp {
 
         let mut rng = rand::weak_rng();
         let mut point_data = SamplePoints {
-            point: [vmath::Vec4::zero(), ..256],
-            random_vectors: [vmath::Vec4::zero(), ..256]
+            point: [vmath::Vec4::zero(); 256],
+            random_vectors: [vmath::Vec4::zero(); 256]
         };
 
-        for i in range(0, 256) {
+        for i in (0..256) {
             loop
             {
                 point_data.point[i] = vmath::Vec4::new(
@@ -240,7 +240,7 @@ impl sb6::App for MyApp {
             }
             point_data.point[i].normalize();
         }
-        for i in range(0, 256) {
+        for i in (0..256) {
             point_data.random_vectors[i] = vmath::Vec4::new(
                 rng.gen::<f32>(), rng.gen::<f32>(),
                 rng.gen::<f32>(), rng.gen::<f32>());
@@ -264,7 +264,7 @@ impl sb6::App for MyApp {
         self.cube.free();
         self.render_program = 0;
         self.ssao_program = 0;
-        self.fbo_textures = [0, ..3];
+        self.fbo_textures = [0; 3];
         self.render = RenderUniforms::new();
         self.ssao = SSAOUniforms::new();
     }
@@ -277,15 +277,15 @@ impl sb6::App for MyApp {
     }
 
     fn render(&self, _: f64) {
-        const BLACK: [GLfloat, ..4] = [ 0.0, 0.0, 0.0, 0.0 ];
+        const BLACK: [GLfloat; 4] = [ 0.0, 0.0, 0.0, 0.0 ];
         const ONE: GLfloat = 1.0;
 
         let f = self.total_time as f32;
 
         let lookat_matrix = vmath::Mat4::lookat(
-            &vmath::Vec3::new(0.0, 3.0, 15.0),
-            &vmath::Vec3::new(0.0, 0.0, 0.0),
-            &vmath::Vec3::new(0.0, 1.0, 0.0));
+            vmath::Vec3::new(0.0, 3.0, 15.0),
+            vmath::Vec3::new(0.0, 0.0, 0.0),
+            vmath::Vec3::new(0.0, 1.0, 0.0));
         let aspect = self.info.window_width as f32 /
             self.info.window_height as f32;
         let proj_matrix = vmath::Mat4::perspective(50.0, aspect, 0.1, 1000.0);

@@ -22,8 +22,6 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-#![feature(globs)]
-
 extern crate gl;
 extern crate sb6;
 
@@ -35,7 +33,7 @@ mod vmath;
 struct MyApp {
     info: sb6::AppInfo,
     render_prog: GLuint,
-    tex_object: [GLuint, ..2],
+    tex_object: [GLuint; 2],
     tex_index: GLuint,
     mv_matrix: GLint,
     proj_matrix: GLint,
@@ -47,7 +45,7 @@ impl MyApp {
         MyApp {
             info: init,
             render_prog: 0,
-            tex_object: [0, ..2],
+            tex_object: [0; 2],
             tex_index: 0,
             mv_matrix: -1,
             proj_matrix: -1,
@@ -89,9 +87,9 @@ impl sb6::App for MyApp {
     fn get_app_info(&self) -> &sb6::AppInfo { &self.info }
     fn startup(&mut self) {
         // generate a 16 x 16 checker texture
-        const TEX_DIM: uint = 16;
-        let mut tex_data : [u32, ..(TEX_DIM * TEX_DIM)] = [0, ..(TEX_DIM * TEX_DIM)];
-        for i in range(0, tex_data.len())
+        const TEX_DIM: usize = 16;
+        let mut tex_data : [u32; (TEX_DIM * TEX_DIM)] = [0; (TEX_DIM * TEX_DIM)];
+        for i in (0..tex_data.len())
         {
             let col = i % TEX_DIM;
             let row = i / TEX_DIM;
@@ -139,7 +137,7 @@ impl sb6::App for MyApp {
         }
         self.object.free();
         self.render_prog = 0;
-        self.tex_object = [0, ..2];
+        self.tex_object = [0; 2];
         self.mv_matrix = -1;
         self.proj_matrix = -1;
     }
@@ -160,7 +158,7 @@ impl sb6::App for MyApp {
             gl::ClearBufferfv(gl::DEPTH, 0, ones.as_ptr());
             gl::Viewport(0, 0, self.info.window_width as i32,
                 self.info.window_height as i32);
-            gl::BindTexture(gl::TEXTURE_2D, self.tex_object[self.tex_index as uint]);
+            gl::BindTexture(gl::TEXTURE_2D, self.tex_object[self.tex_index as usize]);
             gl::UseProgram(self.render_prog);
             gl::UniformMatrix4fv(self.mv_matrix, 1, gl::FALSE, mv_matrix.as_ptr());
             gl::UniformMatrix4fv(self.proj_matrix, 1, gl::FALSE, proj_matrix.as_ptr());

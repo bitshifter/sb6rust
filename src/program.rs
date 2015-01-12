@@ -22,11 +22,15 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
+#![allow(unstable)]
+
 extern crate gl;
 use gl::types::*;
+use std::ffi;
+use std::iter;
 use std::ptr;
 
-#[deriving(Clone, PartialEq, Show)]
+#[derive(Clone, PartialEq, Show)]
 pub enum ProgramError {
     ProgramInfoLog(String)
 }
@@ -42,7 +46,7 @@ pub fn check_link_status(program: GLuint) -> Result<(), ProgramError> {
             let mut len: GLint = 0;
             gl::GetProgramiv(program, gl::INFO_LOG_LENGTH, &mut len);
             // subtract 1 to skip the trailing null character
-            let mut buf = Vec::from_elem(len as uint - 1, 0u8);
+            let mut buf: Vec<u8> = iter::repeat(0u8).take(len as usize - 1).collect();
             gl::GetProgramInfoLog(program, len, ptr::null_mut(),
                 buf.as_mut_ptr() as *mut GLchar);
             return Err(ProgramError::ProgramInfoLog(String::from_utf8(buf).unwrap_or(
@@ -71,15 +75,15 @@ pub fn link_from_shaders(shaders: &[GLuint]) -> Result<GLuint, ProgramError> {
     }
 }
 
-#[deriving(Clone, PartialEq, Show)]
+#[derive(Clone, PartialEq, Show)]
 pub enum UniformError {
     UniformNotFound(GLuint, String, GLint)
 }
 
 pub fn get_uniform_location(program: GLuint, name: &str) -> Result<GLint, UniformError> {
-    let result = name.with_c_str(|ptr| unsafe {
-        gl::GetUniformLocation(program, ptr)
-    });
+    let result = unsafe {
+        gl::GetUniformLocation(program, ffi::CString::from_slice(name.as_bytes()).as_ptr())
+    };
     if result >= 0 {
         Ok(result)
     }

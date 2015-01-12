@@ -22,22 +22,25 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
+#![allow(unstable)]
+
 extern crate gl;
 
 use gl::types::*;
 use std::io;
 use std::mem;
+use std::num;
 use std::ptr;
 use std::str;
 use reader::BufferReader;
 
 macro_rules! fourcc(
     ($a:expr, $b:expr, $c:expr, $d:expr) => (
-        (($a as u32 << 0) | ($b as u32 << 8) | ($c as u32 << 16) | ($d as u32 <<24)) as int
+        (($a as u32) << 0 | ($b as u32) << 8 | ($c as u32) << 16 | ($d as u32) <<24) as isize
     );
-)
+);
 
-#[deriving(FromPrimitive)]
+#[derive(FromPrimitive)]
 enum ChunkType {
     IndexDataType = fourcc!('I','N','D','X'),
     VertexDataType = fourcc!('V','R','T','X'),
@@ -73,7 +76,7 @@ struct VertexData {
 
 struct VertexAttribDecl {
     #[allow(dead_code)]
-    name: [u8, ..64],
+    name: [u8; 64],
     size: u32,
     ty: u32,
     stride: u32,
@@ -81,16 +84,17 @@ struct VertexAttribDecl {
     data_offset: u32
 }
 
+#[derive(Copy)]
 struct SubObjectDecl {
     first: u32,
     count: u32
 }
 
-#[deriving(Clone, PartialEq, Show)]
+#[derive(Clone, PartialEq, Show)]
 pub enum LoadError {
     MagicError(Option<String>),
     ChunkTypeError(u32),
-    ChunkSizeError(uint, uint),
+    ChunkSizeError(usize, usize),
     VertexDataError,
     VertexAttribDataError,
     IoError(io::IoErrorKind, &'static str),
@@ -103,16 +107,17 @@ fn io_error_to_error(io: io::IoError) -> LoadError {
 // Converts an IoError to a LoadError
 macro_rules! read(
     ($e:expr) => (match $e { Ok(e) => e, Err(e) => return Err(io_error_to_error(e)) })
-)
+);
 
+#[derive(Copy)]
 pub struct Object {
     vertex_buffer: GLuint,
     index_buffer: GLuint,
     vao: GLuint,
     num_indices: GLuint,
     index_type: GLuint,
-    num_sub_objects: uint,
-    sub_object: [SubObjectDecl, ..256]
+    num_sub_objects: usize,
+    sub_object: [SubObjectDecl; 256]
 }
 
 impl Object {
@@ -124,7 +129,7 @@ impl Object {
             num_indices: 0,
             index_type: 0,
             num_sub_objects: 0,
-            sub_object: [SubObjectDecl { first: 0, count: 0 }, ..256]
+            sub_object: [SubObjectDecl { first: 0, count: 0 }; 256]
         }
     }
 
@@ -132,23 +137,23 @@ impl Object {
         let bytes = read!(io::File::open(&Path::new(filename)).read_to_end());
 
         let mut reader = BufferReader::new(bytes);
-        let mut bytes_read = 0u;
+        let mut bytes_read = 0us;
 
         // check header magic
         let magic = read!(reader.pop_slice::<u8>(4));
         match str::from_utf8(magic) {
-            Some(v) if v == "SB6M" => (),
-            Some(v) => return Err(LoadError::MagicError(Some(String::from_str(v)))),
-            None => return Err(LoadError::MagicError(None))
+            Ok(v) if v == "SB6M" => (),
+            Ok(v) => return Err(LoadError::MagicError(Some(String::from_str(v)))),
+            Err(_) => return Err(LoadError::MagicError(None))
         }
 
-        debug!("magic: {}", str::from_utf8(magic));
+        debug!("magic: {}", str::from_utf8(magic).unwrap());
 
         let header = read!(reader.pop_value::<MeshHeader>());
-        bytes_read += header.size as uint;
+        bytes_read += header.size as usize;
 
         debug!("size: {}, num_chunks: {}, flags: {}",
-            header.size, header.num_chunks, header.flags)
+            header.size, header.num_chunks, header.flags);
         assert!(bytes_read == reader.bytes_read());
 
         let mut vertex_attrib_data_ref: Option<&[VertexAttribDecl]> = None;
@@ -156,10 +161,10 @@ impl Object {
         let mut index_data_chunk_ref: Option<&IndexData> = None;
         let mut sub_object_data_ref: Option<&[SubObjectDecl]> = None;
 
-        for _ in range(0, header.num_chunks) {
+        for _ in (0..header.num_chunks) {
             let chunk_header = read!(reader.pop_value::<ChunkHeader>());
             let chunk_type: Option<ChunkType> =
-                FromPrimitive::from_u32(chunk_header.chunk_type);
+                num::from_u32(chunk_header.chunk_type);
             match chunk_type {
                 Some(ChunkType::IndexDataType) => {
                     debug!("INDX");
@@ -180,7 +185,7 @@ impl Object {
                     // read in all the attributes
                     vertex_attrib_data_ref = Some(
                         read!(reader.pop_slice::<VertexAttribDecl>(
-                                *attrib_count as uint))); 
+                                *attrib_count as usize)));
                 },
                 Some(ChunkType::SubObjectListType) => {
                     debug!("OLST");
@@ -190,22 +195,22 @@ impl Object {
                     // read in sub object data
                     sub_object_data_ref = Some(
                         read!(reader.pop_slice::<SubObjectDecl>(
-                                *sub_object_count as uint)));
+                                *sub_object_count as usize)));
                 },
                 Some(ChunkType::CommentType) => {
                     debug!("CMNT");
-                    let comment_len = chunk_header.size as uint -
+                    let comment_len = chunk_header.size as usize -
                         mem::size_of::<ChunkHeader>();
                     let comment_bytes_ref = read!(reader.pop_slice::<u8>(
                             comment_len));
                     match str::from_utf8(comment_bytes_ref) {
-                        Some(v) => debug!("{}", v),
+                        Ok(v) => debug!("{}", v),
                         _ => panic!("couldn't read comment")
                     };
                 },
                 _ => return Err(LoadError::ChunkTypeError(chunk_header.chunk_type))
             }
-            bytes_read += chunk_header.size as uint;
+            bytes_read += chunk_header.size as usize;
             assert!(bytes_read == reader.bytes_read());
         }
 
@@ -230,7 +235,7 @@ impl Object {
             Some(sub_object_data) => {
                 debug!("sub_object_count: {}", sub_object_data.len());
                 self.num_sub_objects = sub_object_data.len();
-                for i in range(0, self.num_sub_objects) {
+                for i in (0..self.num_sub_objects) {
                     self.sub_object[i] = sub_object_data[i];
                 }
             },
@@ -241,8 +246,8 @@ impl Object {
         }
 
         // bind vertex data
-        let vertex_data_start = vertex_data_chunk.data_offset as uint;
-        let vertex_data_end = vertex_data_start + vertex_data_chunk.data_size as uint;
+        let vertex_data_start = vertex_data_chunk.data_offset as usize;
+        let vertex_data_end = vertex_data_start + vertex_data_chunk.data_size as usize;
         let vertex_data = read!(reader.peek_slice(vertex_data_start, vertex_data_end));
         unsafe {
             gl::GenBuffers(1, &mut self.vertex_buffer);
@@ -256,15 +261,15 @@ impl Object {
         }
 
         // bind vertex attributes
-        for i in range(0, vertex_attrib_data.len()) {
-            let attrib_decl = vertex_attrib_data[i];
+        for i in (0..vertex_attrib_data.len()) {
+            let attrib_decl = &vertex_attrib_data[i];
             let attrib_flags =
                 if attrib_decl.flags & VERTEX_ATTRIB_FLAG_NORMALIZED != 0 {
                     gl::TRUE
                 } else {
                     gl::FALSE
                 };
-            let attrib_data_offset = attrib_decl.data_offset as uint;
+            let attrib_data_offset = attrib_decl.data_offset as usize;
             unsafe {
                 gl::VertexAttribPointer(i as u32,
                                         attrib_decl.size as i32,
@@ -286,9 +291,9 @@ impl Object {
                         mem::size_of::<GLubyte>()
                     };
                 let index_data_size =
-                    index_data_chunk.index_count as uint * indice_size;
+                    index_data_chunk.index_count as usize * indice_size;
                 let index_data_start =
-                    index_data_chunk.index_data_offset as uint;
+                    index_data_chunk.index_data_offset as usize;
                 let index_data_end = index_data_start + index_data_size;
                 let index_data = read!(reader.peek_slice(index_data_start,
                                                         index_data_end));
@@ -354,8 +359,8 @@ impl Object {
             } else {
                 gl::DrawArraysInstancedBaseInstance(
                     gl::TRIANGLES,
-                    self.sub_object[object_index as uint].first as i32,
-                    self.sub_object[object_index as uint].count as i32,
+                    self.sub_object[object_index as usize].first as i32,
+                    self.sub_object[object_index as usize].count as i32,
                     instance_count as i32,
                     base_instance);
             }

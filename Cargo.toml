@@ -3,9 +3,11 @@
 name = "sb6"
 version = "0.0.1"
 authors = ["Cameron Hart <cam@bitshifter.net.nz>"]
+description = "OpenGL Super Bible 6 Application Framework"
 
-[dependencies.gl]
-git = "https://github.com/bjz/gl-rs"
+[dependencies]
+log = "*"
+gl = "*"
 
 [dependencies.glfw]
 git = "https://github.com/bitshifter/glfw-rs.git"

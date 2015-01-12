@@ -21,19 +21,24 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
  */
+
+#![allow(unstable)]
+
 extern crate gl;
 
 use gl::types::*;
+use std::ffi;
 use std::io;
+use std::iter;
 use std::ptr;
 
 
-#[deriving(Clone, PartialEq, Show)]
+#[derive(Clone, PartialEq, Show)]
 pub enum ShaderError {
     ShaderInfoLog(String),
 }
 
-#[deriving(Clone, PartialEq, Show)]
+#[derive(Clone, PartialEq, Show)]
 pub enum LoadError {
     CompileError(String),
     IoError(io::IoErrorKind, &'static str),
@@ -50,7 +55,7 @@ pub fn check_compile_status(shader: GLuint) -> Result<(), ShaderError> {
             let mut len = 0;
             gl::GetShaderiv(shader, gl::INFO_LOG_LENGTH, &mut len);
             // subtract 1 to skip the trailing null character
-            let mut buf = Vec::from_elem(len as uint - 1, 0u8);
+            let mut buf: Vec<u8> = iter::repeat(0u8).take(len as usize - 1).collect();
             gl::GetShaderInfoLog(shader, len, ptr::null_mut(),
                 buf.as_mut_ptr() as *mut GLchar);
             return Err(ShaderError::ShaderInfoLog(String::from_utf8(buf).unwrap_or(
@@ -60,19 +65,26 @@ pub fn check_compile_status(shader: GLuint) -> Result<(), ShaderError> {
     Ok(())
 }
 
+pub fn create_from_source(src: &str, shader_type: GLenum) -> Result<GLuint, ShaderError> {
+    unsafe {
+        let result = gl::CreateShader(shader_type);
+        gl::ShaderSource(result, 1, &ffi::CString::from_slice(src.as_bytes()).as_ptr(), ptr::null());
+        gl::CompileShader(result);
+        match check_compile_status(result) {
+            Ok(_) => Ok(result),
+            Err(e) => Err(e)
+        }
+    }
+}
+
 pub fn load(filename: &str, shader_type: GLenum) -> Result<GLuint, LoadError> {
     let src = match io::File::open(&Path::new(filename)).read_to_string() {
         Ok(src) => src,
         Err(io) => return Err(LoadError::IoError(io.kind, io.desc))
     };
 
-    unsafe {
-        let result = gl::CreateShader(shader_type);
-        src.with_c_str(|ptr| gl::ShaderSource(result, 1, &ptr, ptr::null()));
-        gl::CompileShader(result);
-        match check_compile_status(result) {
-            Ok(_) => Ok(result),
-            Err(ShaderError::ShaderInfoLog(msg)) => Err(LoadError::CompileError(msg))
-        }
+    match create_from_source(&src[], shader_type) {
+        Ok(result) => Ok(result),
+        Err(ShaderError::ShaderInfoLog(msg)) => Err(LoadError::CompileError(msg))
     }
 }

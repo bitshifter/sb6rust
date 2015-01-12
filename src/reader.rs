@@ -20,6 +20,9 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
  */
+
+#![allow(unstable)]
+
 use std::io;
 use std::mem;
 use std::raw;
@@ -31,7 +34,7 @@ use std::raw;
 /// buffer.
 pub struct BufferReader {
     buf: Vec<u8>,
-    pos: uint
+    pos: usize
 }
 
 impl BufferReader {
@@ -43,13 +46,13 @@ impl BufferReader {
     }
 
     /// Returns the buffer length
-    pub fn len(&self) -> uint { self.buf.len() }
+    pub fn len(&self) -> usize { self.buf.len() }
 
     /// Returns the number of bytes read from the buffer
-    pub fn bytes_read(&self) -> uint { self.pos }
+    pub fn bytes_read(&self) -> usize { self.pos }
 
     /// Skip the given number of bytes
-    pub fn skip_bytes(&mut self, bytes: uint) -> Result<(), io::IoError> {
+    pub fn skip_bytes(&mut self, bytes: usize) -> Result<(), io::IoError> {
         let skip_end = self.pos + bytes;
         if skip_end > self.buf.len() {
             return Err(io::standard_error(io::EndOfFile))
@@ -59,13 +62,13 @@ impl BufferReader {
     }
 
     /// Pop a slice of T items
-    pub fn pop_slice<'a, T>(&mut self, size: uint) -> Result<&'a [T], io::IoError> {
+    pub fn pop_slice<'a, T>(&mut self, size: usize) -> Result<&'a [T], io::IoError> {
         let pop_bytes = mem::size_of::<T>() * size;
         let pop_end = self.pos + pop_bytes;
         if pop_end > self.buf.len() {
             return Err(io::standard_error(io::EndOfFile))
         }
-        let ptr = unsafe { self.buf.as_ptr().offset(self.pos as int) };
+        let ptr = unsafe { self.buf.as_ptr().offset(self.pos as isize) };
         let out = unsafe { mem::transmute(
                 raw::Slice { data: ptr, len: size } ) };
         self.pos = pop_end;
@@ -78,12 +81,12 @@ impl BufferReader {
         if pop_end > self.buf.len() {
             return Err(io::standard_error(io::EndOfFile))
         }
-        let ptr = unsafe { self.buf.as_ptr().offset(self.pos as int) };
+        let ptr = unsafe { self.buf.as_ptr().offset(self.pos as isize) };
         self.pos = pop_end;
         Ok(unsafe { &*(ptr as *const T) })
     }
 
-    pub fn peek_slice<'a>(&'a self, start: uint, end: uint) -> Result<&'a [u8], io::IoError> {
+    pub fn peek_slice<'a>(&'a self, start: usize, end: usize) -> Result<&'a [u8], io::IoError> {
         assert!(start <= end);
         if end > self.buf.len() {
             return Err(io::standard_error(io::EndOfFile))
@@ -91,7 +94,7 @@ impl BufferReader {
         Ok(unsafe {
             mem::transmute(
                 raw::Slice {
-                    data: self.buf.as_ptr().offset(start as int),
+                    data: self.buf.as_ptr().offset(start as isize),
                     len: end - start
                 })
         })

@@ -22,14 +22,10 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-#![feature(globs)]
-#![feature(macro_rules)]
-
 extern crate gl;
 extern crate sb6;
 
 use gl::types::*;
-use std::ptr;
 use vmath::Mat4;
 
 mod vmath;
@@ -101,19 +97,8 @@ impl sb6::App for MyApp {
         unsafe {
             self.program = gl::CreateProgram();
 
-            let vs = gl::CreateShader(gl::VERTEX_SHADER);
-            let fs = gl::CreateShader(gl::FRAGMENT_SHADER);
-
-            VS_SRC.with_c_str(
-                |ptr| gl::ShaderSource(vs, 1, &ptr, ptr::null()));
-            FS_SRC.with_c_str(
-                |ptr| gl::ShaderSource(fs, 1, &ptr, ptr::null()));
-
-            gl::CompileShader(vs);
-            gl::CompileShader(fs);
-
-            sb6::shader::check_compile_status(vs).unwrap();
-            sb6::shader::check_compile_status(fs).unwrap();
+            let vs = sb6::shader::create_from_source(VS_SRC, gl::VERTEX_SHADER).unwrap();
+            let fs = sb6::shader::create_from_source(FS_SRC, gl::FRAGMENT_SHADER).unwrap();
 
             gl::AttachShader(self.program, vs);
             gl::AttachShader(self.program, fs);
@@ -144,7 +129,7 @@ impl sb6::App for MyApp {
     }
 
     fn render(&self, time: f64) {
-        const BLACK: [GLfloat, ..4] = [ 0.0, 0.0, 0.0, 1.0 ];
+        const BLACK: [GLfloat; 4] = [ 0.0, 0.0, 0.0, 1.0 ];
         const ONE: GLfloat = 1.0;
         let time = time as f32;
 

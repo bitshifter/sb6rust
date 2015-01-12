@@ -22,6 +22,8 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
+#![allow(unstable)]
+
 extern crate gl;
 extern crate glfw;
 
@@ -166,13 +168,14 @@ pub use glfw::{
 };
 */
 
+#[derive(Copy)]
 pub struct AppInfo {
     pub title: &'static str,
     pub window_width: u32,
     pub window_height: u32,
     pub major_version: u32,
     pub minor_version: u32,
-    pub samples: uint,
+    pub samples: usize,
     pub fullscreen: bool,
     pub vsync: bool,
     pub cursor: bool,
@@ -210,21 +213,21 @@ pub trait App
     fn update(&mut self, _: f64) {}
     fn render(&self, time: f64);
     fn shutdown(&mut self);
-    fn on_resize(&mut self, _: int, _: int) {}
+    fn on_resize(&mut self, _: isize, _: isize) {}
     fn on_key(&mut self, _: Key, _: Action) {}
 }
 
 fn handle_window_event<T: App>(app: &mut T, window: &glfw::Window,
                                event: glfw::WindowEvent) {
     match event {
-        glfw::WindowEvent::KeyEvent(glfw::Key::Escape, _, glfw::Action::Press, _) => {
+        glfw::WindowEvent::Key(glfw::Key::Escape, _, glfw::Action::Press, _) => {
             window.set_should_close(true)
         }
-        glfw::WindowEvent::KeyEvent(key, _, action, _) => {
+        glfw::WindowEvent::Key(key, _, action, _) => {
             app.on_key(key, action)
         },
-        glfw::WindowEvent::SizeEvent(w, h) => {
-            app.on_resize(w as int, h as int)
+        glfw::WindowEvent::Size(w, h) => {
+            app.on_resize(w as isize, h as isize)
         }
         _ => ()
     }
@@ -239,7 +242,7 @@ pub fn run<T: App>(app: &mut T) {
         glfw.window_hint(glfw::WindowHint::OpenglProfile(glfw::OpenGlProfileHint::Core));
         glfw.window_hint(glfw::WindowHint::OpenglForwardCompat(true));
         glfw.create_window(
-            info.window_width, info.window_height, info.title.as_slice(),
+            info.window_width, info.window_height, &info.title[],
             glfw::WindowMode::Windowed).expect("Failed to create GLFW window.")
     };
 

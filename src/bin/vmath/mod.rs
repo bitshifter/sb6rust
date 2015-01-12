@@ -21,13 +21,19 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
  */
+
+#![allow(unstable)]
+
 use std::fmt;
 use std::num::Float;
-use std::num::FloatMath;
+use std::ops::Add;
+use std::ops::Index;
+use std::ops::Mul;
+use std::ops::Sub;
 
-#[allow(dead_code)]
+#[derive(Copy)]
 pub struct Vec3 {
-    v: [f32, ..3]
+    v: [f32; 3]
 }
 
 #[allow(dead_code)]
@@ -74,8 +80,9 @@ impl fmt::Show for Vec3 {
     }
 }
 
-impl Mul<Vec3, Vec3> for Vec3 {
-    fn mul(&self, rhs: &Vec3) -> Vec3 {
+impl Mul for Vec3 {
+    type Output = Vec3;
+    fn mul(self, rhs: Vec3) -> Vec3 {
         Vec3 { v: [
             self.v[0] * rhs.v[0],
             self.v[1] * rhs.v[1],
@@ -84,8 +91,9 @@ impl Mul<Vec3, Vec3> for Vec3 {
     }
 }
 
-impl Add<Vec3, Vec3> for Vec3 {
-    fn add(&self, rhs: &Vec3) -> Vec3 {
+impl Add for Vec3 {
+    type Output = Vec3;
+    fn add(self, rhs: Vec3) -> Vec3 {
         Vec3 { v: [
             self.v[0] + rhs.v[0],
             self.v[1] + rhs.v[1],
@@ -94,8 +102,9 @@ impl Add<Vec3, Vec3> for Vec3 {
     }
 }
 
-impl Sub<Vec3, Vec3> for Vec3 {
-    fn sub(&self, rhs: &Vec3) -> Vec3 {
+impl Sub for Vec3 {
+    type Output = Vec3;
+    fn sub(self, rhs: Vec3) -> Vec3 {
         Vec3 { v: [
             self.v[0] - rhs.v[0],
             self.v[1] - rhs.v[1],
@@ -104,15 +113,16 @@ impl Sub<Vec3, Vec3> for Vec3 {
     }
 }
 
-impl Index<uint, f32> for Vec3 {
-    fn index<'a>(&'a self, i: &uint) -> &'a f32 {
+impl Index<usize> for Vec3 {
+    type Output = f32;
+    fn index<'a>(&'a self, i: &usize) -> &'a f32 {
         &self.v[*i]
     }
 }
 
-#[allow(dead_code)]
+#[derive(Copy)]
 pub struct Vec4 {
-    v: [f32, ..4]
+    v: [f32; 4]
 }
 
 #[allow(dead_code)]
@@ -156,8 +166,9 @@ impl Mul<f32, Vec4> for Vec4 {
 }
 */
 
-impl Mul<Vec4, Vec4> for Vec4 {
-    fn mul(&self, rhs: &Vec4) -> Vec4 {
+impl Mul for Vec4 {
+    type Output = Vec4;
+    fn mul(self, rhs: Vec4) -> Vec4 {
         Vec4 { v: [
             self.v[0] * rhs.v[0],
             self.v[1] * rhs.v[1],
@@ -167,8 +178,9 @@ impl Mul<Vec4, Vec4> for Vec4 {
     }
 }
 
-impl Add<Vec4, Vec4> for Vec4 {
-    fn add(&self, rhs: &Vec4) -> Vec4 {
+impl Add for Vec4 {
+    type Output = Vec4;
+    fn add(self, rhs: Vec4) -> Vec4 {
         Vec4 { v: [
             self.v[0] + rhs.v[0],
             self.v[1] + rhs.v[1],
@@ -178,8 +190,9 @@ impl Add<Vec4, Vec4> for Vec4 {
     }
 }
 
-impl Sub<Vec4, Vec4> for Vec4 {
-    fn sub(&self, rhs: &Vec4) -> Vec4 {
+impl Sub for Vec4 {
+    type Output = Vec4;
+    fn sub(self, rhs: Vec4) -> Vec4 {
         Vec4 { v: [
             self.v[0] - rhs.v[0],
             self.v[1] - rhs.v[1],
@@ -189,8 +202,9 @@ impl Sub<Vec4, Vec4> for Vec4 {
     }
 }
 
-impl Index<uint, f32> for Vec4 {
-    fn index<'a>(&'a self, i: &uint) -> &'a f32 {
+impl Index<usize> for Vec4 {
+    type Output = f32;
+    fn index<'a>(&'a self, i: &usize) -> &'a f32 {
         &self.v[*i]
     }
 }
@@ -201,9 +215,9 @@ impl fmt::Show for Vec4 {
     }
 }
 
-#[allow(dead_code)]
+#[derive(Copy)]
 pub struct Mat4 {
-    col: [Vec4, ..4]
+    col: [Vec4; 4]
 }
 
 #[allow(dead_code)]
@@ -212,8 +226,8 @@ impl Mat4 {
         &self.col[0][0] as *const f32
     }
 
-    pub fn new(col0: &Vec4, col1: &Vec4, col2: &Vec4, col3: &Vec4) -> Mat4 {
-        Mat4 { col: [ *col0, *col1, *col2, *col3 ] }
+    pub fn new(col0: Vec4, col1: Vec4, col2: Vec4, col3: Vec4) -> Mat4 {
+        Mat4 { col: [ col0, col1, col2, col3 ] }
     }
 
     pub fn zero() -> Mat4 {
@@ -252,8 +266,8 @@ impl Mat4 {
         }
     }
 
-    pub fn lookat(eye: &Vec3, center: &Vec3, up: &Vec3) -> Mat4 {
-        let f = (*center - *eye).normalize();
+    pub fn lookat(eye: Vec3, center: Vec3, up: Vec3) -> Mat4 {
+        let f = (center - eye).normalize();
         let up_n = up.normalize();
         let s = f.cross(&up_n);
         let u = s.cross(&f);
@@ -290,8 +304,9 @@ impl Mat4 {
     }
 }
 
-impl Mul<Mat4, Mat4> for Mat4 {
-    fn mul(&self, rhs: &Mat4) -> Mat4 {
+impl Mul for Mat4 {
+    type Output = Mat4;
+    fn mul(self, rhs: Mat4) -> Mat4 {
         let a0 = self.col[0];
         let a1 = self.col[1];
         let a2 = self.col[2];
@@ -311,15 +326,16 @@ impl Mul<Mat4, Mat4> for Mat4 {
     }
 }
 
-impl Index<uint, Vec4> for Mat4 {
-    fn index<'a>(&'a self, i: &uint) -> &'a Vec4 {
+impl Index<usize> for Mat4 {
+    type Output = Vec4;
+    fn index<'a>(&'a self, i: &usize) -> &'a Vec4 {
         &self.col[*i]
     }
 }
 
 impl fmt::Show for Mat4 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "[{}, {}, {}, {}]",
+        write!(f, "[{:?}, {:?}, {:?}, {:?}]",
            self.col[0], self.col[1], self.col[2], self.col[3])
     }
 }

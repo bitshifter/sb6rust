@@ -22,14 +22,17 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
+#![allow(unstable)]
+
 extern crate gl;
 
 use gl::types::*;
 use reader::BufferReader;
 use std::io;
 use std::mem;
+use std::str;
 
-#[deriving(Show)]
+#[derive(Show)]
 struct Header {
     gl_type: u32,
     gl_type_size: u32,
@@ -45,7 +48,7 @@ struct Header {
     key_pair_bytes: u32
 }
 
-#[deriving(Clone, PartialEq, Show)]
+#[derive(Clone, Copy, PartialEq, Show)]
 pub enum LoadError {
     MagicError,
     HeaderError,
@@ -58,12 +61,12 @@ fn io_error_to_error(io: io::IoError) -> LoadError {
 
 macro_rules! read(
     ($e:expr) => (match $e { Ok(e) => e, Err(e) => return Err(io_error_to_error(e)) })
-)
+);
 
-const IDENTIFIER: [u8, ..12] =
+const IDENTIFIER: [u8; 12] =
     [ 0xAB, 0x4B, 0x54, 0x58, 0x20, 0x31, 0x31, 0xBB, 0x0D, 0x0A, 0x1A, 0x0A ];
 
-fn calculate_stride(h: &Header, width: i32, pad: uint) -> Result<int, LoadError> {
+fn calculate_stride(h: &Header, width: i32, pad: usize) -> Result<isize, LoadError> {
     let channels = match h.gl_base_internal_format {
         gl::RED => 1,
         gl::RG => 2,
@@ -73,13 +76,12 @@ fn calculate_stride(h: &Header, width: i32, pad: uint) -> Result<int, LoadError>
         gl::RGBA => 4,
         _ => return Err(LoadError::HeaderError)
     };
-    Ok((((h.gl_type_size * channels * width as u32) as uint +
-     ((pad - 1)) & !(pad - 1))) as int)
+    Ok((((h.gl_type_size * channels * width as u32) as usize + ((pad - 1)) & !(pad - 1))) as isize)
 }
 
-fn calculate_face_size(h: &Header) -> Result<int, LoadError> {
+fn calculate_face_size(h: &Header) -> Result<isize, LoadError> {
     let stride = try!(calculate_stride(h, h.pixel_width, 4));
-    Ok(stride * h.pixel_height as int)
+    Ok(stride * h.pixel_height as isize)
 }
 
 pub fn load(filename: &str) -> Result<GLuint, LoadError> {
@@ -88,8 +90,9 @@ pub fn load(filename: &str) -> Result<GLuint, LoadError> {
 
     // check header magic
     let id = read!(reader.pop_slice::<u8>(IDENTIFIER.len()));
-    if id != &IDENTIFIER {
-        debug!("identifier: {} != {}", IDENTIFIER.as_slice(), id);
+    if id != IDENTIFIER {
+        debug!("identifier: {} != {}", str::from_utf8(&IDENTIFIER[]).unwrap(),
+            str::from_utf8(id).unwrap());
         return Err(LoadError::MagicError)
     }
 
@@ -146,7 +149,7 @@ pub fn load(filename: &str) -> Result<GLuint, LoadError> {
     }
 
     // skip unused key pair bytes
-    read!(reader.skip_bytes(h.key_pair_bytes as uint));
+    read!(reader.skip_bytes(h.key_pair_bytes as usize));
 
     let data_size = reader.len() - reader.bytes_read();
     let data = read!(reader.pop_slice::<u8>(data_size));
@@ -172,11 +175,11 @@ pub fn load(filename: &str) -> Result<GLuint, LoadError> {
                 let mut height = h.pixel_height;
                 let mut width = h.pixel_width;
                 gl::PixelStorei(gl::UNPACK_ALIGNMENT, 1);
-                for i in range(0, mip_levels) {
+                for i in (0..mip_levels) {
                     gl::TexSubImage2D(gl::TEXTURE_2D, i, 0, 0, width, height,
                         h.gl_format, h.gl_type, ptr);
                     let stride = try!(calculate_stride(h, width, 1));
-                    ptr = ptr.offset(height as int * stride);
+                    ptr = ptr.offset(height as isize * stride);
                     height >>= 1;
                     width >>= 1;
                     if height == 0 {
@@ -207,7 +210,7 @@ pub fn load(filename: &str) -> Result<GLuint, LoadError> {
                     h.gl_internal_format, h.pixel_width, h.pixel_height);
                 let mut ptr = mem::transmute(data.as_ptr());
                 let face_size = try!(calculate_face_size(h));
-                for i in range(0, h.faces as u32)
+                for i in (0..h.faces as u32)
                 {
                     gl::TexSubImage2D(gl::TEXTURE_CUBE_MAP_POSITIVE_X + i,
                         0, 0, 0, h.pixel_width, h.pixel_height, h.gl_format,
