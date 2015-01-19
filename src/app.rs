@@ -217,7 +217,7 @@ pub trait App
     fn on_key(&mut self, _: Key, _: Action) {}
 }
 
-fn handle_window_event<T: App>(app: &mut T, window: &glfw::Window,
+fn handle_window_event<T: App>(app: &mut T, window: &mut glfw::Window,
                                event: glfw::WindowEvent) {
     match event {
         glfw::WindowEvent::Key(glfw::Key::Escape, _, glfw::Action::Press, _) => {
@@ -234,8 +234,8 @@ fn handle_window_event<T: App>(app: &mut T, window: &glfw::Window,
 }
 
 pub fn run<T: App>(app: &mut T) {
-    let glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
-    let (window, events) = {
+    let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
+    let (mut window, events) = {
         let info = app.get_app_info();
         glfw.window_hint(glfw::WindowHint::ContextVersion(
                 info.major_version, info.minor_version));
@@ -264,7 +264,7 @@ pub fn run<T: App>(app: &mut T) {
 
         glfw.poll_events();
         for (_, event) in glfw::flush_messages(&events) {
-            handle_window_event::<T>(app, &window, event);
+            handle_window_event::<T>(app, &mut window, event);
         }
     }
 
