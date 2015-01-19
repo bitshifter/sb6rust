@@ -7,7 +7,9 @@ description = "OpenGL Super Bible 6 Application Framework"
 
 [dependencies]
 log = "*"
-gl = "*"
+
+[dependencies.gl]
+git = "https://github.com/bjz/gl-rs.git"
 
 [dependencies.glfw]
-git = "https://github.com/bitshifter/glfw-rs.git"
+git = "https://github.com/bjz/glfw-rs.git"
