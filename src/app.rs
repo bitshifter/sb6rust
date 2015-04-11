@@ -22,8 +22,6 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-#![allow(unstable)]
-
 extern crate gl;
 extern crate glfw;
 
@@ -168,7 +166,7 @@ pub use glfw::{
 };
 */
 
-#[derive(Copy)]
+#[derive(Clone)]
 pub struct AppInfo {
     pub title: &'static str,
     pub window_width: u32,
@@ -242,7 +240,7 @@ pub fn run<T: App>(app: &mut T) {
         glfw.window_hint(glfw::WindowHint::OpenglProfile(glfw::OpenGlProfileHint::Core));
         glfw.window_hint(glfw::WindowHint::OpenglForwardCompat(true));
         glfw.create_window(
-            info.window_width, info.window_height, &info.title[],
+            info.window_width, info.window_height, &info.title,
             glfw::WindowMode::Windowed).expect("Failed to create GLFW window.")
     };
 

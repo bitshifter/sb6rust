@@ -22,17 +22,18 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-#![allow(unstable)]
-
 extern crate gl;
 
 use gl::types::*;
 use reader::BufferReader;
+use std::fs;
 use std::io;
+use std::io::Read;
 use std::mem;
+use std::path::Path;
 use std::str;
 
-#[derive(Show)]
+#[derive(Debug)]
 struct Header {
     gl_type: u32,
     gl_type_size: u32,
@@ -48,20 +49,18 @@ struct Header {
     key_pair_bytes: u32
 }
 
-#[derive(Clone, Copy, PartialEq, Show)]
+#[derive(Debug)]
 pub enum LoadError {
     MagicError,
     HeaderError,
-    IoError(io::IoErrorKind, &'static str),
+    IoError(io::Error),
 }
 
-fn io_error_to_error(io: io::IoError) -> LoadError {
-    LoadError::IoError(io.kind, io.desc)
+impl From<io::Error> for LoadError {
+    fn from(e: io::Error) -> LoadError {
+        LoadError::IoError(e)
+    }
 }
-
-macro_rules! read(
-    ($e:expr) => (match $e { Ok(e) => e, Err(e) => return Err(io_error_to_error(e)) })
-);
 
 const IDENTIFIER: [u8; 12] =
     [ 0xAB, 0x4B, 0x54, 0x58, 0x20, 0x31, 0x31, 0xBB, 0x0D, 0x0A, 0x1A, 0x0A ];
@@ -85,26 +84,28 @@ fn calculate_face_size(h: &Header) -> Result<isize, LoadError> {
 }
 
 pub fn load(filename: &str) -> Result<GLuint, LoadError> {
-    let bytes = read!(io::File::open(&Path::new(filename)).read_to_end());
+    let mut file = try!(fs::File::open(&Path::new(filename)));
+    let mut bytes = Vec::new();
+    try!(file.read_to_end(&mut bytes));
     let mut reader = BufferReader::new(bytes);
 
     // check header magic
-    let id = read!(reader.pop_slice::<u8>(IDENTIFIER.len()));
+    let id = try!(reader.pop_slice::<u8>(IDENTIFIER.len()));
     if id != IDENTIFIER {
-        debug!("identifier: {} != {}", str::from_utf8(&IDENTIFIER[]).unwrap(),
+        debug!("identifier: {} != {}", str::from_utf8(&IDENTIFIER).unwrap(),
             str::from_utf8(id).unwrap());
         return Err(LoadError::MagicError)
     }
 
     // check endianness
-    let endianness = read!(reader.pop_value::<u32>());
+    let endianness = try!(reader.pop_value::<u32>());
     if *endianness == 0x01020304 {
         // swap not impemented
         return Err(LoadError::MagicError)
     }
 
     // read the rest of the header
-    let h = read!(reader.pop_value::<Header>());
+    let h = try!(reader.pop_value::<Header>());
 
     // check for insanity
     if h.pixel_width == 0 || (h.pixel_height == 0 && h.pixel_depth != 0) {
@@ -149,10 +150,10 @@ pub fn load(filename: &str) -> Result<GLuint, LoadError> {
     }
 
     // skip unused key pair bytes
-    read!(reader.skip_bytes(h.key_pair_bytes as usize));
+    try!(reader.skip_bytes(h.key_pair_bytes as usize));
 
     let data_size = reader.len() - reader.bytes_read();
-    let data = read!(reader.pop_slice::<u8>(data_size));
+    let data = try!(reader.pop_slice::<u8>(data_size));
 
     let mip_levels = match h.mip_levels {
         0 => 1,

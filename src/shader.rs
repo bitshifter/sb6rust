@@ -22,26 +22,33 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-#![allow(unstable)]
-
 extern crate gl;
 
 use gl::types::*;
 use std::ffi;
+use std::fs::File;
 use std::io;
+use std::io::Read;
 use std::iter;
+use std::ops::Deref;
+use std::path::Path;
 use std::ptr;
 
-
-#[derive(Clone, PartialEq, Show)]
+#[derive(Clone, PartialEq, Debug)]
 pub enum ShaderError {
     ShaderInfoLog(String),
 }
 
-#[derive(Clone, PartialEq, Show)]
+#[derive(Debug)]
 pub enum LoadError {
     CompileError(String),
-    IoError(io::IoErrorKind, &'static str),
+    IoError(io::Error),
+}
+
+impl From<io::Error> for LoadError {
+    fn from(e: io::Error) -> LoadError {
+        LoadError::IoError(e)
+    }
 }
 
 pub fn check_compile_status(shader: GLuint) -> Result<(), ShaderError> {
@@ -59,16 +66,17 @@ pub fn check_compile_status(shader: GLuint) -> Result<(), ShaderError> {
             gl::GetShaderInfoLog(shader, len, ptr::null_mut(),
                 buf.as_mut_ptr() as *mut GLchar);
             return Err(ShaderError::ShaderInfoLog(String::from_utf8(buf).unwrap_or(
-                String::from_str("ShaderInfoLog not valid utf8"))));
+                String::from("ShaderInfoLog not valid utf8"))));
         }
     }
     Ok(())
 }
 
 pub fn create_from_source(src: &str, shader_type: GLenum) -> Result<GLuint, ShaderError> {
+    let cstr = ffi::CString::new(src.as_bytes()).unwrap();
     unsafe {
         let result = gl::CreateShader(shader_type);
-        gl::ShaderSource(result, 1, &ffi::CString::from_slice(src.as_bytes()).as_ptr(), ptr::null());
+        gl::ShaderSource(result, 1, &cstr.deref().as_ptr(), ptr::null());
         gl::CompileShader(result);
         match check_compile_status(result) {
             Ok(_) => Ok(result),
@@ -78,12 +86,11 @@ pub fn create_from_source(src: &str, shader_type: GLenum) -> Result<GLuint, Shad
 }
 
 pub fn load(filename: &str, shader_type: GLenum) -> Result<GLuint, LoadError> {
-    let src = match io::File::open(&Path::new(filename)).read_to_string() {
-        Ok(src) => src,
-        Err(io) => return Err(LoadError::IoError(io.kind, io.desc))
-    };
+    let mut file = try!(File::open(&Path::new(filename)));
+    let mut src = String::new();
+    try!(file.read_to_string(&mut src));
 
-    match create_from_source(&src[], shader_type) {
+    match create_from_source(&src, shader_type) {
         Ok(result) => Ok(result),
         Err(ShaderError::ShaderInfoLog(msg)) => Err(LoadError::CompileError(msg))
     }

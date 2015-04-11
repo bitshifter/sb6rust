@@ -22,15 +22,14 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-#![allow(unstable)]
-
 extern crate gl;
 use gl::types::*;
 use std::ffi;
 use std::iter;
+use std::ops::Deref;
 use std::ptr;
 
-#[derive(Clone, PartialEq, Show)]
+#[derive(Clone, PartialEq, Debug)]
 pub enum ProgramError {
     ProgramInfoLog(String)
 }
@@ -50,7 +49,7 @@ pub fn check_link_status(program: GLuint) -> Result<(), ProgramError> {
             gl::GetProgramInfoLog(program, len, ptr::null_mut(),
                 buf.as_mut_ptr() as *mut GLchar);
             return Err(ProgramError::ProgramInfoLog(String::from_utf8(buf).unwrap_or(
-                String::from_str("ProgramInfoLog not valid utf8"))));
+                String::from("ProgramInfoLog not valid utf8"))));
         }
     }
     Ok(())
@@ -75,19 +74,19 @@ pub fn link_from_shaders(shaders: &[GLuint]) -> Result<GLuint, ProgramError> {
     }
 }
 
-#[derive(Clone, PartialEq, Show)]
+#[derive(Clone, PartialEq, Debug)]
 pub enum UniformError {
     UniformNotFound(GLuint, String, GLint)
 }
 
 pub fn get_uniform_location(program: GLuint, name: &str) -> Result<GLint, UniformError> {
     let result = unsafe {
-        gl::GetUniformLocation(program, ffi::CString::from_slice(name.as_bytes()).as_ptr())
+        gl::GetUniformLocation(program, ffi::CString::new(name.as_bytes()).unwrap().deref().as_ptr())
     };
     if result >= 0 {
         Ok(result)
     }
     else {
-        Err(UniformError::UniformNotFound(program, String::from_str(name), result))
+        Err(UniformError::UniformNotFound(program, String::from(name), result))
     }
 }

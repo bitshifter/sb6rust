@@ -21,11 +21,9 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-#![allow(unstable)]
-
 use std::io;
 use std::mem;
-use std::raw;
+use std::slice;
 
 /// Reads from an owned byte vector.
 /// This is similar to the built in std::io::MemReader, the main differences
@@ -52,51 +50,46 @@ impl BufferReader {
     pub fn bytes_read(&self) -> usize { self.pos }
 
     /// Skip the given number of bytes
-    pub fn skip_bytes(&mut self, bytes: usize) -> Result<(), io::IoError> {
+    pub fn skip_bytes(&mut self, bytes: usize) -> Result<(), io::Error> {
         let skip_end = self.pos + bytes;
         if skip_end > self.buf.len() {
-            return Err(io::standard_error(io::EndOfFile))
+            return Err(io::Error::new(io::ErrorKind::InvalidInput, "Buffer overrun"))
         }
         self.pos = skip_end;
         Ok(())
     }
 
     /// Pop a slice of T items
-    pub fn pop_slice<'a, T>(&mut self, size: usize) -> Result<&'a [T], io::IoError> {
+    pub fn pop_slice<'a, T>(&mut self, size: usize) -> Result<&'a [T], io::Error> {
         let pop_bytes = mem::size_of::<T>() * size;
         let pop_end = self.pos + pop_bytes;
         if pop_end > self.buf.len() {
-            return Err(io::standard_error(io::EndOfFile))
+            return Err(io::Error::new(io::ErrorKind::InvalidInput, "Buffer overrun"))
         }
-        let ptr = unsafe { self.buf.as_ptr().offset(self.pos as isize) };
-        let out = unsafe { mem::transmute(
-                raw::Slice { data: ptr, len: size } ) };
+        let ptr = unsafe { self.buf.as_ptr().offset(self.pos as isize) as *const T };
+        let out = unsafe { slice::from_raw_parts(ptr, size) };
         self.pos = pop_end;
         Ok(out)
     }
 
     /// Pop a reference to T
-    pub fn pop_value<'a, T>(&mut self) -> Result<&'a T, io::IoError> {
+    pub fn pop_value<'a, T>(&mut self) -> Result<&'a T, io::Error> {
         let pop_end = self.pos + mem::size_of::<T>();
         if pop_end > self.buf.len() {
-            return Err(io::standard_error(io::EndOfFile))
+            return Err(io::Error::new(io::ErrorKind::InvalidInput, "Buffer overrun"))
         }
         let ptr = unsafe { self.buf.as_ptr().offset(self.pos as isize) };
         self.pos = pop_end;
         Ok(unsafe { &*(ptr as *const T) })
     }
 
-    pub fn peek_slice<'a>(&'a self, start: usize, end: usize) -> Result<&'a [u8], io::IoError> {
+    pub fn peek_slice<'a>(&'a self, start: usize, end: usize) -> Result<&'a [u8], io::Error> {
         assert!(start <= end);
         if end > self.buf.len() {
-            return Err(io::standard_error(io::EndOfFile))
+            return Err(io::Error::new(io::ErrorKind::InvalidInput, "Buffer overrun"))
         }
         Ok(unsafe {
-            mem::transmute(
-                raw::Slice {
-                    data: self.buf.as_ptr().offset(start as isize),
-                    len: end - start
-                })
+            slice::from_raw_parts(self.buf.as_ptr().offset(start as isize), end - start)
         })
     }
 }

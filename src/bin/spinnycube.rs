@@ -27,7 +27,6 @@ extern crate sb6;
 
 use gl::types::*;
 use std::mem;
-use std::num::Float;
 use std::ptr;
 use vmath::Mat4;
 

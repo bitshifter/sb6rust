@@ -22,16 +22,19 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-#![allow(unstable)]
-
+use std::f32;
 use std::fmt;
-use std::num::Float;
 use std::ops::Add;
 use std::ops::Index;
 use std::ops::Mul;
 use std::ops::Sub;
 
-#[derive(Copy)]
+#[inline]
+fn deg_to_rad(a: f32) -> f32 {
+    f32::consts::PI * 2.0 * a / 360.0
+}
+
+#[derive(Clone, Copy, Debug)]
 pub struct Vec3 {
     v: [f32; 3]
 }
@@ -69,12 +72,12 @@ impl Vec3 {
         self.dot(self).sqrt()
     }
     pub fn normalize(&self) -> Vec3 {
-        let inv_length = self.dot(self).rsqrt();
+        let inv_length = 1.0 / self.dot(self).sqrt();
         self.scale(inv_length)
     }
 }
 
-impl fmt::Show for Vec3 {
+impl fmt::Display for Vec3 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "[{}, {}, {}]", self.v[0], self.v[1], self.v[2])
     }
@@ -115,12 +118,12 @@ impl Sub for Vec3 {
 
 impl Index<usize> for Vec3 {
     type Output = f32;
-    fn index<'a>(&'a self, i: &usize) -> &'a f32 {
-        &self.v[*i]
+    fn index<'a>(&'a self, i: usize) -> &'a f32 {
+        &self.v[i]
     }
 }
 
-#[derive(Copy)]
+#[derive(Clone, Copy, Debug)]
 pub struct Vec4 {
     v: [f32; 4]
 }
@@ -153,7 +156,7 @@ impl Vec4 {
 
     }
     pub fn normalize(&self) -> Vec4 {
-        let inv_length = self.dot(self).rsqrt();
+        let inv_length = 1.0 / self.dot(self).sqrt();
         self.scale(inv_length)
     }
 }
@@ -204,18 +207,18 @@ impl Sub for Vec4 {
 
 impl Index<usize> for Vec4 {
     type Output = f32;
-    fn index<'a>(&'a self, i: &usize) -> &'a f32 {
-        &self.v[*i]
+    fn index<'a>(&'a self, i: usize) -> &'a f32 {
+        &self.v[i]
     }
 }
 
-impl fmt::Show for Vec4 {
+impl fmt::Display for Vec4 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "[{}, {}, {}, {}]", self.v[0], self.v[1], self.v[2], self.v[3])
     }
 }
 
-#[derive(Copy)]
+#[derive(Clone, Copy, Debug)]
 pub struct Mat4 {
     col: [Vec4; 4]
 }
@@ -244,7 +247,7 @@ impl Mat4 {
     }
 
     pub fn perspective(fovy: f32, aspect: f32, near: f32, far: f32) -> Mat4 {
-        let q = 1.0 / (0.5 * fovy).to_radians().tan();
+        let q = 1.0 / deg_to_rad(0.5 * fovy).tan();
         let a = q / aspect;
         let b = (near + far) / (near - far);
         let c = (2.0 * near * far) / (near - far);
@@ -292,7 +295,7 @@ impl Mat4 {
         let x2 = x * x;
         let y2 = y * y;
         let z2 = z * z;
-        let rads = angle.to_radians();
+        let rads = deg_to_rad(angle);
         let (s, c) = rads.sin_cos();
         let omc = 1.0 - c;
         Mat4 { col: [
@@ -328,12 +331,12 @@ impl Mul for Mat4 {
 
 impl Index<usize> for Mat4 {
     type Output = Vec4;
-    fn index<'a>(&'a self, i: &usize) -> &'a Vec4 {
-        &self.col[*i]
+    fn index<'a>(&'a self, i: usize) -> &'a Vec4 {
+        &self.col[i]
     }
 }
 
-impl fmt::Show for Mat4 {
+impl fmt::Display for Mat4 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "[{:?}, {:?}, {:?}, {:?}]",
            self.col[0], self.col[1], self.col[2], self.col[3])

@@ -26,7 +26,6 @@ extern crate gl;
 extern crate sb6;
 
 use gl::types::*;
-use std::num::Float;
 
 const VS_SRC: &'static str = "\
 #version 410 core                                                 \n\

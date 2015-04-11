@@ -7,6 +7,8 @@ description = "OpenGL Super Bible 6 Application Framework"
 
 [dependencies]
 log = "*"
+num = "*"
+rand = "*"
 
 [dependencies.gl]
 git = "https://github.com/bjz/gl-rs.git"

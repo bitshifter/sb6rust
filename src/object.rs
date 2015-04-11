@@ -22,32 +22,29 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-#![allow(unstable)]
-
 extern crate gl;
 
 use gl::types::*;
+use std::fs;
 use std::io;
+use std::io::Read;
 use std::mem;
-use std::num;
+use std::path::Path;
 use std::ptr;
 use std::str;
 use reader::BufferReader;
 
 macro_rules! fourcc(
     ($a:expr, $b:expr, $c:expr, $d:expr) => (
-        (($a as u32) << 0 | ($b as u32) << 8 | ($c as u32) << 16 | ($d as u32) <<24) as isize
+        (($a as u32) << 0 | ($b as u32) << 8 | ($c as u32) << 16 | ($d as u32) <<24)
     );
 );
 
-#[derive(FromPrimitive)]
-enum ChunkType {
-    IndexDataType = fourcc!('I','N','D','X'),
-    VertexDataType = fourcc!('V','R','T','X'),
-    VertexAttribsType = fourcc!('A','T','R','B'),
-    SubObjectListType = fourcc!('O','L','S','T'),
-    CommentType = fourcc!('C','M','N','T'),
-}
+const INDEX_DATA_TYPE: u32 = fourcc!('I','N','D','X');
+const VERTEX_DATA_TYPE: u32 = fourcc!('V','R','T','X');
+const VERTEX_ATTRIBS_TYPE: u32 = fourcc!('A','T','R','B');
+const SUB_OBJECT_LIST_TYPE: u32 = fourcc!('O','L','S','T');
+const COMMENT_TYPE: u32 = fourcc!('C','M','N','T');
 
 const VERTEX_ATTRIB_FLAG_NORMALIZED: u32 = 0x00000001;
 
@@ -84,32 +81,28 @@ struct VertexAttribDecl {
     data_offset: u32
 }
 
-#[derive(Copy)]
-struct SubObjectDecl {
-    first: u32,
-    count: u32
-}
-
-#[derive(Clone, PartialEq, Show)]
+#[derive(Debug)]
 pub enum LoadError {
     MagicError(Option<String>),
     ChunkTypeError(u32),
     ChunkSizeError(usize, usize),
     VertexDataError,
     VertexAttribDataError,
-    IoError(io::IoErrorKind, &'static str),
+    IoError(io::Error),
 }
 
-fn io_error_to_error(io: io::IoError) -> LoadError {
-    LoadError::IoError(io.kind, io.desc)
+impl From<io::Error> for LoadError {
+    fn from(e: io::Error) -> LoadError {
+        LoadError::IoError(e)
+    }
 }
 
-// Converts an IoError to a LoadError
-macro_rules! read(
-    ($e:expr) => (match $e { Ok(e) => e, Err(e) => return Err(io_error_to_error(e)) })
-);
+#[derive(Clone, Copy)]
+struct SubObjectDecl {
+    first: u32,
+    count: u32
+}
 
-#[derive(Copy)]
 pub struct Object {
     vertex_buffer: GLuint,
     index_buffer: GLuint,
@@ -118,6 +111,15 @@ pub struct Object {
     index_type: GLuint,
     num_sub_objects: usize,
     sub_object: [SubObjectDecl; 256]
+}
+
+// TODO: #[derive(Clone)] is currently limited to arrays up to 32 length
+impl Clone for Object {
+    #[inline]
+    fn clone(&self) -> Object { *self }
+}
+
+impl Copy for Object {
 }
 
 impl Object {
@@ -134,22 +136,24 @@ impl Object {
     }
 
     pub fn load(&mut self, filename: &str) -> Result<(), LoadError> {
-        let bytes = read!(io::File::open(&Path::new(filename)).read_to_end());
+        let mut file = try!(fs::File::open(&Path::new(filename)));
+        let mut bytes = Vec::new();
+        try!(file.read_to_end(&mut bytes));
 
         let mut reader = BufferReader::new(bytes);
         let mut bytes_read = 0us;
 
         // check header magic
-        let magic = read!(reader.pop_slice::<u8>(4));
+        let magic = try!(reader.pop_slice::<u8>(4));
         match str::from_utf8(magic) {
             Ok(v) if v == "SB6M" => (),
-            Ok(v) => return Err(LoadError::MagicError(Some(String::from_str(v)))),
+            Ok(v) => return Err(LoadError::MagicError(Some(String::from(v)))),
             Err(_) => return Err(LoadError::MagicError(None))
         }
 
         debug!("magic: {}", str::from_utf8(magic).unwrap());
 
-        let header = read!(reader.pop_value::<MeshHeader>());
+        let header = try!(reader.pop_value::<MeshHeader>());
         bytes_read += header.size as usize;
 
         debug!("size: {}, num_chunks: {}, flags: {}",
@@ -162,46 +166,44 @@ impl Object {
         let mut sub_object_data_ref: Option<&[SubObjectDecl]> = None;
 
         for _ in (0..header.num_chunks) {
-            let chunk_header = read!(reader.pop_value::<ChunkHeader>());
-            let chunk_type: Option<ChunkType> =
-                num::from_u32(chunk_header.chunk_type);
-            match chunk_type {
-                Some(ChunkType::IndexDataType) => {
+            let chunk_header = try!(reader.pop_value::<ChunkHeader>());
+            match chunk_header.chunk_type {
+                INDEX_DATA_TYPE => {
                     debug!("INDX");
                     // read in index data struct
                     index_data_chunk_ref = Some(
-                        read!(reader.pop_value::<IndexData>()));
+                        try!(reader.pop_value::<IndexData>()));
                 }
-                Some(ChunkType::VertexDataType) => {
+                VERTEX_DATA_TYPE => {
                     debug!("VRTX");
                     // read in vertex data struct
                     vertex_data_chunk_ref = Some(
-                        read!(reader.pop_value::<VertexData>()));
+                        try!(reader.pop_value::<VertexData>()));
                 },
-                Some(ChunkType::VertexAttribsType) => {
+                VERTEX_ATTRIBS_TYPE => {
                     debug!("ATRB");
                     // read attribute count
-                    let attrib_count = read!(reader.pop_value::<u32>());
+                    let attrib_count = try!(reader.pop_value::<u32>());
                     // read in all the attributes
                     vertex_attrib_data_ref = Some(
-                        read!(reader.pop_slice::<VertexAttribDecl>(
+                        try!(reader.pop_slice::<VertexAttribDecl>(
                                 *attrib_count as usize)));
                 },
-                Some(ChunkType::SubObjectListType) => {
+                SUB_OBJECT_LIST_TYPE => {
                     debug!("OLST");
                     // read sub object count
-                    let sub_object_count = read!(reader.pop_value::<u32>());
+                    let sub_object_count = try!(reader.pop_value::<u32>());
                     debug!("sub_object_count: {}", sub_object_count);
                     // read in sub object data
                     sub_object_data_ref = Some(
-                        read!(reader.pop_slice::<SubObjectDecl>(
+                        try!(reader.pop_slice::<SubObjectDecl>(
                                 *sub_object_count as usize)));
                 },
-                Some(ChunkType::CommentType) => {
+                COMMENT_TYPE => {
                     debug!("CMNT");
                     let comment_len = chunk_header.size as usize -
                         mem::size_of::<ChunkHeader>();
-                    let comment_bytes_ref = read!(reader.pop_slice::<u8>(
+                    let comment_bytes_ref = try!(reader.pop_slice::<u8>(
                             comment_len));
                     match str::from_utf8(comment_bytes_ref) {
                         Ok(v) => debug!("{}", v),
@@ -248,7 +250,7 @@ impl Object {
         // bind vertex data
         let vertex_data_start = vertex_data_chunk.data_offset as usize;
         let vertex_data_end = vertex_data_start + vertex_data_chunk.data_size as usize;
-        let vertex_data = read!(reader.peek_slice(vertex_data_start, vertex_data_end));
+        let vertex_data = try!(reader.peek_slice(vertex_data_start, vertex_data_end));
         unsafe {
             gl::GenBuffers(1, &mut self.vertex_buffer);
             gl::BindBuffer(gl::ARRAY_BUFFER, self.vertex_buffer);
@@ -295,7 +297,7 @@ impl Object {
                 let index_data_start =
                     index_data_chunk.index_data_offset as usize;
                 let index_data_end = index_data_start + index_data_size;
-                let index_data = read!(reader.peek_slice(index_data_start,
+                let index_data = try!(reader.peek_slice(index_data_start,
                                                         index_data_end));
                 unsafe {
                     gl::GenBuffers(1, &mut self.index_buffer);

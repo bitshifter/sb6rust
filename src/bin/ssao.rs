@@ -22,15 +22,13 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-#![allow(unstable)]
-
 extern crate gl;
+extern crate rand;
 extern crate sb6;
 
 use gl::types::*;
 use std::mem;
-use std::rand;
-use std::rand::{ Rng };
+use rand::{ Rng };
 
 mod vmath;
 
