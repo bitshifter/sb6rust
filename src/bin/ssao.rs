@@ -224,7 +224,7 @@ impl sb6::App for MyApp {
             random_vectors: [vmath::Vec4::zero(); 256]
         };
 
-        for i in (0..256) {
+        for i in 0..256 {
             loop
             {
                 point_data.point[i] = vmath::Vec4::new(
@@ -238,7 +238,7 @@ impl sb6::App for MyApp {
             }
             point_data.point[i].normalize();
         }
-        for i in (0..256) {
+        for i in 0..256 {
             point_data.random_vectors[i] = vmath::Vec4::new(
                 rng.gen::<f32>(), rng.gen::<f32>(),
                 rng.gen::<f32>(), rng.gen::<f32>());

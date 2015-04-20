@@ -165,7 +165,7 @@ impl Object {
         let mut index_data_chunk_ref: Option<&IndexData> = None;
         let mut sub_object_data_ref: Option<&[SubObjectDecl]> = None;
 
-        for _ in (0..header.num_chunks) {
+        for _ in 0..header.num_chunks {
             let chunk_header = try!(reader.pop_value::<ChunkHeader>());
             match chunk_header.chunk_type {
                 INDEX_DATA_TYPE => {
@@ -237,7 +237,7 @@ impl Object {
             Some(sub_object_data) => {
                 debug!("sub_object_count: {}", sub_object_data.len());
                 self.num_sub_objects = sub_object_data.len();
-                for i in (0..self.num_sub_objects) {
+                for i in 0..self.num_sub_objects {
                     self.sub_object[i] = sub_object_data[i];
                 }
             },
@@ -263,7 +263,7 @@ impl Object {
         }
 
         // bind vertex attributes
-        for i in (0..vertex_attrib_data.len()) {
+        for i in 0..vertex_attrib_data.len() {
             let attrib_decl = &vertex_attrib_data[i];
             let attrib_flags =
                 if attrib_decl.flags & VERTEX_ATTRIB_FLAG_NORMALIZED != 0 {

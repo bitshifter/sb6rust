@@ -211,8 +211,7 @@ pub fn load(filename: &str) -> Result<GLuint, LoadError> {
                     h.gl_internal_format, h.pixel_width, h.pixel_height);
                 let mut ptr = mem::transmute(data.as_ptr());
                 let face_size = try!(calculate_face_size(h));
-                for i in (0..h.faces as u32)
-                {
+                for i in 0..h.faces as u32 {
                     gl::TexSubImage2D(gl::TEXTURE_CUBE_MAP_POSITIVE_X + i,
                         0, 0, 0, h.pixel_width, h.pixel_height, h.gl_format,
                         h.gl_type, ptr);
