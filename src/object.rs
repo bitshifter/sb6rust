@@ -141,7 +141,7 @@ impl Object {
         try!(file.read_to_end(&mut bytes));
 
         let mut reader = BufferReader::new(bytes);
-        let mut bytes_read = 0us;
+        let mut bytes_read = 0;
 
         // check header magic
         let magic = try!(reader.pop_slice::<u8>(4));
