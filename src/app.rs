@@ -185,7 +185,7 @@ impl AppInfo {
     #[cfg(use_gl_3_3)]
     fn version() -> (u32, u32) { (3, 3) }
     #[cfg(not(use_gl_3_3))]
-    fn version() -> (u32, u32) { (4, 4) }
+    fn version() -> (u32, u32) { (4, 3) }
     pub fn default() -> AppInfo {
         let (major, minor) = AppInfo::version();
         AppInfo {
