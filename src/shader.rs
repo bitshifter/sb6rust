@@ -26,6 +26,7 @@ extern crate gl;
 
 use gl::types::*;
 use std::ffi;
+use std::fmt;
 use std::fs::File;
 use std::io;
 use std::io::Read;
@@ -49,6 +50,21 @@ impl From<io::Error> for LoadError {
     fn from(e: io::Error) -> LoadError {
         LoadError::IoError(e)
     }
+}
+
+impl fmt::Display for LoadError {
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            &LoadError::CompileError(ref e) => write!(fmt, "{}", e),
+            &LoadError::IoError(ref e) => e.fmt(fmt)
+        }
+    }
+}
+
+#[macro_export]
+macro_rules! load_shader_or_panic {
+    ($path:expr, $shader_type:expr) => (sb6::shader::load($path, $shader_type).unwrap_or_else(
+            |e| { panic!("Error loading '{}': {}", $path, e) }))
 }
 
 pub fn check_compile_status(shader: GLuint) -> Result<(), ShaderError> {

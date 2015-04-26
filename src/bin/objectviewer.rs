@@ -23,6 +23,7 @@
  */
 
 extern crate gl;
+#[macro_use]
 extern crate sb6;
 
 use gl::types::*;
@@ -113,7 +114,7 @@ impl sb6::App for MyApp {
             self.proj_location = sb6::program::get_uniform_location(
                 self.program, "proj_matrix").unwrap();
 
-            self.object.load("media/objects/bunny_1k.sbm").unwrap();
+            load_object_or_panic!(&mut self.object, "media/objects/bunny_1k.sbm");
 
             gl::Enable(gl::DEPTH_TEST);
             gl::DepthFunc(gl::LEQUAL);

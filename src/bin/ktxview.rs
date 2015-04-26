@@ -23,6 +23,7 @@
  */
 
 extern crate gl;
+#[macro_use]
 extern crate sb6;
 
 use gl::types::*;
@@ -76,10 +77,7 @@ impl sb6::App for MyApp {
     fn startup(&mut self) {
         unsafe {
             // Load texture from file
-            self.texture = match sb6::ktx::load("media/textures/Tree.ktx") {
-                Ok(v) => v,
-                Err(e) => panic!("failed to load: {:?}", e)
-            };
+            self.texture = load_ktx_or_panic!("media/textures/Tree.ktx");
             self.program = gl::CreateProgram();
 
             let fs = sb6::shader::create_from_source(FS_SRC, gl::FRAGMENT_SHADER).unwrap();

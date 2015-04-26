@@ -26,6 +26,7 @@ extern crate gl;
 
 use gl::types::*;
 use reader::BufferReader;
+use std::fmt;
 use std::fs;
 use std::io;
 use std::io::Read;
@@ -60,6 +61,22 @@ impl From<io::Error> for LoadError {
     fn from(e: io::Error) -> LoadError {
         LoadError::IoError(e)
     }
+}
+
+impl fmt::Display for LoadError {
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            &LoadError::MagicError => write!(fmt, "Not a valid ktx file"),
+            &LoadError::HeaderError => write!(fmt, "Invalid ktx header"),
+            &LoadError::IoError(ref e) => e.fmt(fmt)
+        }
+    }
+}
+
+#[macro_export]
+macro_rules! load_ktx_or_panic {
+    ($path:expr) => (sb6::ktx::load($path).unwrap_or_else(
+            |e| { panic!("Error loading '{}': {}", $path, e) }))
 }
 
 const IDENTIFIER: [u8; 12] =

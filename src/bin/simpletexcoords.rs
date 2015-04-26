@@ -23,6 +23,7 @@
  */
 
 extern crate gl;
+#[macro_use]
 extern crate sb6;
 
 use gl::types::*;
@@ -59,12 +60,10 @@ impl MyApp {
                 gl::DeleteProgram(self.render_prog);
             }
 
-            let vs = sb6::shader::load(
-                "media/shaders/simpletexcoords/render.vs.glsl",
-                gl::VERTEX_SHADER).unwrap();
-            let fs = sb6::shader::load(
-                "media/shaders/simpletexcoords/render.fs.glsl",
-                gl::FRAGMENT_SHADER).unwrap();
+            let vs = load_shader_or_panic!("media/shaders/simpletexcoords/render.vs.glsl",
+                gl::VERTEX_SHADER);
+            let fs = load_shader_or_panic!("media/shaders/simpletexcoords/render.fs.glsl",
+                gl::FRAGMENT_SHADER);
 
             self.render_prog = gl::CreateProgram();
             gl::AttachShader(self.render_prog, vs);
@@ -116,10 +115,9 @@ impl sb6::App for MyApp {
                 gl::NEAREST as i32);
         }
 
-        self.tex_object[1] = sb6::ktx::load(
-            "media/textures/pattern1.ktx").unwrap();
+        self.tex_object[1] = load_ktx_or_panic!("media/textures/pattern1.ktx");
 
-        self.object.load("media/objects/torus_nrms_tc.sbm").unwrap();
+        load_object_or_panic!(&mut self.object, "media/objects/torus_nrms_tc.sbm");
 
         self.load_shaders();
 

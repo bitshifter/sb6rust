@@ -25,6 +25,7 @@
 extern crate gl;
 
 use gl::types::*;
+use std::fmt;
 use std::fs;
 use std::io;
 use std::io::Read;
@@ -95,6 +96,25 @@ impl From<io::Error> for LoadError {
     fn from(e: io::Error) -> LoadError {
         LoadError::IoError(e)
     }
+}
+
+impl fmt::Display for LoadError {
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            &LoadError::MagicError(_) => write!(fmt, "Not a valid object file"),
+            &LoadError::ChunkTypeError(_) => write!(fmt, "Unexpected chunk type"),
+            &LoadError::ChunkSizeError(_, _) => write!(fmt, "Unexpected chunk size"),
+            &LoadError::VertexDataError => write!(fmt, "Missing vertex data"),
+            &LoadError::VertexAttribDataError => write!(fmt, "Missing vertex data attribute"),
+            &LoadError::IoError(ref ioerror) => ioerror.fmt(fmt),
+        }
+    }
+}
+
+#[macro_export]
+macro_rules! load_object_or_panic {
+    ($obj:expr, $path:expr) => ($obj.load($path)
+        .unwrap_or_else(|e| { panic!("Error loading '{}': {}", $path, e) }))
 }
 
 #[derive(Clone, Copy)]

@@ -24,6 +24,7 @@
 
 extern crate gl;
 extern crate rand;
+#[macro_use]
 extern crate sb6;
 
 use gl::types::*;
@@ -129,10 +130,8 @@ impl MyApp {
         }
 
         let render_shaders = [
-            sb6::shader::load("media/shaders/ssao/render.vs.glsl",
-                gl::VERTEX_SHADER).unwrap(),
-            sb6::shader::load("media/shaders/ssao/render.fs.glsl",
-                gl::FRAGMENT_SHADER).unwrap(),
+            load_shader_or_panic!("media/shaders/ssao/render.vs.glsl", gl::VERTEX_SHADER),
+            load_shader_or_panic!("media/shaders/ssao/render.fs.glsl", gl::FRAGMENT_SHADER),
             ];
 
         self.render_program = sb6::program::link_from_shaders(
@@ -146,10 +145,8 @@ impl MyApp {
             self.render_program, "shading_level").unwrap();
 
         let ssao_shaders = [
-            sb6::shader::load("media/shaders/ssao/ssao.vs.glsl",
-                gl::VERTEX_SHADER).unwrap(),
-            sb6::shader::load("media/shaders/ssao/ssao.fs.glsl",
-                gl::FRAGMENT_SHADER).unwrap(),
+            load_shader_or_panic!("media/shaders/ssao/ssao.vs.glsl", gl::VERTEX_SHADER),
+            load_shader_or_panic!("media/shaders/ssao/ssao.fs.glsl", gl::FRAGMENT_SHADER),
             ];
 
         self.ssao_program = sb6::program::link_from_shaders(
@@ -210,8 +207,8 @@ impl sb6::App for MyApp {
             gl::BindVertexArray(self.quad_vao);
         }
 
-        self.object.load("media/objects/dragon.sbm").unwrap();
-        self.cube.load("media/objects/cube.sbm").unwrap();
+        load_object_or_panic!(&mut self.object, "media/objects/dragon.sbm");
+        load_object_or_panic!(&mut self.cube, "media/objects/cube.sbm");
 
         unsafe {
             gl::Enable(gl::DEPTH_TEST);
