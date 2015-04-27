@@ -99,7 +99,7 @@ void main(void)
     }
 
     // Calculate occlusion amount
-    float ao_amount = vec4(1.0 - occ / total);
+    float ao_amount = 1.0 - occ / total;
 
     // Get object color from color texture
     vec4 object_color =  textureLod(sColor, P, 0);
