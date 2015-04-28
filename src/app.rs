@@ -237,8 +237,8 @@ pub fn run<T: App>(app: &mut T) {
         let info = app.get_app_info();
         glfw.window_hint(glfw::WindowHint::ContextVersion(
                 info.major_version, info.minor_version));
-        glfw.window_hint(glfw::WindowHint::OpenglProfile(glfw::OpenGlProfileHint::Core));
-        glfw.window_hint(glfw::WindowHint::OpenglForwardCompat(true));
+        glfw.window_hint(glfw::WindowHint::OpenGlProfile(glfw::OpenGlProfileHint::Core));
+        glfw.window_hint(glfw::WindowHint::OpenGlForwardCompat(true));
         glfw.create_window(
             info.window_width, info.window_height, &info.title,
             glfw::WindowMode::Windowed).expect("Failed to create GLFW window.")
