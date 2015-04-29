@@ -40,7 +40,7 @@ impl MyApp {
 impl sb6::App for MyApp {
     fn get_app_info(&self) -> &sb6::AppInfo { &self.info }
 
-    fn render(&self, time: f64) {
+    fn render(&self, _: f64) {
         const RED: [GLfloat; 4] = [ 1.0, 0.0, 0.0, 1.0 ];
         unsafe {
             gl::ClearBufferfv(gl::COLOR, 0, RED.as_ptr());
