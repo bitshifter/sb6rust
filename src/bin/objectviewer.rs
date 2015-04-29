@@ -134,16 +134,15 @@ impl sb6::App for MyApp {
         const ONE: GLfloat = 1.0;
         let time = time as f32;
 
-        let info = self.get_app_info();
-        let aspect = info.window_width as f32 / info.window_height as f32;
+        let aspect = self.info.window_width as f32 / self.info.window_height as f32;
         let proj_matrix =  Mat4::perspective(50.0, aspect, 0.1, 1000.0);
         let mv_matrix = Mat4::translate(0.0, 0.0, -3.0) *
             Mat4::rotate(time * 45.0, 0.0, 1.0, 0.0) *
             Mat4::rotate(time * 81.0, 1.0, 0.0, 0.0);
 
         unsafe {
-            gl::Viewport(0, 0, info.window_width as i32,
-                info.window_height as i32);
+            gl::Viewport(0, 0, self.info.window_width as i32,
+                self.info.window_height as i32);
             gl::ClearBufferfv(gl::COLOR, 0, BLACK.as_ptr());
             gl::ClearBufferfv(gl::DEPTH, 0, &ONE);
 
