@@ -31,141 +31,6 @@ use glfw::Context;
 pub use glfw::Key;
 pub use glfw::Action;
 
-/*
-// Reexport glfw::Action enum values
-pub use glfw::{
-    Release,
-    Press,
-    Repeat
-};
-
-// Reexport glfw::Key enum values
-// It would be good if there was a better way of doing this...
-pub use glfw::{
-    KeySpace,
-    KeyApostrophe,
-    KeyComma,
-    KeyMinus,
-    KeyPeriod,
-    KeySlash,
-    Key0,
-    Key1,
-    Key2,
-    Key3,
-    Key4,
-    Key5,
-    Key6,
-    Key7,
-    Key8,
-    Key9,
-    KeySemicolon,
-    KeyEqual,
-    KeyA,
-    KeyB,
-    KeyC,
-    KeyD,
-    KeyE,
-    KeyF,
-    KeyG,
-    KeyH,
-    KeyI,
-    KeyJ,
-    KeyK,
-    KeyL,
-    KeyM,
-    KeyN,
-    KeyO,
-    KeyP,
-    KeyQ,
-    KeyR,
-    KeyS,
-    KeyT,
-    KeyU,
-    KeyV,
-    KeyW,
-    KeyX,
-    KeyY,
-    KeyZ,
-    KeyLeftBracket,
-    KeyBackslash,
-    KeyRightBracket,
-    KeyGraveAccent,
-    KeyWorld1,
-    KeyWorld2,
-
-    KeyEscape,
-    KeyEnter,
-    KeyTab,
-    KeyBackspace,
-    KeyInsert,
-    KeyDelete,
-    KeyRight,
-    KeyLeft,
-    KeyDown,
-    KeyUp,
-    KeyPageUp,
-    KeyPageDown,
-    KeyHome,
-    KeyEnd,
-    KeyCapsLock,
-    KeyScrollLock,
-    KeyNumLock,
-    KeyPrintScreen,
-    KeyPause,
-    KeyF1,
-    KeyF2,
-    KeyF3,
-    KeyF4,
-    KeyF5,
-    KeyF6,
-    KeyF7,
-    KeyF8,
-    KeyF9,
-    KeyF10,
-    KeyF11,
-    KeyF12,
-    KeyF13,
-    KeyF14,
-    KeyF15,
-    KeyF16,
-    KeyF17,
-    KeyF18,
-    KeyF19,
-    KeyF20,
-    KeyF21,
-    KeyF22,
-    KeyF23,
-    KeyF24,
-    KeyF25,
-    KeyKp0,
-    KeyKp1,
-    KeyKp2,
-    KeyKp3,
-    KeyKp4,
-    KeyKp5,
-    KeyKp6,
-    KeyKp7,
-    KeyKp8,
-    KeyKp9,
-    KeyKpDecimal,
-    KeyKpDivide,
-    KeyKpMultiply,
-    KeyKpSubtract,
-    KeyKpAdd,
-    KeyKpEnter,
-    KeyKpEqual,
-    KeyLeftShift,
-    KeyLeftControl,
-    KeyLeftAlt,
-    KeyLeftSuper,
-    KeyRightShift,
-    KeyRightControl,
-    KeyRightAlt,
-    KeyRightSuper,
-    KeyMenu,
-};
-*/
-
 #[derive(Clone)]
 pub struct AppInfo {
     pub title: &'static str,
@@ -207,10 +72,10 @@ impl AppInfo {
 pub trait App
 {
     fn get_app_info(&self) -> &AppInfo;
-    fn startup(&mut self);
+    fn startup(&mut self) {}
     fn update(&mut self, _: f64) {}
     fn render(&self, time: f64);
-    fn shutdown(&mut self);
+    fn shutdown(&mut self) {}
     fn on_resize(&mut self, _: isize, _: isize) {}
     fn on_key(&mut self, _: Key, _: Action) {}
 }
