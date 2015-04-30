@@ -74,7 +74,7 @@ pub trait App
     fn get_app_info(&self) -> &AppInfo;
     fn startup(&mut self) {}
     fn update(&mut self, _: f64) {}
-    fn render(&self, time: f64);
+    fn render(&self, _: f64) {}
     fn shutdown(&mut self) {}
     fn on_resize(&mut self, _: isize, _: isize) {}
     fn on_key(&mut self, _: Key, _: Action) {}
