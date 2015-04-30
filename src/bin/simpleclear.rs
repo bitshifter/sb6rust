@@ -27,17 +27,17 @@ extern crate sb6;
 
 use gl::types::*;
 
-struct MyApp {
+struct SampleApp {
     info: sb6::AppInfo,
 }
 
-impl MyApp {
-    fn new(init: sb6::AppInfo) -> MyApp {
-        MyApp { info: init }
+impl SampleApp {
+    fn new(init: sb6::AppInfo) -> SampleApp {
+        SampleApp { info: init }
     }
 }
 
-impl sb6::App for MyApp {
+impl sb6::App for SampleApp {
     fn get_app_info(&self) -> &sb6::AppInfo { &self.info }
 
     fn render(&self, _: f64) {
@@ -51,7 +51,7 @@ impl sb6::App for MyApp {
 fn main() {
     let mut init = sb6::AppInfo::default();
     init.title = "OpenGL SuperBible - Single Triangle";
-    let mut app = MyApp::new(init);
+    let mut app = SampleApp::new(init);
     sb6::run(&mut app);
 }
 

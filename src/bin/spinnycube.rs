@@ -118,7 +118,7 @@ void main(void)                                                    \n\
 }                                                                  \n\
 ";
 
-struct MyApp {
+struct SampleApp {
     info: sb6::AppInfo,
     program: GLuint,
     vao: GLuint,
@@ -128,9 +128,9 @@ struct MyApp {
     proj_matrix: Mat4
 }
 
-impl MyApp {
-    fn new(init: sb6::AppInfo) -> MyApp {
-        MyApp {
+impl SampleApp {
+    fn new(init: sb6::AppInfo) -> SampleApp {
+        SampleApp {
             info: init,
             program: 0,
             vao: 0,
@@ -147,7 +147,7 @@ impl MyApp {
     }
 }
 
-impl sb6::App for MyApp {
+impl sb6::App for SampleApp {
     fn get_app_info(&self) -> &sb6::AppInfo { &self.info }
     fn startup(&mut self) {
         unsafe {
@@ -244,7 +244,7 @@ impl sb6::App for MyApp {
 fn main() {
     let mut init = sb6::AppInfo::default();
     init.title = "OpenGL SuperBible - Moving Triangle";
-    let mut app = MyApp::new(init);
+    let mut app = SampleApp::new(init);
     sb6::run(&mut app);
 }
 

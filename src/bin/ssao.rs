@@ -75,7 +75,7 @@ impl SSAOUniforms {
     }
 }
 
-struct MyApp {
+struct SampleApp {
     info: sb6::AppInfo,
     render_program: GLuint,
     ssao_program: GLuint,
@@ -98,9 +98,9 @@ struct MyApp {
     randomize_points: bool,
 }
 
-impl MyApp {
-    fn new(init: sb6::AppInfo) -> MyApp {
-        MyApp {
+impl SampleApp {
+    fn new(init: sb6::AppInfo) -> SampleApp {
+        SampleApp {
             info: init,
             render_program: 0,
             ssao_program: 0,
@@ -165,7 +165,7 @@ impl MyApp {
     }
 }
 
-impl sb6::App for MyApp {
+impl sb6::App for SampleApp {
     fn get_app_info(&self) -> &sb6::AppInfo { &self.info }
     fn startup(&mut self) {
         self.load_shaders();
@@ -381,7 +381,7 @@ impl sb6::App for MyApp {
 fn main() {
     let mut init = sb6::AppInfo::default();
     init.title = "OpenGL SuperBible - SSAO";
-    let mut app = MyApp::new(init);
+    let mut app = SampleApp::new(init);
     sb6::run(&mut app);
 }
 

@@ -31,7 +31,7 @@ use std::mem;
 
 mod vmath;
 
-struct MyApp {
+struct SampleApp {
     info: sb6::AppInfo,
     render_prog: GLuint,
     tex_object: [GLuint; 2],
@@ -41,9 +41,9 @@ struct MyApp {
     object: sb6::object::Object
 }
 
-impl MyApp {
-    fn new(init: sb6::AppInfo) -> MyApp {
-        MyApp {
+impl SampleApp {
+    fn new(init: sb6::AppInfo) -> SampleApp {
+        SampleApp {
             info: init,
             render_prog: 0,
             tex_object: [0; 2],
@@ -82,7 +82,7 @@ impl MyApp {
     }
 }
 
-impl sb6::App for MyApp {
+impl sb6::App for SampleApp {
     fn get_app_info(&self) -> &sb6::AppInfo { &self.info }
     fn startup(&mut self) {
         // generate a 16 x 16 checker texture
@@ -179,7 +179,7 @@ impl sb6::App for MyApp {
 fn main() {
     let mut init = sb6::AppInfo::default();
     init.title = "OpenGL SuperBible - Texture Coordinates";
-    let mut app = MyApp::new(init);
+    let mut app = SampleApp::new(init);
     sb6::run(&mut app);
 }
 

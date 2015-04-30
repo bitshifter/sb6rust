@@ -54,16 +54,16 @@ void main(void)                                                                \
 }                                                                              \n\
 ";
 
-struct MyApp {
+struct SampleApp {
     info: sb6::AppInfo,
     texture: GLuint,
     program: GLuint,
     vao: GLuint
 }
 
-impl MyApp {
-    fn new(init: sb6::AppInfo) -> MyApp {
-        MyApp {
+impl SampleApp {
+    fn new(init: sb6::AppInfo) -> SampleApp {
+        SampleApp {
             info: init,
             texture: 0,
             program: 0,
@@ -72,7 +72,7 @@ impl MyApp {
     }
 }
 
-impl sb6::App for MyApp {
+impl sb6::App for SampleApp {
     fn get_app_info(&self) -> &sb6::AppInfo { &self.info }
     fn startup(&mut self) {
         unsafe {
@@ -125,7 +125,7 @@ fn main() {
     init.title = "OpenGL SuperBible - KTX Viewer";
     init.major_version = 3;
     init.minor_version = 3;
-    let mut app = MyApp::new(init);
+    let mut app = SampleApp::new(init);
     sb6::run(&mut app);
 }
 
