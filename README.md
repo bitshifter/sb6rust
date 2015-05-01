@@ -14,8 +14,7 @@ all of the SB6 media pack models, texture and shaders.
 ## Building the samples
 
 1. Make sure you have the following dependencies installed:
-    * `rust` [recent nightly][rust_nightly]
-    * `cargo` [recent nightly][cargo_nightly]
+    * `rust` 1.0.0-beta3 or later
     * `g++` 4.7 or later
     * GNU `make` 3.81 or later
     * `cmake` 2.8 or later
@@ -25,13 +24,10 @@ all of the SB6 media pack models, texture and shaders.
 
 2. Build the samples:
     Simply build the samples by running `make`. This will run cargo build and
-    copy required media files to the `target` directory.
+    copy required media files to the `target/debug` directory.
 
 3. Run the samples:
-    `cd` to the `target` directory and run the sample you want.
-
-[rust_nightly]: http://www.rust-lang.org
-[cargo_nightly]: http://crates.io
+    `cd` to the `target/debug` directory and run the sample you want.
 
 ### Building on Windows
 
@@ -40,14 +36,14 @@ To install the required prerequsites on Windows you can use
 
 1. Download and run the latest MSYS2 installer.
 2. From the MSYS2 terminal install the mingw64 toolchain and the other required
-   tools:
+   tools.
 
-        $ pacman -S mingw-w64-i686-toolchain
-        $ pacman -S mingw-w64-i686-cmake
-        $ pacman -S base-devel
-        $ pacman -S unzip
+      $ pacman -S git make unzip mingw-w64-x86_64-cmake mingw-w64-x86_64-gcc
 
-3. Start `mingw32_shell.bat` from where you installed MSYS2 (i.e. `C:\msys64`).
+3. Start `mingw64_shell.bat` from where you installed MSYS2 (i.e. `C:\msys64`).
+
+If using the 32-bit version of Rust then install the `mingw-w64-i686-cmake` and
+`mingw-w64-i686-gcc` packages and start the `ming32_shell.bat` instead.
 
 ## License
 
