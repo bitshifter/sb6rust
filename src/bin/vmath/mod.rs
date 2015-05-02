@@ -338,7 +338,7 @@ impl Index<usize> for Mat4 {
 
 impl fmt::Display for Mat4 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "[{:?}, {:?}, {:?}, {:?}]",
+        write!(f, "[{}, {}, {}, {}]",
            self.col[0], self.col[1], self.col[2], self.col[3])
     }
 }
