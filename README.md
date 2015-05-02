@@ -23,7 +23,7 @@ all of the SB6 media pack models, texture and shaders.
     * `unzip`
 
 2. Build the samples:
-    Simply build the samples by running `make`. This will run cargo build and
+    Simply build the samples by running `make`. This will run `cargo build` and
     copy required media files to the `target/debug` directory.
 
 3. Run the samples:
@@ -35,15 +35,22 @@ To install the required prerequsites on Windows you can use
 [MSYS2](http://sourceforge.net/projects/msys2/):
 
 1. Download and run the latest MSYS2 installer.
-2. From the MSYS2 terminal install the mingw64 toolchain and the other required
-   tools.
+2. From the MSYS2 terminal install the `mingw64` toolchain and the other
+   required tools.
 
-      $ pacman -S git make unzip mingw-w64-x86_64-cmake mingw-w64-x86_64-gcc
+      ```sh
+      $ pacman -S git make unzip
 
-3. Start `mingw64_shell.bat` from where you installed MSYS2 (i.e. `C:\msys64`).
+      # Choose one based on platform:
+      $ pacman -S mingw-w64-i686-cmake mingw-w64-i686-gcc
+      $ pacman -S mingw-w64-x86_64-cmake mingw-w64-x86_64-gcc
+      ```
 
-If using the 32-bit version of Rust then install the `mingw-w64-i686-cmake` and
-`mingw-w64-i686-gcc` packages and start the `ming32_shell.bat` instead.
+3. Start `mingw32_shell.bat` or `mingw64_shell.bat` from your MSYS2 install
+   (i.e. `C:\msys64`), depending on whether you are using 32-bit or 64-bit
+   Rust.
+
+You are now ready to build and run the samples.
 
 ## License
 
