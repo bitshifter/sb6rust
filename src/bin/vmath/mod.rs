@@ -26,6 +26,7 @@ use std::f32;
 use std::fmt;
 use std::ops::Add;
 use std::ops::Index;
+use std::ops::IndexMut;
 use std::ops::Mul;
 use std::ops::Sub;
 
@@ -123,6 +124,12 @@ impl Index<usize> for Vec3 {
     }
 }
 
+impl IndexMut<usize> for Vec3 {
+    fn index_mut<'a>(&'a mut self, i: usize) -> &'a mut f32 {
+        &mut self.v[i]
+    }
+}
+
 #[derive(Clone, Copy, Debug)]
 pub struct Vec4 {
     v: [f32; 4]
@@ -209,6 +216,12 @@ impl Index<usize> for Vec4 {
     type Output = f32;
     fn index<'a>(&'a self, i: usize) -> &'a f32 {
         &self.v[i]
+    }
+}
+
+impl IndexMut<usize> for Vec4 {
+    fn index_mut<'a>(&'a mut self, i: usize) -> &'a mut f32 {
+        &mut self.v[i]
     }
 }
 
@@ -333,6 +346,12 @@ impl Index<usize> for Mat4 {
     type Output = Vec4;
     fn index<'a>(&'a self, i: usize) -> &'a Vec4 {
         &self.col[i]
+    }
+}
+
+impl IndexMut<usize> for Mat4 {
+    fn index_mut<'a>(&'a mut self, i: usize) -> &'a mut Vec4 {
+        &mut self.col[i]
     }
 }
 
