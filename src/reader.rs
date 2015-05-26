@@ -30,13 +30,13 @@ use std::slice;
 /// being we are not concerned with endian conversion, and we don't copy the
 /// data out of the buffer, we just return references to in the internal
 /// buffer.
-pub struct BufferReader {
-    buf: Vec<u8>,
+pub struct BufferReader<'a> {
+    buf: &'a Vec<u8>,
     pos: usize
 }
 
-impl BufferReader {
-    pub fn new(buf: Vec<u8>) -> BufferReader {
+impl <'a> BufferReader<'a> {
+    pub fn new(buf: &'a Vec<u8>) -> BufferReader<'a> {
         BufferReader {
             buf: buf,
             pos: 0
@@ -60,7 +60,7 @@ impl BufferReader {
     }
 
     /// Pop a slice of T items
-    pub fn pop_slice<'a, T>(&mut self, size: usize) -> Result<&'a [T], io::Error> {
+    pub fn pop_slice<T>(&mut self, size: usize) -> Result<&'a [T], io::Error> {
         let pop_bytes = mem::size_of::<T>() * size;
         let pop_end = self.pos + pop_bytes;
         if pop_end > self.buf.len() {
@@ -73,7 +73,7 @@ impl BufferReader {
     }
 
     /// Pop a reference to T
-    pub fn pop_value<'a, T>(&mut self) -> Result<&'a T, io::Error> {
+    pub fn pop_value<T>(&mut self) -> Result<&'a T, io::Error> {
         let pop_end = self.pos + mem::size_of::<T>();
         if pop_end > self.buf.len() {
             return Err(io::Error::new(io::ErrorKind::InvalidInput, "Buffer overrun"))
@@ -83,7 +83,7 @@ impl BufferReader {
         Ok(unsafe { &*(ptr as *const T) })
     }
 
-    pub fn peek_slice<'a>(&'a self, start: usize, end: usize) -> Result<&'a [u8], io::Error> {
+    pub fn peek_slice(&'a self, start: usize, end: usize) -> Result<&'a [u8], io::Error> {
         assert!(start <= end);
         if end > self.buf.len() {
             return Err(io::Error::new(io::ErrorKind::InvalidInput, "Buffer overrun"))

@@ -104,7 +104,7 @@ pub fn load(filename: &str) -> Result<GLuint, LoadError> {
     let mut file = try!(fs::File::open(&Path::new(filename)));
     let mut bytes = Vec::new();
     try!(file.read_to_end(&mut bytes));
-    let mut reader = BufferReader::new(bytes);
+    let mut reader = BufferReader::new(&bytes);
 
     // check header magic
     let id = try!(reader.pop_slice::<u8>(IDENTIFIER.len()));

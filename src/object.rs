@@ -160,7 +160,7 @@ impl Object {
         let mut bytes = Vec::new();
         try!(file.read_to_end(&mut bytes));
 
-        let mut reader = BufferReader::new(bytes);
+        let mut reader = BufferReader::new(&bytes);
         let mut bytes_read = 0;
 
         // check header magic
