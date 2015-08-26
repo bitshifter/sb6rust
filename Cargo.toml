@@ -9,6 +9,4 @@ gl = "*"
 log = "*"
 num = "*"
 rand = "*"
-
-[dependencies.glfw]
-git = "https://github.com/bitshifter/glfw-rs.git"
+glfw = "*"
