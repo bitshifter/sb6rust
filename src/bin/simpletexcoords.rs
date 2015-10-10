@@ -27,9 +27,8 @@ extern crate gl;
 extern crate sb6;
 
 use gl::types::*;
+use sb6::vmath;
 use std::mem;
-
-mod vmath;
 
 struct SampleApp {
     info: sb6::AppInfo,

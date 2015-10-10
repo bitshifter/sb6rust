@@ -27,9 +27,7 @@ extern crate gl;
 extern crate sb6;
 
 use gl::types::*;
-use vmath::Mat4;
-
-mod vmath;
+use sb6::vmath::Mat4;
 
 const VS_SRC: &'static str = "\
 #version 330 core                                                  \n\

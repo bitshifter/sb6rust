@@ -28,10 +28,9 @@ extern crate rand;
 extern crate sb6;
 
 use gl::types::*;
+use sb6::vmath;
 use std::mem;
 use rand::{ Rng };
-
-mod vmath;
 
 struct SamplePoints
 {

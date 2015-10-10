@@ -28,9 +28,7 @@ extern crate sb6;
 use gl::types::*;
 use std::mem;
 use std::ptr;
-use vmath::Mat4;
-
-mod vmath;
+use sb6::vmath::Mat4;
 
 const VERTEX_POSITIONS: [GLfloat; 108] = [
     -0.25,  0.25, -0.25,

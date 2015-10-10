@@ -28,11 +28,10 @@ extern crate sb6;
 
 use gl::types::*;
 use rand::{ Rng };
+use sb6::vmath;
 use std::mem;
 use std::ptr;
 use std::slice;
-
-mod vmath;
 
 const NUM_STARS: usize = 2000;
 
