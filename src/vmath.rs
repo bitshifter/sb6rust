@@ -25,8 +25,6 @@
 use std::f32;
 use std::fmt;
 use std::ops::Add;
-use std::ops::Index;
-use std::ops::IndexMut;
 use std::ops::Mul;
 use std::ops::Sub;
 
@@ -37,36 +35,29 @@ fn deg_to_rad(a: f32) -> f32 {
 
 #[derive(Clone, Copy, Debug)]
 pub struct Vec3 {
-    v: [f32; 3]
+    pub x: f32,
+    pub y: f32,
+    pub z: f32
+}
+
+#[allow(dead_code)]
+pub fn vec3(x: f32, y: f32, z: f32) -> Vec3 {
+    Vec3 { x: x, y: y, z: z }
 }
 
 #[allow(dead_code)]
 impl Vec3 {
-    pub fn new(x: f32, y: f32, z: f32) -> Vec3 {
-        Vec3 { v: [x, y, z] }
-    }
     pub fn zero() -> Vec3 {
-        Vec3 { v: [0.0, 0.0, 0.0] }
-    }
-    pub fn identity() -> Vec3 {
-        Vec3 { v: [1.0, 1.0, 1.0] }
-    }
-    pub fn scale(&self, s: f32) -> Vec3 {
-        Vec3 { v: [
-            self.v[0] * s,
-            self.v[1] * s,
-            self.v[2] * s]
-        }
+        Vec3 { x: 0.0, y: 0.0, z: 0.0 }
     }
     pub fn dot(&self, rhs: &Vec3) -> f32 {
-        (self.v[0] * rhs.v[0]) + (self.v[1] * rhs.v[1]) +
-            (self.v[2] * rhs.v[2])
+        (self.x * rhs.x) + (self.y * rhs.y) + (self.z * rhs.z)
     }
     pub fn cross(&self, rhs: &Vec3) -> Vec3 {
-        Vec3 { v: [
-            self.v[1] * rhs.v[2] - rhs.v[1] * self.v[2],
-            self.v[2] * rhs.v[0] - rhs.v[2] * self.v[0],
-            self.v[0] * rhs.v[1] - rhs.v[0] * self.v[1]]
+        Vec3 {
+            x: self.y * rhs.z - rhs.y * self.z,
+            y: self.z * rhs.x - rhs.z * self.x,
+            z: self.x * rhs.y - rhs.x * self.y
         }
     }
     pub fn length(&self) -> f32 {
@@ -74,89 +65,64 @@ impl Vec3 {
     }
     pub fn normalize(&self) -> Vec3 {
         let inv_length = 1.0 / self.dot(self).sqrt();
-        self.scale(inv_length)
+        *self * inv_length
     }
 }
 
 impl fmt::Display for Vec3 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "[{}, {}, {}]", self.v[0], self.v[1], self.v[2])
+        write!(f, "[{}, {}, {}]", self.x, self.y, self.z)
     }
 }
 
-impl Mul for Vec3 {
+impl Mul<Vec3> for Vec3 {
     type Output = Vec3;
     fn mul(self, rhs: Vec3) -> Vec3 {
-        Vec3 { v: [
-            self.v[0] * rhs.v[0],
-            self.v[1] * rhs.v[1],
-            self.v[2] * rhs.v[2]]
-        }
+        Vec3 { x: self.x * rhs.x, y: self.y * rhs.y, z: self.z * rhs.z }
+    }
+}
+
+impl Mul<f32> for Vec3 {
+    type Output = Vec3;
+    fn mul(self, rhs: f32) -> Vec3 {
+        Vec3 { x: self.x * rhs, y: self.y * rhs, z: self.z * rhs }
     }
 }
 
 impl Add for Vec3 {
     type Output = Vec3;
     fn add(self, rhs: Vec3) -> Vec3 {
-        Vec3 { v: [
-            self.v[0] + rhs.v[0],
-            self.v[1] + rhs.v[1],
-            self.v[2] + rhs.v[2]]
-        }
+        Vec3 { x: self.x + rhs.x, y: self.y + rhs.y, z: self.z + rhs.z }
     }
 }
 
 impl Sub for Vec3 {
     type Output = Vec3;
     fn sub(self, rhs: Vec3) -> Vec3 {
-        Vec3 { v: [
-            self.v[0] - rhs.v[0],
-            self.v[1] - rhs.v[1],
-            self.v[2] - rhs.v[2]]
-        }
-    }
-}
-
-impl Index<usize> for Vec3 {
-    type Output = f32;
-    fn index<'a>(&'a self, i: usize) -> &'a f32 {
-        &self.v[i]
-    }
-}
-
-impl IndexMut<usize> for Vec3 {
-    fn index_mut<'a>(&'a mut self, i: usize) -> &'a mut f32 {
-        &mut self.v[i]
+        Vec3 { x: self.x - rhs.x, y: self.y - rhs.y, z: self.z - rhs.z }
     }
 }
 
 #[derive(Clone, Copy, Debug)]
 pub struct Vec4 {
-    v: [f32; 4]
+    pub x: f32,
+    pub y: f32,
+    pub z: f32,
+    pub w: f32
+}
+
+pub fn vec4(x: f32, y: f32, z: f32, w: f32) -> Vec4 {
+    Vec4 { x: x, y: y, z: z, w: w }
 }
 
 #[allow(dead_code)]
 impl Vec4 {
-    pub fn new(x: f32, y: f32, z: f32, w: f32) -> Vec4 {
-        Vec4 { v: [x, y, z, w] }
-    }
     pub fn zero() -> Vec4 {
-        Vec4 { v: [0.0, 0.0, 0.0, 0.0] }
-    }
-    pub fn identity() -> Vec4 {
-        Vec4 { v: [1.0, 1.0, 1.0, 1.0] }
-    }
-    pub fn scale(&self, s: f32) -> Vec4 {
-        Vec4 { v: [
-            self.v[0] * s,
-            self.v[1] * s,
-            self.v[2] * s,
-            self.v[3] * s]
-        }
+        Vec4 { x: 0.0, y: 0.0, z: 0.0, w: 0.0 }
     }
     pub fn dot(&self, rhs: &Vec4) -> f32 {
-        (self.v[0] * rhs.v[0]) + (self.v[1] * rhs.v[1]) +
-            (self.v[2] * rhs.v[2]) + (self.v[3] * rhs.v[3])
+        (self.x * rhs.x) + (self.y * rhs.y) +
+            (self.z * rhs.z) + (self.w * rhs.w)
     }
     pub fn length(&self) -> f32 {
         self.dot(self).sqrt()
@@ -164,201 +130,168 @@ impl Vec4 {
     }
     pub fn normalize(&self) -> Vec4 {
         let inv_length = 1.0 / self.dot(self).sqrt();
-        self.scale(inv_length)
+        *self * inv_length
     }
 }
 
-/*
-impl Mul<f32, Vec4> for Vec4 {
-    fn mul(&self, rhs: &f32) -> Vec4 {
-        Vec4::zero()
-    }
-}
-*/
-
-impl Mul for Vec4 {
+impl Mul<Vec4> for Vec4 {
     type Output = Vec4;
     fn mul(self, rhs: Vec4) -> Vec4 {
-        Vec4 { v: [
-            self.v[0] * rhs.v[0],
-            self.v[1] * rhs.v[1],
-            self.v[2] * rhs.v[2],
-            self.v[3] * rhs.v[3]]
-        }
+        Vec4 { x: self.x * rhs.x, y: self.y * rhs.y, z: self.z * rhs.z, w: self.w * rhs.w }
+    }
+}
+
+impl Mul<f32> for Vec4 {
+    type Output = Vec4;
+    fn mul(self, rhs: f32) -> Vec4 {
+        Vec4 { x: self.x * rhs, y: self.y * rhs, z: self.z * rhs, w: self.w * rhs }
     }
 }
 
 impl Add for Vec4 {
     type Output = Vec4;
     fn add(self, rhs: Vec4) -> Vec4 {
-        Vec4 { v: [
-            self.v[0] + rhs.v[0],
-            self.v[1] + rhs.v[1],
-            self.v[2] + rhs.v[2],
-            self.v[3] + rhs.v[3]]
-        }
+        Vec4 { x: self.x + rhs.x, y: self.y + rhs.y, z: self.z + rhs.z, w: self.w + rhs.w }
     }
 }
 
 impl Sub for Vec4 {
     type Output = Vec4;
     fn sub(self, rhs: Vec4) -> Vec4 {
-        Vec4 { v: [
-            self.v[0] - rhs.v[0],
-            self.v[1] - rhs.v[1],
-            self.v[2] - rhs.v[2],
-            self.v[3] - rhs.v[3]]
-        }
-    }
-}
-
-impl Index<usize> for Vec4 {
-    type Output = f32;
-    fn index<'a>(&'a self, i: usize) -> &'a f32 {
-        &self.v[i]
-    }
-}
-
-impl IndexMut<usize> for Vec4 {
-    fn index_mut<'a>(&'a mut self, i: usize) -> &'a mut f32 {
-        &mut self.v[i]
+        Vec4 { x: self.x - rhs.x, y: self.y - rhs.y, z: self.z - rhs.z, w: self.w - rhs.w }
     }
 }
 
 impl fmt::Display for Vec4 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "[{}, {}, {}, {}]", self.v[0], self.v[1], self.v[2], self.v[3])
+        write!(f, "[{}, {}, {}, {}]", self.x, self.y, self.z, self.w)
     }
 }
 
 #[derive(Clone, Copy, Debug)]
 pub struct Mat4 {
-    col: [Vec4; 4]
+    pub col0: Vec4,
+    pub col1: Vec4,
+    pub col2: Vec4,
+    pub col3: Vec4,
+}
+
+#[allow(dead_code)]
+pub fn mat4(col0: Vec4, col1: Vec4, col2: Vec4, col3: Vec4) -> Mat4 {
+    Mat4 { col0: col0, col1: col1, col2: col2, col3: col3 }
+}
+
+#[allow(dead_code)]
+pub fn perspective(fovy: f32, aspect: f32, near: f32, far: f32) -> Mat4 {
+    let q = 1.0 / deg_to_rad(0.5 * fovy).tan();
+    let a = q / aspect;
+    let b = (near + far) / (near - far);
+    let c = (2.0 * near * far) / (near - far);
+
+    Mat4 {
+        col0: vec4(  a, 0.0, 0.0, 0.0),
+        col1: vec4(0.0,   q, 0.0, 0.0),
+        col2: vec4(0.0, 0.0,   b,-1.0),
+        col3: vec4(0.0, 0.0,   c, 0.0)
+    }
+}
+
+#[allow(dead_code)]
+pub fn translate(x: f32, y: f32, z: f32) -> Mat4 {
+    Mat4 {
+        col0: vec4(1.0, 0.0, 0.0, 0.0),
+        col1: vec4(0.0, 1.0, 0.0, 0.0),
+        col2: vec4(0.0, 0.0, 1.0, 0.0),
+        col3: vec4(  x,   y,   z, 1.0)
+    }
+}
+
+#[allow(dead_code)]
+pub fn look_at(eye: Vec3, center: Vec3, up: Vec3) -> Mat4 {
+    let f = (center - eye).normalize();
+    let up_n = up.normalize();
+    let s = f.cross(&up_n);
+    let u = s.cross(&f);
+    Mat4 {
+        col0: vec4(s.x, u.x,-f.x, 0.0),
+        col1: vec4(s.y, u.y,-f.y, 0.0),
+        col2: vec4(s.z, u.z,-f.z, 0.0),
+        col3: vec4(0.0, 0.0, 0.0, 1.0)
+    } * translate(-eye.x, -eye.y, -eye.z)
+}
+
+#[allow(dead_code)]
+pub fn rotate(angle: f32, x: f32, y: f32, z: f32) -> Mat4 {
+    let x2 = x * x;
+    let y2 = y * y;
+    let z2 = z * z;
+    let rads = deg_to_rad(angle);
+    let (s, c) = rads.sin_cos();
+    let omc = 1.0 - c;
+    Mat4 {
+        col0: vec4(x2 * omc + c, y * x * omc + z * s, x * z * omc - y * s, 0.0),
+        col1: vec4(x * y * omc - z * s, y2 * omc + c, y * z * omc + x * s, 0.0),
+        col2: vec4(x * z * omc + y * s, y * z * omc - x * s, z2 * omc + c, 0.0),
+        col3: vec4(0.0, 0.0, 0.0, 1.0)
+    }
+}
+
+#[allow(dead_code)]
+pub fn scale(x: f32, y: f32, z: f32) -> Mat4 {
+    Mat4 {
+        col0: vec4(  x, 0.0, 0.0, 0.0),
+        col1: vec4(0.0,   y, 0.0, 0.0),
+        col2: vec4(0.0, 0.0,   z, 0.0),
+        col3: vec4(0.0, 0.0, 0.0, 1.0)
+    }
+}
+
+#[allow(dead_code)]
+pub fn identity() -> Mat4 {
+    Mat4 {
+        col0: vec4(1.0, 0.0, 0.0, 0.0),
+        col1: vec4(0.0, 1.0, 0.0, 0.0),
+        col2: vec4(0.0, 0.0, 1.0, 0.0),
+        col3: vec4(0.0, 0.0, 0.0, 1.0)
+    }
 }
 
 #[allow(dead_code)]
 impl Mat4 {
     pub fn as_ptr(&self) -> *const f32 {
-        &self.col[0][0] as *const f32
+        &self.col0.x as *const f32
     }
-
-    pub fn new(col0: Vec4, col1: Vec4, col2: Vec4, col3: Vec4) -> Mat4 {
-        Mat4 { col: [ col0, col1, col2, col3 ] }
-    }
-
     pub fn zero() -> Mat4 {
-        Mat4 { col: [ Vec4::zero(), Vec4::zero(), Vec4::zero(), Vec4::zero() ] }
-    }
-
-    pub fn identity() -> Mat4 {
-        Mat4 { col: [
-            Vec4::new(1.0, 0.0, 0.0, 0.0),
-            Vec4::new(0.0, 1.0, 0.0, 0.0),
-            Vec4::new(0.0, 0.0, 1.0, 0.0),
-            Vec4::new(0.0, 0.0, 0.0, 1.0)]
-        }
-    }
-
-    pub fn perspective(fovy: f32, aspect: f32, near: f32, far: f32) -> Mat4 {
-        let q = 1.0 / deg_to_rad(0.5 * fovy).tan();
-        let a = q / aspect;
-        let b = (near + far) / (near - far);
-        let c = (2.0 * near * far) / (near - far);
-
-        Mat4 { col: [
-            Vec4::new(a, 0.0, 0.0, 0.0),
-            Vec4::new(0.0, q, 0.0, 0.0),
-            Vec4::new(0.0, 0.0, b, -1.0),
-            Vec4::new(0.0, 0.0, c, 0.0)]
-        }
-    }
-
-    pub fn translate(x: f32, y: f32, z: f32) -> Mat4 {
-        Mat4 { col: [
-            Vec4::new(1.0, 0.0, 0.0, 0.0),
-            Vec4::new(0.0, 1.0, 0.0, 0.0),
-            Vec4::new(0.0, 0.0, 1.0, 0.0),
-            Vec4::new(x, y, z, 1.0)]
-        }
-    }
-
-    pub fn lookat(eye: Vec3, center: Vec3, up: Vec3) -> Mat4 {
-        let f = (center - eye).normalize();
-        let up_n = up.normalize();
-        let s = f.cross(&up_n);
-        let u = s.cross(&f);
-        Mat4 { col: [
-            Vec4::new(s[0], u[0], -f[0], 0.0),
-            Vec4::new(s[1], u[1], -f[1], 0.0),
-            Vec4::new(s[2], u[2], -f[2], 0.0),
-            Vec4::new(0.0, 0.0, 0.0, 1.0)]
-        } * Mat4::translate(-eye[0], -eye[1], -eye[2])
-    }
-
-    pub fn scale(x: f32, y: f32, z: f32) -> Mat4 {
-        Mat4 { col: [
-            Vec4::new(  x, 0.0, 0.0, 0.0),
-            Vec4::new(0.0,   y, 0.0, 0.0),
-            Vec4::new(0.0, 0.0,   z, 0.0),
-            Vec4::new(0.0, 0.0, 0.0, 1.0)]
-        }
-    }
-
-    pub fn rotate(angle: f32, x: f32, y: f32, z: f32) -> Mat4 {
-        let x2 = x * x;
-        let y2 = y * y;
-        let z2 = z * z;
-        let rads = deg_to_rad(angle);
-        let (s, c) = rads.sin_cos();
-        let omc = 1.0 - c;
-        Mat4 { col: [
-            Vec4::new(x2 * omc + c, y * x * omc + z * s, x * z * omc - y * s, 0.0),
-            Vec4::new(x * y * omc - z * s, y2 * omc + c, y * z * omc + x * s, 0.0),
-            Vec4::new(x * z * omc + y * s, y * z * omc - x * s, z2 * omc + c, 0.0),
-            Vec4::new(0.0, 0.0, 0.0, 1.0)]
-        }
+        Mat4 { col0: Vec4::zero(), col1: Vec4::zero(), col2: Vec4::zero(), col3: Vec4::zero() }
     }
 }
 
 impl Mul for Mat4 {
     type Output = Mat4;
     fn mul(self, rhs: Mat4) -> Mat4 {
-        let a0 = self.col[0];
-        let a1 = self.col[1];
-        let a2 = self.col[2];
-        let a3 = self.col[3];
+        let a0 = self.col0;
+        let a1 = self.col1;
+        let a2 = self.col2;
+        let a3 = self.col3;
 
-        let b0 = rhs.col[0];
-        let b1 = rhs.col[1];
-        let b2 = rhs.col[2];
-        let b3 = rhs.col[3];
+        let b0 = rhs.col0;
+        let b1 = rhs.col1;
+        let b2 = rhs.col2;
+        let b3 = rhs.col3;
 
-        Mat4 { col: [
-            a0.scale(b0[0]) + a1.scale(b0[1]) + a2.scale(b0[2]) + a3.scale(b0[3]),
-            a0.scale(b1[0]) + a1.scale(b1[1]) + a2.scale(b1[2]) + a3.scale(b1[3]),
-            a0.scale(b2[0]) + a1.scale(b2[1]) + a2.scale(b2[2]) + a3.scale(b2[3]),
-            a0.scale(b3[0]) + a1.scale(b3[1]) + a2.scale(b3[2]) + a3.scale(b3[3])]
+        Mat4 {
+            col0: (a0 * b0.x) + (a1 * b0.y) + (a2 * b0.z) + (a3 * b0.w),
+            col1: (a0 * b1.x) + (a1 * b1.y) + (a2 * b1.z) + (a3 * b1.w),
+            col2: (a0 * b2.x) + (a1 * b2.y) + (a2 * b2.z) + (a3 * b2.w),
+            col3: (a0 * b3.x) + (a1 * b3.y) + (a2 * b3.z) + (a3 * b3.w)
         }
-    }
-}
-
-impl Index<usize> for Mat4 {
-    type Output = Vec4;
-    fn index<'a>(&'a self, i: usize) -> &'a Vec4 {
-        &self.col[i]
-    }
-}
-
-impl IndexMut<usize> for Mat4 {
-    fn index_mut<'a>(&'a mut self, i: usize) -> &'a mut Vec4 {
-        &mut self.col[i]
     }
 }
 
 impl fmt::Display for Mat4 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "[{}, {}, {}, {}]",
-           self.col[0], self.col[1], self.col[2], self.col[3])
+           self.col0, self.col1, self.col2, self.col3)
     }
 }
 

@@ -28,6 +28,7 @@ extern crate sb6;
 use gl::types::*;
 use std::mem;
 use std::ptr;
+use sb6::vmath;
 use sb6::vmath::Mat4;
 
 const VERTEX_POSITIONS: [GLfloat; 108] = [
@@ -135,13 +136,13 @@ impl SampleApp {
             buffer: 0,
             mv_location: -1,
             proj_location: -1,
-            proj_matrix: Mat4::identity()
+            proj_matrix: vmath::identity()
         }
     }
 
     fn update_proj_matrix(&mut self) {
         let aspect = self.info.window_width as f32 / self.info.window_height as f32;
-        self.proj_matrix = Mat4::perspective(50.0, aspect, 0.1, 1000.0);
+        self.proj_matrix = vmath::perspective(50.0, aspect, 0.1, 1000.0);
     }
 }
 
@@ -225,12 +226,12 @@ impl sb6::App for SampleApp {
 
             let f = time as f32 * 0.3;
             let mv_matrix =
-                Mat4::translate(0.0, 0.0, -4.0) *
-                Mat4::translate((2.1 * f).sin() * 0.5,
+                vmath::translate(0.0, 0.0, -4.0) *
+                vmath::translate((2.1 * f).sin() * 0.5,
                 (1.7 * f).cos() * 0.5,
                 (1.3 * f).sin() * (1.5 * f).cos() * 2.0) *
-                Mat4::rotate(time as f32 * 45.0, 0.0, 1.0, 0.0) *
-                Mat4::rotate(time as f32 * 81.0, 1.0, 0.0, 0.0);
+                vmath::rotate(time as f32 * 45.0, 0.0, 1.0, 0.0) *
+                vmath::rotate(time as f32 * 81.0, 1.0, 0.0, 0.0);
             gl::UniformMatrix4fv(self.mv_location, 1, gl::FALSE,
                                  mv_matrix.as_ptr());
 

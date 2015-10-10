@@ -144,10 +144,10 @@ impl sb6::App for SampleApp {
 
         let aspect = self.info.window_width as f32 /
             self.info.window_height as f32;
-        let proj_matrix = vmath::Mat4::perspective(60.0, aspect, 0.1, 1000.0);
-        let mv_matrix = vmath::Mat4::translate(0.0, 0.0, -3.0) *
-            vmath::Mat4::rotate(current_time as f32 * 19.3, 0.0, 1.0, 0.0) *
-            vmath::Mat4::rotate(current_time as f32 * 21.1, 0.0, 0.0, 1.0);
+        let proj_matrix = vmath::perspective(60.0, aspect, 0.1, 1000.0);
+        let mv_matrix = vmath::translate(0.0, 0.0, -3.0) *
+            vmath::rotate(current_time as f32 * 19.3, 0.0, 1.0, 0.0) *
+            vmath::rotate(current_time as f32 * 21.1, 0.0, 0.0, 1.0);
 
         unsafe {
             gl::ClearBufferfv(gl::COLOR, 0, gray.as_ptr());

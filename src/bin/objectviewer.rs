@@ -27,7 +27,7 @@ extern crate gl;
 extern crate sb6;
 
 use gl::types::*;
-use sb6::vmath::Mat4;
+use sb6::vmath;
 
 const VS_SRC: &'static str = "\
 #version 330 core                                                  \n\
@@ -133,10 +133,10 @@ impl sb6::App for SampleApp {
         let time = time as f32;
 
         let aspect = self.info.window_width as f32 / self.info.window_height as f32;
-        let proj_matrix =  Mat4::perspective(50.0, aspect, 0.1, 1000.0);
-        let mv_matrix = Mat4::translate(0.0, 0.0, -3.0) *
-            Mat4::rotate(time * 45.0, 0.0, 1.0, 0.0) *
-            Mat4::rotate(time * 81.0, 1.0, 0.0, 0.0);
+        let proj_matrix = vmath::perspective(50.0, aspect, 0.1, 1000.0);
+        let mv_matrix = vmath::translate(0.0, 0.0, -3.0) *
+            vmath::rotate(time * 45.0, 0.0, 1.0, 0.0) *
+            vmath::rotate(time * 81.0, 1.0, 0.0, 0.0);
 
         unsafe {
             gl::Viewport(0, 0, self.info.window_width as i32,

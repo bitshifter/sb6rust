@@ -223,7 +223,7 @@ impl sb6::App for SampleApp {
         for i in 0..256 {
             loop
             {
-                point_data.point[i] = vmath::Vec4::new(
+                point_data.point[i] = vmath::vec4(
                     rng.gen::<f32>() * 2.0 - 1.0,
                     rng.gen::<f32>() * 2.0 - 1.0,
                     rng.gen::<f32>(), //  * 2.0 - 1.0;
@@ -235,7 +235,7 @@ impl sb6::App for SampleApp {
             point_data.point[i].normalize();
         }
         for i in 0..256 {
-            point_data.random_vectors[i] = vmath::Vec4::new(
+            point_data.random_vectors[i] = vmath::vec4(
                 rng.gen::<f32>(), rng.gen::<f32>(),
                 rng.gen::<f32>(), rng.gen::<f32>());
         }
@@ -276,13 +276,13 @@ impl sb6::App for SampleApp {
 
         let f = self.total_time as f32;
 
-        let lookat_matrix = vmath::Mat4::lookat(
-            vmath::Vec3::new(0.0, 3.0, 15.0),
-            vmath::Vec3::new(0.0, 0.0, 0.0),
-            vmath::Vec3::new(0.0, 1.0, 0.0));
+        let lookat_matrix = vmath::look_at(
+            vmath::vec3(0.0, 3.0, 15.0),
+            vmath::vec3(0.0, 0.0, 0.0),
+            vmath::vec3(0.0, 1.0, 0.0));
         let aspect = self.info.window_width as f32 /
             self.info.window_height as f32;
-        let proj_matrix = vmath::Mat4::perspective(50.0, aspect, 0.1, 1000.0);
+        let proj_matrix = vmath::perspective(50.0, aspect, 0.1, 1000.0);
 
         let shading_level =
             if self.show_shading { if self.show_ao { 0.7 } else { 1.0 } } 
@@ -310,9 +310,8 @@ impl sb6::App for SampleApp {
             gl::UniformMatrix4fv(self.render.proj_matrix, 1, gl::FALSE,
                                  proj_matrix.as_ptr());
 
-            let mv_matrix = vmath::Mat4::translate(0.0, -5.0, 0.0) *
-                vmath::Mat4::rotate(f * 5.0, 0.0, 1.0, 0.0) *
-                vmath::Mat4::identity();
+            let mv_matrix = vmath::translate(0.0, -5.0, 0.0) *
+                vmath::rotate(f * 5.0, 0.0, 1.0, 0.0);
             gl::UniformMatrix4fv(self.render.mv_matrix, 1, gl::FALSE,
                                  (lookat_matrix * mv_matrix).as_ptr());
 
@@ -322,10 +321,9 @@ impl sb6::App for SampleApp {
         }
 
         unsafe {
-            let mv_matrix = vmath::Mat4::translate(0.0, -4.5, 0.0) *
-                vmath::Mat4::rotate(f * 5.0, 0.0, 1.0, 0.0) *
-                vmath::Mat4::scale(4000.0, 0.1, 4000.0) *
-                vmath::Mat4::identity();
+            let mv_matrix = vmath::translate(0.0, -4.5, 0.0) *
+                vmath::rotate(f * 5.0, 0.0, 1.0, 0.0) *
+                vmath::scale(4000.0, 0.1, 4000.0);
             gl::UniformMatrix4fv(self.render.mv_matrix, 1, gl::FALSE,
                 (lookat_matrix * mv_matrix).as_ptr());
 

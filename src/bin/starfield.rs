@@ -158,12 +158,12 @@ impl sb6::App for SampleApp {
         let mut rng = rand::weak_rng();
 
         for star in &mut stars[..] {
-            star.position[0] = (rng.gen::<f32>() * 2.0 - 1.0) * 100.0;
-            star.position[1] = (rng.gen::<f32>() * 2.0 - 1.0) * 100.0;
-            star.position[2] = rng.gen::<f32>();
-            star.color[0] = 0.8 + rng.gen::<f32>() * 0.2;
-            star.color[1] = 0.8 + rng.gen::<f32>() * 0.2;
-            star.color[2] = 0.8 + rng.gen::<f32>() * 0.2;
+            star.position.x = (rng.gen::<f32>() * 2.0 - 1.0) * 100.0;
+            star.position.y = (rng.gen::<f32>() * 2.0 - 1.0) * 100.0;
+            star.position.z = rng.gen::<f32>();
+            star.color.x = 0.8 + rng.gen::<f32>() * 0.2;
+            star.color.y = 0.8 + rng.gen::<f32>() * 0.2;
+            star.color.z = 0.8 + rng.gen::<f32>() * 0.2;
         }
 
         unsafe {
@@ -182,7 +182,7 @@ impl sb6::App for SampleApp {
         const BLACK: [GLfloat; 4] = [ 0.0, 0.0, 0.0, 0.0 ];
         const ONE: [GLfloat; 1] = [ 1.0 ];
 
-        let proj_matrix = vmath::Mat4::perspective(
+        let proj_matrix = vmath::perspective(
             50.0, self.info.window_width as f32 / self.info.window_height as f32, 0.1, 1000.0);
 
         let mut t = time as f32;
