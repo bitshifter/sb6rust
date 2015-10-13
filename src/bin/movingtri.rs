@@ -100,7 +100,7 @@ impl sb6::App for SampleApp {
         self.program = 0;
     }
 
-    fn render(&self, time: f64) {
+    fn render(&mut self, time: f64) {
         const GREEN: [GLfloat; 4] = [ 0.0, 0.25, 0.0, 1.0 ];
         let (sin_time, cos_time) = (time as f32).sin_cos();
         let attrib: [GLfloat; 4] = [ sin_time * 0.5, cos_time * 0.6, 0.0, 0.0 ];

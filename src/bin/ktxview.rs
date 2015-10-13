@@ -107,7 +107,7 @@ impl sb6::App for SampleApp {
         self.texture = 0;
     }
 
-    fn render(&self, _: f64) {
+    fn render(&mut self, _: f64) {
         const GREEN: [GLfloat; 4] = [ 0.0, 0.25, 0.0, 1.0 ];
 
         unsafe {

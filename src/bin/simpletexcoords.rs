@@ -138,7 +138,7 @@ impl sb6::App for SampleApp {
         self.proj_matrix = -1;
     }
 
-    fn render(&self, current_time: f64) {
+    fn render(&mut self, current_time: f64) {
         let gray = [ 0.2, 0.2, 0.2, 1.0 ];
         let ones = [ 1.0 ];
 

@@ -208,7 +208,7 @@ impl sb6::App for SampleApp {
         self.update_proj_matrix();
     }
 
-    fn render(&self, time: f64) {
+    fn render(&mut self, time: f64) {
         const GREEN: [GLfloat; 4] = [ 0.0, 0.25, 0.0, 1.0 ];
         const ONE: GLfloat = 1.0;
 

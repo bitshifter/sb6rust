@@ -98,7 +98,7 @@ impl sb6::App for SampleApp {
         self.program = 0;
     }
 
-    fn render(&self, time: f64) {
+    fn render(&mut self, time: f64) {
         let (sin_time, cos_time) = (time as f32).sin_cos();
         unsafe {
             gl::ClearColor(0.5 + sin_time * 0.5, 0.5 + cos_time * 0.5, 0.3, 1.0);

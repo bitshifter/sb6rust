@@ -270,7 +270,7 @@ impl sb6::App for SampleApp {
         self.last_time = current_time;
     }
 
-    fn render(&self, _: f64) {
+    fn render(&mut self, _: f64) {
         const BLACK: [GLfloat; 4] = [ 0.0, 0.0, 0.0, 0.0 ];
         const ONE: GLfloat = 1.0;
 

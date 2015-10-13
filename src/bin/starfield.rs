@@ -178,7 +178,7 @@ impl sb6::App for SampleApp {
         }
     }
 
-    fn render(&self, time: f64) {
+    fn render(&mut self, time: f64) {
         const BLACK: [GLfloat; 4] = [ 0.0, 0.0, 0.0, 0.0 ];
         const ONE: [GLfloat; 1] = [ 1.0 ];
 
