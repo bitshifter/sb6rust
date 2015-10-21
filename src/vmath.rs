@@ -216,8 +216,8 @@ pub fn look_at(eye: Vec3, center: Vec3, up: Vec3) -> Mat4 {
         col0: vec4(s.x, u.x,-f.x, 0.0),
         col1: vec4(s.y, u.y,-f.y, 0.0),
         col2: vec4(s.z, u.z,-f.z, 0.0),
-        col3: vec4(0.0, 0.0, 0.0, 1.0)
-    } * translate(-eye.x, -eye.y, -eye.z)
+        col3: vec4(-s.dot(&eye), -u.dot(&eye), f.dot(&eye), 1.0)
+    }
 }
 
 #[allow(dead_code)]
