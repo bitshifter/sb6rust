@@ -11,3 +11,9 @@ matrix:
   allow_failures:
     - rust: nightly
 
+before_install:
+  - sudo apt-get update -qq
+  - sudo apt-get install -y cmake libXxf86vm-dev libxinerama-dev libxcursor-dev
+ 
+script:
+  - cargo build
