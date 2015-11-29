@@ -5,8 +5,8 @@ authors = ["Cameron Hart <cam@bitshifter.net.nz>"]
 description = "OpenGL Super Bible 6 Application Framework"
 
 [dependencies]
-gl = "*"
-log = "*"
-num = "*"
-rand = "*"
-glfw = "*"
+gl = "0.3"
+glfw = "0.2"
+log = "0.3"
+num = "0.1"
+rand = "0.3"
