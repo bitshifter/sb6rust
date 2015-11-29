@@ -2,6 +2,7 @@
 .DS_store
 .tmp
 /target
-/examples/*/target
+/media/textures
+/media/objects
 Cargo.lock
 Session.vim

@@ -1,5 +1,7 @@
 This is a Rust port of the OpenGL SuperBible 6th Edition sample code.
 
+[![Build Status](https://travis-ci.org/bitshifter/sb6rust.svg?branch=master)](https://travis-ci.org/bitshifter/sb6rust)
+
 The original C++ sample code can be found at
 https://github.com/openglsuperbible/sb6code. The media archive used by the
 samples is available on the book's website http://www.openglsuperbible.com.
@@ -14,7 +16,7 @@ all of the SB6 media pack models, texture and shaders.
 ## Building the samples
 
 1. Make sure you have the following dependencies installed:
-    * `rust` 1.0.0-beta3 or later
+    * `Rust` 1.0 or later
     * `g++` 4.7 or later
     * GNU `make` 3.81 or later
     * `cmake` 2.8 or later
@@ -23,11 +25,12 @@ all of the SB6 media pack models, texture and shaders.
     * `unzip`
 
 2. Build the samples:
-    Simply build the samples by running `make`. This will run `cargo build` and
-    copy required media files to the `target/debug` directory.
+    Simply build the samples by running `make`. This will run `cargo test` and
+    copy required media files to the `media` directory.
 
 3. Run the samples:
-    `cd` to the `target/debug` directory and run the sample you want.
+    Run the samples from the root of the repository by specifying to path to
+    the sample to run, for example `./target/debug/examples/ssao`.
 
 ### Building on Windows
 
