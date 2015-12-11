@@ -193,7 +193,7 @@ pub fn load(filename: &str) -> Result<GLuint, LoadError> {
                 let mut height = h.pixel_height;
                 let mut width = h.pixel_width;
                 gl::PixelStorei(gl::UNPACK_ALIGNMENT, 1);
-                for i in (0..mip_levels) {
+                for i in 0..mip_levels {
                     gl::TexSubImage2D(gl::TEXTURE_2D, i, 0, 0, width, height,
                         h.gl_format, h.gl_type, ptr);
                     let stride = try!(calculate_stride(h, width, 1));
