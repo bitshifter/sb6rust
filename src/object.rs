@@ -50,6 +50,7 @@ const COMMENT_TYPE: u32 = fourcc!('C','M','N','T');
 const VERTEX_ATTRIB_FLAG_NORMALIZED: u32 = 0x00000001;
 
 #[repr(C)]
+#[derive(Clone, Copy)]
 struct MeshHeader {
     size: u32,
     num_chunks: u32,
@@ -57,12 +58,14 @@ struct MeshHeader {
 }
 
 #[repr(C)]
+#[derive(Clone, Copy)]
 struct ChunkHeader {
     chunk_type: u32,
     size: u32
 }
 
 #[repr(C)]
+#[derive(Clone, Copy)]
 struct IndexData {
     index_type: u32,
     index_count: u32,
@@ -70,6 +73,7 @@ struct IndexData {
 }
 
 #[repr(C)]
+#[derive(Clone, Copy)]
 struct VertexData {
     data_size: u32,
     data_offset: u32,
@@ -77,9 +81,20 @@ struct VertexData {
 }
 
 #[repr(C)]
+struct VertexAttribName([u8;64]);
+
+// TODO: #[derive(Clone)] is currently limited to arrays up to 32 length
+impl Clone for VertexAttribName {
+    #[inline]
+    fn clone(&self) -> VertexAttribName { *self }
+}
+
+impl Copy for VertexAttribName {}
+
+#[repr(C)]
+#[derive(Clone, Copy)]
 struct VertexAttribDecl {
-    #[allow(dead_code)]
-    name: [u8; 64],
+    name: VertexAttribName,
     size: u32,
     ty: u32,
     stride: u32,
@@ -87,8 +102,8 @@ struct VertexAttribDecl {
     data_offset: u32
 }
 
-#[derive(Copy, Clone)]
 #[repr(C)]
+#[derive(Clone, Copy)]
 struct SubObjectDecl {
     first: u32,
     count: u32

@@ -35,6 +35,7 @@ use std::path::Path;
 use std::str;
 
 #[repr(C)]
+#[derive(Clone, Copy)]
 struct Header {
     gl_type: u32,
     gl_type_size: u32,

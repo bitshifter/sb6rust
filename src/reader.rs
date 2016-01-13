@@ -60,7 +60,7 @@ impl <'a> BufferReader<'a> {
     }
 
     /// Pop a slice of T items
-    pub fn pop_slice<T>(&mut self, size: usize) -> Result<&'a [T], io::Error> {
+    pub fn pop_slice<T>(&mut self, size: usize) -> Result<&'a [T], io::Error> where T: Copy {
         let pop_bytes = mem::size_of::<T>() * size;
         let pop_end = self.pos + pop_bytes;
         if pop_end > self.buf.len() {
@@ -73,7 +73,7 @@ impl <'a> BufferReader<'a> {
     }
 
     /// Pop a reference to T
-    pub fn pop_value<T>(&mut self) -> Result<&'a T, io::Error> {
+    pub fn pop_value<T>(&mut self) -> Result<&'a T, io::Error> where T: Copy {
         let pop_end = self.pos + mem::size_of::<T>();
         if pop_end > self.buf.len() {
             return Err(io::Error::new(io::ErrorKind::InvalidInput, "Buffer overrun"))
