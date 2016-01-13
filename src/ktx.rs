@@ -34,7 +34,7 @@ use std::mem;
 use std::path::Path;
 use std::str;
 
-#[derive(Debug)]
+#[repr(C)]
 struct Header {
     gl_type: u32,
     gl_type_size: u32,

@@ -49,29 +49,34 @@ const COMMENT_TYPE: u32 = fourcc!('C','M','N','T');
 
 const VERTEX_ATTRIB_FLAG_NORMALIZED: u32 = 0x00000001;
 
+#[repr(C)]
 struct MeshHeader {
     size: u32,
     num_chunks: u32,
     flags: u32
 }
 
+#[repr(C)]
 struct ChunkHeader {
     chunk_type: u32,
     size: u32
 }
 
+#[repr(C)]
 struct IndexData {
     index_type: u32,
     index_count: u32,
     index_data_offset: u32
 }
 
+#[repr(C)]
 struct VertexData {
     data_size: u32,
     data_offset: u32,
     total_vertices: u32
 }
 
+#[repr(C)]
 struct VertexAttribDecl {
     #[allow(dead_code)]
     name: [u8; 64],
@@ -80,6 +85,13 @@ struct VertexAttribDecl {
     stride: u32,
     flags: u32,
     data_offset: u32
+}
+
+#[derive(Copy, Clone)]
+#[repr(C)]
+struct SubObjectDecl {
+    first: u32,
+    count: u32
 }
 
 #[derive(Debug)]
@@ -117,12 +129,6 @@ macro_rules! load_object_or_panic {
         .unwrap_or_else(|e| { panic!("Error loading '{}': {}", $path, e) }))
 }
 
-#[derive(Clone, Copy)]
-struct SubObjectDecl {
-    first: u32,
-    count: u32
-}
-
 pub struct Object {
     vertex_buffer: GLuint,
     index_buffer: GLuint,
@@ -131,15 +137,6 @@ pub struct Object {
     index_type: GLuint,
     num_sub_objects: usize,
     sub_object: [SubObjectDecl; 256]
-}
-
-// TODO: #[derive(Clone)] is currently limited to arrays up to 32 length
-impl Clone for Object {
-    #[inline]
-    fn clone(&self) -> Object { *self }
-}
-
-impl Copy for Object {
 }
 
 impl Object {
