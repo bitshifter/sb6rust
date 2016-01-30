@@ -176,7 +176,7 @@ impl Object {
         let mut bytes_read = 0;
 
         // check header magic
-        let magic = try!(reader.pop_slice::<u8>(4));
+        let magic = unsafe { try!(reader.pop_slice::<u8>(4)) };
         match str::from_utf8(magic) {
             Ok(v) if v == "SB6M" => (),
             Ok(v) => return Err(LoadError::MagicError(Some(String::from(v)))),
@@ -185,7 +185,7 @@ impl Object {
 
         debug!("magic: {}", str::from_utf8(magic).unwrap());
 
-        let header = try!(reader.pop_value::<MeshHeader>());
+        let header = unsafe { try!(reader.pop_value::<MeshHeader>()) };
         bytes_read += header.size as usize;
 
         debug!("size: {}, num_chunks: {}, flags: {}",
@@ -198,45 +198,45 @@ impl Object {
         let mut sub_object_data_ref: Option<&[SubObjectDecl]> = None;
 
         for _ in 0..header.num_chunks {
-            let chunk_header = try!(reader.pop_value::<ChunkHeader>());
+            let chunk_header = unsafe { try!(reader.pop_value::<ChunkHeader>()) };
             match chunk_header.chunk_type {
                 INDEX_DATA_TYPE => {
                     debug!("INDX");
                     // read in index data struct
                     index_data_chunk_ref = Some(
-                        try!(reader.pop_value::<IndexData>()));
+                        unsafe { try!(reader.pop_value::<IndexData>()) });
                 }
                 VERTEX_DATA_TYPE => {
                     debug!("VRTX");
                     // read in vertex data struct
                     vertex_data_chunk_ref = Some(
-                        try!(reader.pop_value::<VertexData>()));
+                        unsafe { try!(reader.pop_value::<VertexData>()) });
                 },
                 VERTEX_ATTRIBS_TYPE => {
                     debug!("ATRB");
                     // read attribute count
-                    let attrib_count = try!(reader.pop_value::<u32>());
+                    let attrib_count = unsafe { try!(reader.pop_value::<u32>()) };
                     // read in all the attributes
                     vertex_attrib_data_ref = Some(
-                        try!(reader.pop_slice::<VertexAttribDecl>(
-                                *attrib_count as usize)));
+                        unsafe { try!(reader.pop_slice::<VertexAttribDecl>(
+                                *attrib_count as usize)) });
                 },
                 SUB_OBJECT_LIST_TYPE => {
                     debug!("OLST");
                     // read sub object count
-                    let sub_object_count = try!(reader.pop_value::<u32>());
+                    let sub_object_count = unsafe { try!(reader.pop_value::<u32>()) };
                     debug!("sub_object_count: {}", sub_object_count);
                     // read in sub object data
                     sub_object_data_ref = Some(
-                        try!(reader.pop_slice::<SubObjectDecl>(
-                                *sub_object_count as usize)));
+                        unsafe { try!(reader.pop_slice::<SubObjectDecl>(
+                                    *sub_object_count as usize)) });
                 },
                 COMMENT_TYPE => {
                     debug!("CMNT");
                     let comment_len = chunk_header.size as usize -
                         mem::size_of::<ChunkHeader>();
-                    let comment_bytes_ref = try!(reader.pop_slice::<u8>(
-                            comment_len));
+                    let comment_bytes_ref = unsafe { try!(reader.pop_slice::<u8>(
+                            comment_len)) };
                     match str::from_utf8(comment_bytes_ref) {
                         Ok(v) => debug!("{}", v),
                         _ => panic!("couldn't read comment")
