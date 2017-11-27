@@ -147,7 +147,7 @@ impl sb6::App for SampleApp {
                 ptr::null(), gl::STATIC_DRAW);
         }
 
-        let mut stars = unsafe {
+        let stars = unsafe {
             slice::from_raw_parts_mut(
                 gl::MapBufferRange(gl::ARRAY_BUFFER, 0,
                    (NUM_STARS * mem::size_of::<Star>()) as GLsizeiptr,
@@ -211,8 +211,11 @@ impl sb6::App for SampleApp {
 }
 
 fn main() {
-    let mut init = sb6::AppInfo::default();
-    init.title = "OpenGL SuperBible - Starfield";
+    let init = sb6::AppInfo {
+        title: "OpenGL SuperBible - Starfield",
+        ..
+        sb6::AppInfo::default()
+    };
     let mut app = SampleApp::new(init);
     sb6::run(&mut app);
 }
