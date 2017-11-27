@@ -64,7 +64,7 @@ impl<'a> BufferReader<'a> {
     }
 
     /// Pop a slice of T items
-    pub fn pop_slice<T>(&mut self, size: usize) -> Result<&'a [T], io::Error> {
+    pub unsafe fn pop_slice<T>(&mut self, size: usize) -> Result<&'a [T], io::Error> where T: Copy {
         let pop_bytes = mem::size_of::<T>() * size;
         let pop_end = self.pos + pop_bytes;
         if pop_end > self.buf.len() {
@@ -73,14 +73,14 @@ impl<'a> BufferReader<'a> {
                 "Buffer overrun",
             ));
         }
-        let ptr = unsafe { self.buf.as_ptr().offset(self.pos as isize) as *const T };
-        let out = unsafe { slice::from_raw_parts(ptr, size) };
+        let ptr = self.buf.as_ptr().offset(self.pos as isize) as *const T;
+        let out = slice::from_raw_parts(ptr, size);
         self.pos = pop_end;
         Ok(out)
     }
 
     /// Pop a reference to T
-    pub fn pop_value<T>(&mut self) -> Result<&'a T, io::Error> {
+    pub unsafe fn pop_value<T>(&mut self) -> Result<&'a T, io::Error> where T: Copy {
         let pop_end = self.pos + mem::size_of::<T>();
         if pop_end > self.buf.len() {
             return Err(io::Error::new(
@@ -88,9 +88,9 @@ impl<'a> BufferReader<'a> {
                 "Buffer overrun",
             ));
         }
-        let ptr = unsafe { self.buf.as_ptr().offset(self.pos as isize) };
+        let ptr = self.buf.as_ptr().offset(self.pos as isize);
         self.pos = pop_end;
-        Ok(unsafe { &*(ptr as *const T) })
+        Ok(&*(ptr as *const T))
     }
 
     pub fn peek_slice(&'a self, start: usize, end: usize) -> Result<&'a [u8], io::Error> {

@@ -34,7 +34,8 @@ use std::mem;
 use std::path::Path;
 use std::str;
 
-#[derive(Debug)]
+#[repr(C)]
+#[derive(Clone, Copy)]
 struct Header {
     gl_type: u32,
     gl_type_size: u32,
@@ -121,7 +122,7 @@ pub fn load(filename: &str) -> Result<GLuint, LoadError> {
     let mut reader = BufferReader::new(&bytes);
 
     // check header magic
-    let id = try!(reader.pop_slice::<u8>(IDENTIFIER.len()));
+    let id = unsafe { try!(reader.pop_slice::<u8>(IDENTIFIER.len())) };
     if id != IDENTIFIER {
         debug!(
             "identifier: {} != {}",
@@ -132,14 +133,14 @@ pub fn load(filename: &str) -> Result<GLuint, LoadError> {
     }
 
     // check endianness
-    let endianness = try!(reader.pop_value::<u32>());
+    let endianness = unsafe { try!(reader.pop_value::<u32>()) };
     if *endianness == 0x01020304 {
         // swap not impemented
         return Err(LoadError::MagicError);
     }
 
     // read the rest of the header
-    let h = try!(reader.pop_value::<Header>());
+    let h = unsafe { try!(reader.pop_value::<Header>()) };
 
     // check for insanity
     if h.pixel_width == 0 || (h.pixel_height == 0 && h.pixel_depth != 0) {
@@ -181,7 +182,7 @@ pub fn load(filename: &str) -> Result<GLuint, LoadError> {
     try!(reader.skip_bytes(h.key_pair_bytes as usize));
 
     let data_size = reader.len() - reader.bytes_read();
-    let data = try!(reader.pop_slice::<u8>(data_size));
+    let data = unsafe { try!(reader.pop_slice::<u8>(data_size)) };
 
     let mip_levels = match h.mip_levels {
         0 => 1,
