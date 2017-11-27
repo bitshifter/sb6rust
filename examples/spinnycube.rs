@@ -32,53 +32,125 @@ use sb6::vmath;
 use sb6::vmath::Mat4;
 
 const VERTEX_POSITIONS: [GLfloat; 108] = [
-    -0.25,  0.25, -0.25,
-    -0.25, -0.25, -0.25,
-     0.25, -0.25, -0.25,
+    -0.25,
+    0.25,
+    -0.25,
+    -0.25,
+    -0.25,
+    -0.25,
+    0.25,
+    -0.25,
+    -0.25,
 
-     0.25, -0.25, -0.25,
-     0.25,  0.25, -0.25,
-    -0.25,  0.25, -0.25,
+    0.25,
+    -0.25,
+    -0.25,
+    0.25,
+    0.25,
+    -0.25,
+    -0.25,
+    0.25,
+    -0.25,
 
-     0.25, -0.25, -0.25,
-     0.25, -0.25,  0.25,
-     0.25,  0.25, -0.25,
+    0.25,
+    -0.25,
+    -0.25,
+    0.25,
+    -0.25,
+    0.25,
+    0.25,
+    0.25,
+    -0.25,
 
-     0.25, -0.25,  0.25,
-     0.25,  0.25,  0.25,
-     0.25,  0.25, -0.25,
+    0.25,
+    -0.25,
+    0.25,
+    0.25,
+    0.25,
+    0.25,
+    0.25,
+    0.25,
+    -0.25,
 
-     0.25, -0.25,  0.25,
-    -0.25, -0.25,  0.25,
-     0.25,  0.25,  0.25,
+    0.25,
+    -0.25,
+    0.25,
+    -0.25,
+    -0.25,
+    0.25,
+    0.25,
+    0.25,
+    0.25,
 
-    -0.25, -0.25,  0.25,
-    -0.25,  0.25,  0.25,
-     0.25,  0.25,  0.25,
+    -0.25,
+    -0.25,
+    0.25,
+    -0.25,
+    0.25,
+    0.25,
+    0.25,
+    0.25,
+    0.25,
 
-    -0.25, -0.25,  0.25,
-    -0.25, -0.25, -0.25,
-    -0.25,  0.25,  0.25,
+    -0.25,
+    -0.25,
+    0.25,
+    -0.25,
+    -0.25,
+    -0.25,
+    -0.25,
+    0.25,
+    0.25,
 
-    -0.25, -0.25, -0.25,
-    -0.25,  0.25, -0.25,
-    -0.25,  0.25,  0.25,
+    -0.25,
+    -0.25,
+    -0.25,
+    -0.25,
+    0.25,
+    -0.25,
+    -0.25,
+    0.25,
+    0.25,
 
-    -0.25, -0.25,  0.25,
-     0.25, -0.25,  0.25,
-     0.25, -0.25, -0.25,
+    -0.25,
+    -0.25,
+    0.25,
+    0.25,
+    -0.25,
+    0.25,
+    0.25,
+    -0.25,
+    -0.25,
 
-     0.25, -0.25, -0.25,
-    -0.25, -0.25, -0.25,
-    -0.25, -0.25,  0.25,
+    0.25,
+    -0.25,
+    -0.25,
+    -0.25,
+    -0.25,
+    -0.25,
+    -0.25,
+    -0.25,
+    0.25,
 
-    -0.25,  0.25, -0.25,
-     0.25,  0.25, -0.25,
-     0.25,  0.25,  0.25,
+    -0.25,
+    0.25,
+    -0.25,
+    0.25,
+    0.25,
+    -0.25,
+    0.25,
+    0.25,
+    0.25,
 
-     0.25,  0.25,  0.25,
-    -0.25,  0.25,  0.25,
-    -0.25,  0.25, -0.25
+    0.25,
+    0.25,
+    0.25,
+    -0.25,
+    0.25,
+    0.25,
+    -0.25,
+    0.25,
+    -0.25,
 ];
 
 const VS_SRC: &'static str = "\
@@ -124,7 +196,7 @@ struct SampleApp {
     buffer: GLuint,
     mv_location: GLint,
     proj_location: GLint,
-    proj_matrix: Mat4
+    proj_matrix: Mat4,
 }
 
 impl SampleApp {
@@ -136,7 +208,7 @@ impl SampleApp {
             buffer: 0,
             mv_location: -1,
             proj_location: -1,
-            proj_matrix: vmath::identity()
+            proj_matrix: vmath::identity(),
         }
     }
 
@@ -147,7 +219,9 @@ impl SampleApp {
 }
 
 impl sb6::App for SampleApp {
-    fn get_app_info(&self) -> &sb6::AppInfo { &self.info }
+    fn get_app_info(&self) -> &sb6::AppInfo {
+        &self.info
+    }
     fn startup(&mut self) {
         unsafe {
             self.program = gl::CreateProgram();
@@ -163,20 +237,22 @@ impl sb6::App for SampleApp {
             gl::DeleteShader(vs);
             gl::DeleteShader(fs);
 
-            self.mv_location = sb6::program::get_uniform_location(
-                self.program, "mv_matrix").unwrap();
-            self.proj_location = sb6::program::get_uniform_location(
-                self.program, "proj_matrix").unwrap();
+            self.mv_location = sb6::program::get_uniform_location(self.program, "mv_matrix")
+                .unwrap();
+            self.proj_location = sb6::program::get_uniform_location(self.program, "proj_matrix")
+                .unwrap();
 
             gl::GenVertexArrays(1, &mut self.vao);
             gl::BindVertexArray(self.vao);
 
             gl::GenBuffers(1, &mut self.buffer);
             gl::BindBuffer(gl::ARRAY_BUFFER, self.buffer);
-            gl::BufferData(gl::ARRAY_BUFFER,
-                           mem::size_of_val(&VERTEX_POSITIONS) as GLsizeiptr,
-                           mem::transmute(VERTEX_POSITIONS.as_ptr()),
-                           gl::STATIC_DRAW);
+            gl::BufferData(
+                gl::ARRAY_BUFFER,
+                mem::size_of_val(&VERTEX_POSITIONS) as GLsizeiptr,
+                mem::transmute(VERTEX_POSITIONS.as_ptr()),
+                gl::STATIC_DRAW,
+            );
             gl::VertexAttribPointer(0, 3, gl::FLOAT, gl::FALSE, 0, ptr::null());
             gl::EnableVertexAttribArray(0);
 
@@ -209,31 +285,33 @@ impl sb6::App for SampleApp {
     }
 
     fn render(&mut self, time: f64) {
-        const GREEN: [GLfloat; 4] = [ 0.0, 0.25, 0.0, 1.0 ];
+        const GREEN: [GLfloat; 4] = [0.0, 0.25, 0.0, 1.0];
         const ONE: GLfloat = 1.0;
 
         unsafe {
-            gl::Viewport(0, 0, self.info.window_width as i32,
-                         self.info.window_height as i32);
+            gl::Viewport(
+                0,
+                0,
+                self.info.window_width as i32,
+                self.info.window_height as i32,
+            );
 
             gl::ClearBufferfv(gl::COLOR, 0, GREEN.as_ptr());
             gl::ClearBufferfv(gl::DEPTH, 0, &ONE);
 
             gl::UseProgram(self.program);
 
-            gl::UniformMatrix4fv(self.proj_location, 1, gl::FALSE,
-                                 self.proj_matrix.as_ptr());
+            gl::UniformMatrix4fv(self.proj_location, 1, gl::FALSE, self.proj_matrix.as_ptr());
 
             let f = time as f32 * 0.3;
-            let mv_matrix =
-                vmath::translate(0.0, 0.0, -4.0) *
-                vmath::translate((2.1 * f).sin() * 0.5,
-                (1.7 * f).cos() * 0.5,
-                (1.3 * f).sin() * (1.5 * f).cos() * 2.0) *
-                vmath::rotate(time as f32 * 45.0, 0.0, 1.0, 0.0) *
+            let mv_matrix = vmath::translate(0.0, 0.0, -4.0) *
+                vmath::translate(
+                    (2.1 * f).sin() * 0.5,
+                    (1.7 * f).cos() * 0.5,
+                    (1.3 * f).sin() * (1.5 * f).cos() * 2.0,
+                ) * vmath::rotate(time as f32 * 45.0, 0.0, 1.0, 0.0) *
                 vmath::rotate(time as f32 * 81.0, 1.0, 0.0, 0.0);
-            gl::UniformMatrix4fv(self.mv_location, 1, gl::FALSE,
-                                 mv_matrix.as_ptr());
+            gl::UniformMatrix4fv(self.mv_location, 1, gl::FALSE, mv_matrix.as_ptr());
 
             gl::DrawArrays(gl::TRIANGLES, 0, 36);
         }
@@ -246,4 +324,3 @@ fn main() {
     let mut app = SampleApp::new(init);
     sb6::run(&mut app);
 }
-

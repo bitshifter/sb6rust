@@ -56,7 +56,7 @@ impl fmt::Display for LoadError {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
         match self {
             &LoadError::CompileError(ref e) => write!(fmt, "{}", e),
-            &LoadError::IoError(ref e) => e.fmt(fmt)
+            &LoadError::IoError(ref e) => e.fmt(fmt),
         }
     }
 }
@@ -79,10 +79,17 @@ pub fn check_compile_status(shader: GLuint) -> Result<(), ShaderError> {
             gl::GetShaderiv(shader, gl::INFO_LOG_LENGTH, &mut len);
             // subtract 1 to skip the trailing null character
             let mut buf: Vec<u8> = iter::repeat(0u8).take(len as usize - 1).collect();
-            gl::GetShaderInfoLog(shader, len, ptr::null_mut(),
-                buf.as_mut_ptr() as *mut GLchar);
-            return Err(ShaderError::ShaderInfoLog(String::from_utf8(buf).unwrap_or(
-                String::from("ShaderInfoLog not valid utf8"))));
+            gl::GetShaderInfoLog(
+                shader,
+                len,
+                ptr::null_mut(),
+                buf.as_mut_ptr() as *mut GLchar,
+            );
+            return Err(ShaderError::ShaderInfoLog(
+                String::from_utf8(buf).unwrap_or(String::from(
+                    "ShaderInfoLog not valid utf8",
+                )),
+            ));
         }
     }
     Ok(())
@@ -96,7 +103,7 @@ pub fn create_from_source(src: &str, shader_type: GLenum) -> Result<GLuint, Shad
         gl::CompileShader(result);
         match check_compile_status(result) {
             Ok(_) => Ok(result),
-            Err(e) => Err(e)
+            Err(e) => Err(e),
         }
     }
 }
@@ -108,6 +115,6 @@ pub fn load(filename: &str, shader_type: GLenum) -> Result<GLuint, LoadError> {
 
     match create_from_source(&src, shader_type) {
         Ok(result) => Ok(result),
-        Err(ShaderError::ShaderInfoLog(msg)) => Err(LoadError::CompileError(msg))
+        Err(ShaderError::ShaderInfoLog(msg)) => Err(LoadError::CompileError(msg)),
     }
 }

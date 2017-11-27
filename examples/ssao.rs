@@ -30,12 +30,11 @@ extern crate sb6;
 use gl::types::*;
 use sb6::vmath;
 use std::mem;
-use rand::{ Rng };
+use rand::Rng;
 
-struct SamplePoints
-{
+struct SamplePoints {
     point: [vmath::Vec4; 256],
-    random_vectors: [vmath::Vec4; 256]
+    random_vectors: [vmath::Vec4; 256],
 }
 
 struct RenderUniforms {
@@ -49,7 +48,7 @@ impl RenderUniforms {
         RenderUniforms {
             mv_matrix: -1,
             proj_matrix: -1,
-            shading_level: -1
+            shading_level: -1,
         }
     }
 }
@@ -59,7 +58,7 @@ struct SSAOUniforms {
     object_level: GLint,
     ssao_radius: GLint,
     randomize_points: GLint,
-    point_count: GLint
+    point_count: GLint,
 }
 
 impl SSAOUniforms {
@@ -69,7 +68,7 @@ impl SSAOUniforms {
             object_level: -1,
             ssao_radius: -1,
             randomize_points: -1,
-            point_count: -1
+            point_count: -1,
         }
     }
 }
@@ -125,47 +124,51 @@ impl SampleApp {
 
     fn load_shaders(&mut self) {
         if self.render_program != 0 {
-            unsafe { gl::DeleteProgram(self.render_program); }
+            unsafe {
+                gl::DeleteProgram(self.render_program);
+            }
         }
 
-        let render_shaders = [
-            load_shader_or_panic!("media/shaders/ssao/render.vs.glsl", gl::VERTEX_SHADER),
-            load_shader_or_panic!("media/shaders/ssao/render.fs.glsl", gl::FRAGMENT_SHADER),
+        let render_shaders =
+            [
+                load_shader_or_panic!("media/shaders/ssao/render.vs.glsl", gl::VERTEX_SHADER),
+                load_shader_or_panic!("media/shaders/ssao/render.fs.glsl", gl::FRAGMENT_SHADER),
             ];
 
-        self.render_program = sb6::program::link_from_shaders(
-            &render_shaders).unwrap();
+        self.render_program = sb6::program::link_from_shaders(&render_shaders).unwrap();
 
-        self.render.mv_matrix = sb6::program::get_uniform_location(
-            self.render_program, "mv_matrix").unwrap();
-        self.render.proj_matrix = sb6::program::get_uniform_location(
-            self.render_program, "proj_matrix").unwrap();
-        self.render.shading_level = sb6::program::get_uniform_location(
-            self.render_program, "shading_level").unwrap();
+        self.render.mv_matrix =
+            sb6::program::get_uniform_location(self.render_program, "mv_matrix").unwrap();
+        self.render.proj_matrix =
+            sb6::program::get_uniform_location(self.render_program, "proj_matrix").unwrap();
+        self.render.shading_level =
+            sb6::program::get_uniform_location(self.render_program, "shading_level").unwrap();
 
-        let ssao_shaders = [
-            load_shader_or_panic!("media/shaders/ssao/ssao.vs.glsl", gl::VERTEX_SHADER),
-            load_shader_or_panic!("media/shaders/ssao/ssao.fs.glsl", gl::FRAGMENT_SHADER),
+        let ssao_shaders =
+            [
+                load_shader_or_panic!("media/shaders/ssao/ssao.vs.glsl", gl::VERTEX_SHADER),
+                load_shader_or_panic!("media/shaders/ssao/ssao.fs.glsl", gl::FRAGMENT_SHADER),
             ];
 
-        self.ssao_program = sb6::program::link_from_shaders(
-            &ssao_shaders).unwrap();
+        self.ssao_program = sb6::program::link_from_shaders(&ssao_shaders).unwrap();
 
-        self.ssao.ssao_radius = sb6::program::get_uniform_location(
-            self.ssao_program, "ssao_radius").unwrap();
-        self.ssao.ssao_level = sb6::program::get_uniform_location(
-            self.ssao_program, "ssao_level").unwrap();
-        self.ssao.object_level = sb6::program::get_uniform_location(
-            self.ssao_program, "object_level").unwrap();
-        self.ssao.randomize_points = sb6::program::get_uniform_location(
-            self.ssao_program, "randomize_points").unwrap();
-        self.ssao.point_count = sb6::program::get_uniform_location(
-            self.ssao_program, "point_count").unwrap();
+        self.ssao.ssao_radius =
+            sb6::program::get_uniform_location(self.ssao_program, "ssao_radius").unwrap();
+        self.ssao.ssao_level = sb6::program::get_uniform_location(self.ssao_program, "ssao_level")
+            .unwrap();
+        self.ssao.object_level =
+            sb6::program::get_uniform_location(self.ssao_program, "object_level").unwrap();
+        self.ssao.randomize_points =
+            sb6::program::get_uniform_location(self.ssao_program, "randomize_points").unwrap();
+        self.ssao.point_count =
+            sb6::program::get_uniform_location(self.ssao_program, "point_count").unwrap();
     }
 }
 
 impl sb6::App for SampleApp {
-    fn get_app_info(&self) -> &sb6::AppInfo { &self.info }
+    fn get_app_info(&self) -> &sb6::AppInfo {
+        &self.info
+    }
     fn startup(&mut self) {
         self.load_shaders();
 
@@ -188,15 +191,40 @@ impl sb6::App for SampleApp {
             gl::TexStorage2D(gl::TEXTURE_2D, 1, gl::DEPTH_COMPONENT32F, 2048, 2048);
             gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MIN_FILTER, gl::NEAREST as GLint);
             gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MAG_FILTER, gl::NEAREST as GLint);
-            gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_WRAP_S, gl::CLAMP_TO_EDGE as GLint);
-            gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_WRAP_T, gl::CLAMP_TO_EDGE as GLint);
+            gl::TexParameteri(
+                gl::TEXTURE_2D,
+                gl::TEXTURE_WRAP_S,
+                gl::CLAMP_TO_EDGE as GLint,
+            );
+            gl::TexParameteri(
+                gl::TEXTURE_2D,
+                gl::TEXTURE_WRAP_T,
+                gl::CLAMP_TO_EDGE as GLint,
+            );
 
-            gl::FramebufferTexture(gl::FRAMEBUFFER, gl::COLOR_ATTACHMENT0, self.fbo_textures[0], 0);
-            gl::FramebufferTexture(gl::FRAMEBUFFER, gl::COLOR_ATTACHMENT1, self.fbo_textures[1], 0);
-            gl::FramebufferTexture(gl::FRAMEBUFFER, gl::DEPTH_ATTACHMENT, self.fbo_textures[2], 0);
+            gl::FramebufferTexture(
+                gl::FRAMEBUFFER,
+                gl::COLOR_ATTACHMENT0,
+                self.fbo_textures[0],
+                0,
+            );
+            gl::FramebufferTexture(
+                gl::FRAMEBUFFER,
+                gl::COLOR_ATTACHMENT1,
+                self.fbo_textures[1],
+                0,
+            );
+            gl::FramebufferTexture(
+                gl::FRAMEBUFFER,
+                gl::DEPTH_ATTACHMENT,
+                self.fbo_textures[2],
+                0,
+            );
 
-            const DRAW_BUFFERS: [GLint; 2] = [ gl::COLOR_ATTACHMENT0 as GLint,
-                gl::COLOR_ATTACHMENT1 as GLint ];
+            const DRAW_BUFFERS: [GLint; 2] = [
+                gl::COLOR_ATTACHMENT0 as GLint,
+                gl::COLOR_ATTACHMENT1 as GLint,
+            ];
 
             gl::DrawBuffers(2, mem::transmute(DRAW_BUFFERS.as_ptr()));
 
@@ -217,17 +245,17 @@ impl sb6::App for SampleApp {
         let mut rng = rand::weak_rng();
         let mut point_data = SamplePoints {
             point: [vmath::Vec4::zero(); 256],
-            random_vectors: [vmath::Vec4::zero(); 256]
+            random_vectors: [vmath::Vec4::zero(); 256],
         };
 
         for i in 0..256 {
-            loop
-            {
+            loop {
                 point_data.point[i] = vmath::vec4(
                     rng.gen::<f32>() * 2.0 - 1.0,
                     rng.gen::<f32>() * 2.0 - 1.0,
                     rng.gen::<f32>(), //  * 2.0 - 1.0;
-                    0.0);
+                    0.0,
+                );
                 if point_data.point[i].length() <= 1.0 {
                     break;
                 }
@@ -236,16 +264,22 @@ impl sb6::App for SampleApp {
         }
         for i in 0..256 {
             point_data.random_vectors[i] = vmath::vec4(
-                rng.gen::<f32>(), rng.gen::<f32>(),
-                rng.gen::<f32>(), rng.gen::<f32>());
+                rng.gen::<f32>(),
+                rng.gen::<f32>(),
+                rng.gen::<f32>(),
+                rng.gen::<f32>(),
+            );
         }
 
         unsafe {
             gl::GenBuffers(1, &mut self.points_buffer);
             gl::BindBuffer(gl::UNIFORM_BUFFER, self.points_buffer);
-            gl::BufferData(gl::UNIFORM_BUFFER,
+            gl::BufferData(
+                gl::UNIFORM_BUFFER,
                 mem::size_of::<SamplePoints>() as GLsizeiptr,
-                mem::transmute(&point_data), gl::STATIC_DRAW);
+                mem::transmute(&point_data),
+                gl::STATIC_DRAW,
+            );
         }
     }
 
@@ -271,7 +305,7 @@ impl sb6::App for SampleApp {
     }
 
     fn render(&mut self, _: f64) {
-        const BLACK: [GLfloat; 4] = [ 0.0, 0.0, 0.0, 0.0 ];
+        const BLACK: [GLfloat; 4] = [0.0, 0.0, 0.0, 0.0];
         const ONE: GLfloat = 1.0;
 
         let f = self.total_time as f32;
@@ -279,22 +313,30 @@ impl sb6::App for SampleApp {
         let lookat_matrix = vmath::look_at(
             vmath::vec3(0.0, 3.0, 15.0),
             vmath::vec3(0.0, 0.0, 0.0),
-            vmath::vec3(0.0, 1.0, 0.0));
-        let aspect = self.info.window_width as f32 /
-            self.info.window_height as f32;
+            vmath::vec3(0.0, 1.0, 0.0),
+        );
+        let aspect = self.info.window_width as f32 / self.info.window_height as f32;
         let proj_matrix = vmath::perspective(50.0, aspect, 0.1, 1000.0);
 
-        let shading_level =
-            if self.show_shading { if self.show_ao { 0.7 } else { 1.0 } } 
-            else { 0.0 };
+        let shading_level = if self.show_shading {
+            if self.show_ao { 0.7 } else { 1.0 }
+        } else {
+            0.0
+        };
 
-        let ssao_level =
-            if self.show_ao { if self.show_shading { 0.3 } else { 1.0 } }
-            else { 0.0 };
+        let ssao_level = if self.show_ao {
+            if self.show_shading { 0.3 } else { 1.0 }
+        } else {
+            0.0
+        };
 
         unsafe {
-            gl::Viewport(0, 0, self.info.window_width as GLint,
-                         self.info.window_height as GLint);
+            gl::Viewport(
+                0,
+                0,
+                self.info.window_width as GLint,
+                self.info.window_height as GLint,
+            );
 
             gl::BindFramebuffer(gl::FRAMEBUFFER, self.render_fbo);
             gl::Enable(gl::DEPTH_TEST);
@@ -307,13 +349,16 @@ impl sb6::App for SampleApp {
 
             gl::UseProgram(self.render_program);
 
-            gl::UniformMatrix4fv(self.render.proj_matrix, 1, gl::FALSE,
-                                 proj_matrix.as_ptr());
+            gl::UniformMatrix4fv(self.render.proj_matrix, 1, gl::FALSE, proj_matrix.as_ptr());
 
             let mv_matrix = vmath::translate(0.0, -5.0, 0.0) *
                 vmath::rotate(f * 5.0, 0.0, 1.0, 0.0);
-            gl::UniformMatrix4fv(self.render.mv_matrix, 1, gl::FALSE,
-                                 (lookat_matrix * mv_matrix).as_ptr());
+            gl::UniformMatrix4fv(
+                self.render.mv_matrix,
+                1,
+                gl::FALSE,
+                (lookat_matrix * mv_matrix).as_ptr(),
+            );
 
             gl::Uniform1f(self.render.shading_level, shading_level);
 
@@ -324,8 +369,12 @@ impl sb6::App for SampleApp {
             let mv_matrix = vmath::translate(0.0, -4.5, 0.0) *
                 vmath::rotate(f * 5.0, 0.0, 1.0, 0.0) *
                 vmath::scale(4000.0, 0.1, 4000.0);
-            gl::UniformMatrix4fv(self.render.mv_matrix, 1, gl::FALSE,
-                (lookat_matrix * mv_matrix).as_ptr());
+            gl::UniformMatrix4fv(
+                self.render.mv_matrix,
+                1,
+                gl::FALSE,
+                (lookat_matrix * mv_matrix).as_ptr(),
+            );
 
             self.cube.render();
         }
@@ -335,8 +384,10 @@ impl sb6::App for SampleApp {
 
             gl::UseProgram(self.ssao_program);
 
-            gl::Uniform1f(self.ssao.ssao_radius, self.ssao_radius *
-                self.info.window_width as f32 / 1000.0);
+            gl::Uniform1f(
+                self.ssao.ssao_radius,
+                self.ssao_radius * self.info.window_width as f32 / 1000.0,
+            );
 
             gl::Uniform1f(self.ssao.ssao_level, ssao_level);
             // let weight_by_angle = if self.weight_by_angle { 1 } else { 0 };
@@ -356,8 +407,7 @@ impl sb6::App for SampleApp {
         }
     }
 
-    fn on_key(&mut self, key: sb6::Key, action: sb6::Action)
-    {
+    fn on_key(&mut self, key: sb6::Key, action: sb6::Action) {
         if action == sb6::Action::Release {
             match key {
                 sb6::Key::R => self.randomize_points = !self.randomize_points,
@@ -369,7 +419,7 @@ impl sb6::App for SampleApp {
                 sb6::Key::Z => self.ssao_radius -= 0.01,
                 sb6::Key::P => self.paused = !self.paused,
                 sb6::Key::L => self.load_shaders(),
-                _ => ()
+                _ => (),
             };
         }
     }
@@ -381,4 +431,3 @@ fn main() {
     let mut app = SampleApp::new(init);
     sb6::run(&mut app);
 }
-

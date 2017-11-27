@@ -84,13 +84,15 @@ impl SampleApp {
             program: 0,
             mv_location: -1,
             proj_location: -1,
-            object: sb6::object::Object::new()
+            object: sb6::object::Object::new(),
         }
     }
 }
 
 impl sb6::App for SampleApp {
-    fn get_app_info(&self) -> &sb6::AppInfo { &self.info }
+    fn get_app_info(&self) -> &sb6::AppInfo {
+        &self.info
+    }
 
     fn startup(&mut self) {
         unsafe {
@@ -106,11 +108,11 @@ impl sb6::App for SampleApp {
 
             gl::DeleteShader(vs);
             gl::DeleteShader(fs);
-            
-            self.mv_location = sb6::program::get_uniform_location(
-                self.program, "mv_matrix").unwrap();
-            self.proj_location = sb6::program::get_uniform_location(
-                self.program, "proj_matrix").unwrap();
+
+            self.mv_location = sb6::program::get_uniform_location(self.program, "mv_matrix")
+                .unwrap();
+            self.proj_location = sb6::program::get_uniform_location(self.program, "proj_matrix")
+                .unwrap();
 
             load_object_or_panic!(&mut self.object, "media/objects/bunny_1k.sbm");
 
@@ -121,14 +123,16 @@ impl sb6::App for SampleApp {
 
     fn shutdown(&mut self) {
         self.object.free();
-        unsafe { gl::DeleteProgram(self.program); }
+        unsafe {
+            gl::DeleteProgram(self.program);
+        }
         self.mv_location = -1;
         self.proj_location = -1;
         self.program = 0;
     }
 
     fn render(&mut self, time: f64) {
-        const BLACK: [GLfloat; 4] = [ 0.0, 0.0, 0.0, 1.0 ];
+        const BLACK: [GLfloat; 4] = [0.0, 0.0, 0.0, 1.0];
         const ONE: GLfloat = 1.0;
         let time = time as f32;
 
@@ -139,18 +143,20 @@ impl sb6::App for SampleApp {
             vmath::rotate(time * 81.0, 1.0, 0.0, 0.0);
 
         unsafe {
-            gl::Viewport(0, 0, self.info.window_width as i32,
-                self.info.window_height as i32);
+            gl::Viewport(
+                0,
+                0,
+                self.info.window_width as i32,
+                self.info.window_height as i32,
+            );
             gl::ClearBufferfv(gl::COLOR, 0, BLACK.as_ptr());
             gl::ClearBufferfv(gl::DEPTH, 0, &ONE);
 
             gl::UseProgram(self.program);
 
-            gl::UniformMatrix4fv(self.proj_location, 1, gl::FALSE,
-                proj_matrix.as_ptr());
+            gl::UniformMatrix4fv(self.proj_location, 1, gl::FALSE, proj_matrix.as_ptr());
 
-            gl::UniformMatrix4fv(self.mv_location, 1, gl::FALSE,
-                mv_matrix.as_ptr());
+            gl::UniformMatrix4fv(self.mv_location, 1, gl::FALSE, mv_matrix.as_ptr());
 
             self.object.render();
         }
@@ -165,4 +171,3 @@ fn main() {
     let mut app = SampleApp::new(init);
     sb6::run(&mut app);
 }
-

@@ -32,28 +32,32 @@ use std::slice;
 /// buffer.
 pub struct BufferReader<'a> {
     buf: &'a Vec<u8>,
-    pos: usize
+    pos: usize,
 }
 
-impl <'a> BufferReader<'a> {
+impl<'a> BufferReader<'a> {
     pub fn new(buf: &'a Vec<u8>) -> BufferReader<'a> {
-        BufferReader {
-            buf: buf,
-            pos: 0
-        }
+        BufferReader { buf: buf, pos: 0 }
     }
 
     /// Returns the buffer length
-    pub fn len(&self) -> usize { self.buf.len() }
+    pub fn len(&self) -> usize {
+        self.buf.len()
+    }
 
     /// Returns the number of bytes read from the buffer
-    pub fn bytes_read(&self) -> usize { self.pos }
+    pub fn bytes_read(&self) -> usize {
+        self.pos
+    }
 
     /// Skip the given number of bytes
     pub fn skip_bytes(&mut self, bytes: usize) -> Result<(), io::Error> {
         let skip_end = self.pos + bytes;
         if skip_end > self.buf.len() {
-            return Err(io::Error::new(io::ErrorKind::InvalidInput, "Buffer overrun"))
+            return Err(io::Error::new(
+                io::ErrorKind::InvalidInput,
+                "Buffer overrun",
+            ));
         }
         self.pos = skip_end;
         Ok(())
@@ -64,7 +68,10 @@ impl <'a> BufferReader<'a> {
         let pop_bytes = mem::size_of::<T>() * size;
         let pop_end = self.pos + pop_bytes;
         if pop_end > self.buf.len() {
-            return Err(io::Error::new(io::ErrorKind::InvalidInput, "Buffer overrun"))
+            return Err(io::Error::new(
+                io::ErrorKind::InvalidInput,
+                "Buffer overrun",
+            ));
         }
         let ptr = unsafe { self.buf.as_ptr().offset(self.pos as isize) as *const T };
         let out = unsafe { slice::from_raw_parts(ptr, size) };
@@ -76,7 +83,10 @@ impl <'a> BufferReader<'a> {
     pub fn pop_value<T>(&mut self) -> Result<&'a T, io::Error> {
         let pop_end = self.pos + mem::size_of::<T>();
         if pop_end > self.buf.len() {
-            return Err(io::Error::new(io::ErrorKind::InvalidInput, "Buffer overrun"))
+            return Err(io::Error::new(
+                io::ErrorKind::InvalidInput,
+                "Buffer overrun",
+            ));
         }
         let ptr = unsafe { self.buf.as_ptr().offset(self.pos as isize) };
         self.pos = pop_end;
@@ -86,11 +96,13 @@ impl <'a> BufferReader<'a> {
     pub fn peek_slice(&'a self, start: usize, end: usize) -> Result<&'a [u8], io::Error> {
         assert!(start <= end);
         if end > self.buf.len() {
-            return Err(io::Error::new(io::ErrorKind::InvalidInput, "Buffer overrun"))
+            return Err(io::Error::new(
+                io::ErrorKind::InvalidInput,
+                "Buffer overrun",
+            ));
         }
         Ok(unsafe {
             slice::from_raw_parts(self.buf.as_ptr().offset(start as isize), end - start)
         })
     }
 }
-

@@ -27,7 +27,7 @@ extern crate rand;
 extern crate sb6;
 
 use gl::types::*;
-use rand::{ Rng };
+use rand::Rng;
 use sb6::vmath;
 use std::mem;
 use std::ptr;
@@ -79,12 +79,12 @@ void main(void)                                                \n
 
 struct Star {
     position: vmath::Vec3,
-    color: vmath::Vec3
+    color: vmath::Vec3,
 }
 
 struct Uniforms {
     time: GLint,
-    proj_matrix: GLint
+    proj_matrix: GLint,
 }
 
 struct SampleApp {
@@ -93,7 +93,7 @@ struct SampleApp {
     star_texture: GLuint,
     star_vao: GLuint,
     star_buffer: GLuint,
-    uniforms: Uniforms
+    uniforms: Uniforms,
 }
 
 impl SampleApp {
@@ -106,14 +106,16 @@ impl SampleApp {
             star_buffer: 0,
             uniforms: Uniforms {
                 time: -1,
-                proj_matrix: -1
-            }
+                proj_matrix: -1,
+            },
         }
     }
 }
 
 impl sb6::App for SampleApp {
-    fn get_app_info(&self) -> &sb6::AppInfo { &self.info }
+    fn get_app_info(&self) -> &sb6::AppInfo {
+        &self.info
+    }
 
     fn startup(&mut self) {
         let fs = sb6::shader::create_from_source(FS_SRC, gl::FRAGMENT_SHADER).unwrap();
@@ -130,10 +132,9 @@ impl sb6::App for SampleApp {
             gl::DeleteShader(fs);
         }
 
-        self.uniforms.time = sb6::program::get_uniform_location(
-            self.render_prog, "time").unwrap();
-        self.uniforms.proj_matrix = sb6::program::get_uniform_location(
-            self.render_prog, "proj_matrix").unwrap();
+        self.uniforms.time = sb6::program::get_uniform_location(self.render_prog, "time").unwrap();
+        self.uniforms.proj_matrix =
+            sb6::program::get_uniform_location(self.render_prog, "proj_matrix").unwrap();
 
         self.star_texture = sb6::ktx::load("media/textures/star.ktx").unwrap();
 
@@ -143,16 +144,24 @@ impl sb6::App for SampleApp {
 
             gl::GenBuffers(1, &mut self.star_buffer);
             gl::BindBuffer(gl::ARRAY_BUFFER, self.star_buffer);
-            gl::BufferData(gl::ARRAY_BUFFER, (NUM_STARS * mem::size_of::<Star>()) as GLsizeiptr,
-                ptr::null(), gl::STATIC_DRAW);
+            gl::BufferData(
+                gl::ARRAY_BUFFER,
+                (NUM_STARS * mem::size_of::<Star>()) as GLsizeiptr,
+                ptr::null(),
+                gl::STATIC_DRAW,
+            );
         }
 
         let stars = unsafe {
             slice::from_raw_parts_mut(
-                gl::MapBufferRange(gl::ARRAY_BUFFER, 0,
-                   (NUM_STARS * mem::size_of::<Star>()) as GLsizeiptr,
-                   gl::MAP_WRITE_BIT | gl::MAP_INVALIDATE_BUFFER_BIT) as *mut Star,
-                   NUM_STARS)
+                gl::MapBufferRange(
+                    gl::ARRAY_BUFFER,
+                    0,
+                    (NUM_STARS * mem::size_of::<Star>()) as GLsizeiptr,
+                    gl::MAP_WRITE_BIT | gl::MAP_INVALIDATE_BUFFER_BIT,
+                ) as *mut Star,
+                NUM_STARS,
+            )
         };
 
         let mut rng = rand::weak_rng();
@@ -169,35 +178,61 @@ impl sb6::App for SampleApp {
         unsafe {
             gl::UnmapBuffer(gl::ARRAY_BUFFER);
 
-            gl::VertexAttribPointer(0, 3, gl::FLOAT, gl::FALSE, mem::size_of::<Star>() as GLint,
-                ptr::null());
-            gl::VertexAttribPointer(1, 3, gl::FLOAT, gl::FALSE, mem::size_of::<Star>() as GLint,
-                mem::transmute(mem::size_of::<vmath::Vec3>()));
+            gl::VertexAttribPointer(
+                0,
+                3,
+                gl::FLOAT,
+                gl::FALSE,
+                mem::size_of::<Star>() as GLint,
+                ptr::null(),
+            );
+            gl::VertexAttribPointer(
+                1,
+                3,
+                gl::FLOAT,
+                gl::FALSE,
+                mem::size_of::<Star>() as GLint,
+                mem::transmute(mem::size_of::<vmath::Vec3>()),
+            );
             gl::EnableVertexAttribArray(0);
             gl::EnableVertexAttribArray(1);
         }
     }
 
     fn render(&mut self, time: f64) {
-        const BLACK: [GLfloat; 4] = [ 0.0, 0.0, 0.0, 0.0 ];
-        const ONE: [GLfloat; 1] = [ 1.0 ];
+        const BLACK: [GLfloat; 4] = [0.0, 0.0, 0.0, 0.0];
+        const ONE: [GLfloat; 1] = [1.0];
 
         let proj_matrix = vmath::perspective(
-            50.0, self.info.window_width as f32 / self.info.window_height as f32, 0.1, 1000.0);
+            50.0,
+            self.info.window_width as f32 / self.info.window_height as f32,
+            0.1,
+            1000.0,
+        );
 
         let mut t = time as f32;
         t *= 0.1;
         t -= t.floor();
 
         unsafe {
-            gl::Viewport(0, 0, self.info.window_width as GLint, self.info.window_height as GLint);
+            gl::Viewport(
+                0,
+                0,
+                self.info.window_width as GLint,
+                self.info.window_height as GLint,
+            );
             gl::ClearBufferfv(gl::COLOR, 0, BLACK.as_ptr());
             gl::ClearBufferfv(gl::DEPTH, 0, ONE.as_ptr());
 
             gl::UseProgram(self.render_prog);
 
             gl::Uniform1f(self.uniforms.time, t);
-            gl::UniformMatrix4fv(self.uniforms.proj_matrix, 1, gl::FALSE, proj_matrix.as_ptr());
+            gl::UniformMatrix4fv(
+                self.uniforms.proj_matrix,
+                1,
+                gl::FALSE,
+                proj_matrix.as_ptr(),
+            );
 
             gl::Enable(gl::BLEND);
             gl::BlendFunc(gl::ONE, gl::ONE);
@@ -213,10 +248,8 @@ impl sb6::App for SampleApp {
 fn main() {
     let init = sb6::AppInfo {
         title: "OpenGL SuperBible - Starfield",
-        ..
-        sb6::AppInfo::default()
+        ..sb6::AppInfo::default()
     };
     let mut app = SampleApp::new(init);
     sb6::run(&mut app);
 }
-

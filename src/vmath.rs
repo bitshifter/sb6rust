@@ -37,7 +37,7 @@ fn deg_to_rad(a: f32) -> f32 {
 pub struct Vec3 {
     pub x: f32,
     pub y: f32,
-    pub z: f32
+    pub z: f32,
 }
 
 #[allow(dead_code)]
@@ -48,7 +48,11 @@ pub fn vec3(x: f32, y: f32, z: f32) -> Vec3 {
 #[allow(dead_code)]
 impl Vec3 {
     pub fn zero() -> Vec3 {
-        Vec3 { x: 0.0, y: 0.0, z: 0.0 }
+        Vec3 {
+            x: 0.0,
+            y: 0.0,
+            z: 0.0,
+        }
     }
     pub fn dot(&self, rhs: &Vec3) -> f32 {
         (self.x * rhs.x) + (self.y * rhs.y) + (self.z * rhs.z)
@@ -57,7 +61,7 @@ impl Vec3 {
         Vec3 {
             x: self.y * rhs.z - rhs.y * self.z,
             y: self.z * rhs.x - rhs.z * self.x,
-            z: self.x * rhs.y - rhs.x * self.y
+            z: self.x * rhs.y - rhs.x * self.y,
         }
     }
     pub fn length(&self) -> f32 {
@@ -78,28 +82,44 @@ impl fmt::Display for Vec3 {
 impl Mul<Vec3> for Vec3 {
     type Output = Vec3;
     fn mul(self, rhs: Vec3) -> Vec3 {
-        Vec3 { x: self.x * rhs.x, y: self.y * rhs.y, z: self.z * rhs.z }
+        Vec3 {
+            x: self.x * rhs.x,
+            y: self.y * rhs.y,
+            z: self.z * rhs.z,
+        }
     }
 }
 
 impl Mul<f32> for Vec3 {
     type Output = Vec3;
     fn mul(self, rhs: f32) -> Vec3 {
-        Vec3 { x: self.x * rhs, y: self.y * rhs, z: self.z * rhs }
+        Vec3 {
+            x: self.x * rhs,
+            y: self.y * rhs,
+            z: self.z * rhs,
+        }
     }
 }
 
 impl Add for Vec3 {
     type Output = Vec3;
     fn add(self, rhs: Vec3) -> Vec3 {
-        Vec3 { x: self.x + rhs.x, y: self.y + rhs.y, z: self.z + rhs.z }
+        Vec3 {
+            x: self.x + rhs.x,
+            y: self.y + rhs.y,
+            z: self.z + rhs.z,
+        }
     }
 }
 
 impl Sub for Vec3 {
     type Output = Vec3;
     fn sub(self, rhs: Vec3) -> Vec3 {
-        Vec3 { x: self.x - rhs.x, y: self.y - rhs.y, z: self.z - rhs.z }
+        Vec3 {
+            x: self.x - rhs.x,
+            y: self.y - rhs.y,
+            z: self.z - rhs.z,
+        }
     }
 }
 
@@ -108,21 +128,30 @@ pub struct Vec4 {
     pub x: f32,
     pub y: f32,
     pub z: f32,
-    pub w: f32
+    pub w: f32,
 }
 
 pub fn vec4(x: f32, y: f32, z: f32, w: f32) -> Vec4 {
-    Vec4 { x: x, y: y, z: z, w: w }
+    Vec4 {
+        x: x,
+        y: y,
+        z: z,
+        w: w,
+    }
 }
 
 #[allow(dead_code)]
 impl Vec4 {
     pub fn zero() -> Vec4 {
-        Vec4 { x: 0.0, y: 0.0, z: 0.0, w: 0.0 }
+        Vec4 {
+            x: 0.0,
+            y: 0.0,
+            z: 0.0,
+            w: 0.0,
+        }
     }
     pub fn dot(&self, rhs: &Vec4) -> f32 {
-        (self.x * rhs.x) + (self.y * rhs.y) +
-            (self.z * rhs.z) + (self.w * rhs.w)
+        (self.x * rhs.x) + (self.y * rhs.y) + (self.z * rhs.z) + (self.w * rhs.w)
     }
     pub fn length(&self) -> f32 {
         self.dot(self).sqrt()
@@ -137,28 +166,48 @@ impl Vec4 {
 impl Mul<Vec4> for Vec4 {
     type Output = Vec4;
     fn mul(self, rhs: Vec4) -> Vec4 {
-        Vec4 { x: self.x * rhs.x, y: self.y * rhs.y, z: self.z * rhs.z, w: self.w * rhs.w }
+        Vec4 {
+            x: self.x * rhs.x,
+            y: self.y * rhs.y,
+            z: self.z * rhs.z,
+            w: self.w * rhs.w,
+        }
     }
 }
 
 impl Mul<f32> for Vec4 {
     type Output = Vec4;
     fn mul(self, rhs: f32) -> Vec4 {
-        Vec4 { x: self.x * rhs, y: self.y * rhs, z: self.z * rhs, w: self.w * rhs }
+        Vec4 {
+            x: self.x * rhs,
+            y: self.y * rhs,
+            z: self.z * rhs,
+            w: self.w * rhs,
+        }
     }
 }
 
 impl Add for Vec4 {
     type Output = Vec4;
     fn add(self, rhs: Vec4) -> Vec4 {
-        Vec4 { x: self.x + rhs.x, y: self.y + rhs.y, z: self.z + rhs.z, w: self.w + rhs.w }
+        Vec4 {
+            x: self.x + rhs.x,
+            y: self.y + rhs.y,
+            z: self.z + rhs.z,
+            w: self.w + rhs.w,
+        }
     }
 }
 
 impl Sub for Vec4 {
     type Output = Vec4;
     fn sub(self, rhs: Vec4) -> Vec4 {
-        Vec4 { x: self.x - rhs.x, y: self.y - rhs.y, z: self.z - rhs.z, w: self.w - rhs.w }
+        Vec4 {
+            x: self.x - rhs.x,
+            y: self.y - rhs.y,
+            z: self.z - rhs.z,
+            w: self.w - rhs.w,
+        }
     }
 }
 
@@ -178,7 +227,12 @@ pub struct Mat4 {
 
 #[allow(dead_code)]
 pub fn mat4(col0: Vec4, col1: Vec4, col2: Vec4, col3: Vec4) -> Mat4 {
-    Mat4 { col0: col0, col1: col1, col2: col2, col3: col3 }
+    Mat4 {
+        col0: col0,
+        col1: col1,
+        col2: col2,
+        col3: col3,
+    }
 }
 
 #[allow(dead_code)]
@@ -189,10 +243,10 @@ pub fn perspective(fovy: f32, aspect: f32, near: f32, far: f32) -> Mat4 {
     let c = (2.0 * near * far) / (near - far);
 
     Mat4 {
-        col0: vec4(  a, 0.0, 0.0, 0.0),
-        col1: vec4(0.0,   q, 0.0, 0.0),
-        col2: vec4(0.0, 0.0,   b,-1.0),
-        col3: vec4(0.0, 0.0,   c, 0.0)
+        col0: vec4(a, 0.0, 0.0, 0.0),
+        col1: vec4(0.0, q, 0.0, 0.0),
+        col2: vec4(0.0, 0.0, b, -1.0),
+        col3: vec4(0.0, 0.0, c, 0.0),
     }
 }
 
@@ -202,7 +256,7 @@ pub fn translate(x: f32, y: f32, z: f32) -> Mat4 {
         col0: vec4(1.0, 0.0, 0.0, 0.0),
         col1: vec4(0.0, 1.0, 0.0, 0.0),
         col2: vec4(0.0, 0.0, 1.0, 0.0),
-        col3: vec4(  x,   y,   z, 1.0)
+        col3: vec4(x, y, z, 1.0),
     }
 }
 
@@ -213,10 +267,10 @@ pub fn look_at(eye: Vec3, center: Vec3, up: Vec3) -> Mat4 {
     let s = f.cross(&up_n);
     let u = s.cross(&f);
     Mat4 {
-        col0: vec4(s.x, u.x,-f.x, 0.0),
-        col1: vec4(s.y, u.y,-f.y, 0.0),
-        col2: vec4(s.z, u.z,-f.z, 0.0),
-        col3: vec4(-s.dot(&eye), -u.dot(&eye), f.dot(&eye), 1.0)
+        col0: vec4(s.x, u.x, -f.x, 0.0),
+        col1: vec4(s.y, u.y, -f.y, 0.0),
+        col2: vec4(s.z, u.z, -f.z, 0.0),
+        col3: vec4(-s.dot(&eye), -u.dot(&eye), f.dot(&eye), 1.0),
     }
 }
 
@@ -232,17 +286,17 @@ pub fn rotate(angle: f32, x: f32, y: f32, z: f32) -> Mat4 {
         col0: vec4(x2 * omc + c, y * x * omc + z * s, x * z * omc - y * s, 0.0),
         col1: vec4(x * y * omc - z * s, y2 * omc + c, y * z * omc + x * s, 0.0),
         col2: vec4(x * z * omc + y * s, y * z * omc - x * s, z2 * omc + c, 0.0),
-        col3: vec4(0.0, 0.0, 0.0, 1.0)
+        col3: vec4(0.0, 0.0, 0.0, 1.0),
     }
 }
 
 #[allow(dead_code)]
 pub fn scale(x: f32, y: f32, z: f32) -> Mat4 {
     Mat4 {
-        col0: vec4(  x, 0.0, 0.0, 0.0),
-        col1: vec4(0.0,   y, 0.0, 0.0),
-        col2: vec4(0.0, 0.0,   z, 0.0),
-        col3: vec4(0.0, 0.0, 0.0, 1.0)
+        col0: vec4(x, 0.0, 0.0, 0.0),
+        col1: vec4(0.0, y, 0.0, 0.0),
+        col2: vec4(0.0, 0.0, z, 0.0),
+        col3: vec4(0.0, 0.0, 0.0, 1.0),
     }
 }
 
@@ -252,7 +306,7 @@ pub fn identity() -> Mat4 {
         col0: vec4(1.0, 0.0, 0.0, 0.0),
         col1: vec4(0.0, 1.0, 0.0, 0.0),
         col2: vec4(0.0, 0.0, 1.0, 0.0),
-        col3: vec4(0.0, 0.0, 0.0, 1.0)
+        col3: vec4(0.0, 0.0, 0.0, 1.0),
     }
 }
 
@@ -262,7 +316,12 @@ impl Mat4 {
         &self.col0.x as *const f32
     }
     pub fn zero() -> Mat4 {
-        Mat4 { col0: Vec4::zero(), col1: Vec4::zero(), col2: Vec4::zero(), col3: Vec4::zero() }
+        Mat4 {
+            col0: Vec4::zero(),
+            col1: Vec4::zero(),
+            col2: Vec4::zero(),
+            col3: Vec4::zero(),
+        }
     }
 }
 
@@ -283,15 +342,20 @@ impl Mul for Mat4 {
             col0: (a0 * b0.x) + (a1 * b0.y) + (a2 * b0.z) + (a3 * b0.w),
             col1: (a0 * b1.x) + (a1 * b1.y) + (a2 * b1.z) + (a3 * b1.w),
             col2: (a0 * b2.x) + (a1 * b2.y) + (a2 * b2.z) + (a3 * b2.w),
-            col3: (a0 * b3.x) + (a1 * b3.y) + (a2 * b3.z) + (a3 * b3.w)
+            col3: (a0 * b3.x) + (a1 * b3.y) + (a2 * b3.z) + (a3 * b3.w),
         }
     }
 }
 
 impl fmt::Display for Mat4 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "[{}, {}, {}, {}]",
-           self.col0, self.col1, self.col2, self.col3)
+        write!(
+            f,
+            "[{}, {}, {}, {}]",
+            self.col0,
+            self.col1,
+            self.col2,
+            self.col3
+        )
     }
 }
-

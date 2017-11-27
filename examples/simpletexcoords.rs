@@ -37,7 +37,7 @@ struct SampleApp {
     tex_index: GLuint,
     mv_matrix: GLint,
     proj_matrix: GLint,
-    object: sb6::object::Object
+    object: sb6::object::Object,
 }
 
 impl SampleApp {
@@ -49,7 +49,7 @@ impl SampleApp {
             tex_index: 0,
             mv_matrix: -1,
             proj_matrix: -1,
-            object: sb6::object::Object::new()
+            object: sb6::object::Object::new(),
         }
     }
 
@@ -59,10 +59,14 @@ impl SampleApp {
                 gl::DeleteProgram(self.render_prog);
             }
 
-            let vs = load_shader_or_panic!("media/shaders/simpletexcoords/render.vs.glsl",
-                gl::VERTEX_SHADER);
-            let fs = load_shader_or_panic!("media/shaders/simpletexcoords/render.fs.glsl",
-                gl::FRAGMENT_SHADER);
+            let vs = load_shader_or_panic!(
+                "media/shaders/simpletexcoords/render.vs.glsl",
+                gl::VERTEX_SHADER
+            );
+            let fs = load_shader_or_panic!(
+                "media/shaders/simpletexcoords/render.fs.glsl",
+                gl::FRAGMENT_SHADER
+            );
 
             self.render_prog = gl::CreateProgram();
             gl::AttachShader(self.render_prog, vs);
@@ -74,19 +78,20 @@ impl SampleApp {
             gl::DeleteShader(fs);
         }
 
-        self.mv_matrix = sb6::program::get_uniform_location(
-            self.render_prog, "mv_matrix").unwrap();
-        self.proj_matrix = sb6::program::get_uniform_location(
-            self.render_prog, "proj_matrix").unwrap();
+        self.mv_matrix = sb6::program::get_uniform_location(self.render_prog, "mv_matrix").unwrap();
+        self.proj_matrix = sb6::program::get_uniform_location(self.render_prog, "proj_matrix")
+            .unwrap();
     }
 }
 
 impl sb6::App for SampleApp {
-    fn get_app_info(&self) -> &sb6::AppInfo { &self.info }
+    fn get_app_info(&self) -> &sb6::AppInfo {
+        &self.info
+    }
     fn startup(&mut self) {
         // generate a 16 x 16 checker texture
         const TEX_DIM: usize = 16;
-        let mut tex_data : [u32; (TEX_DIM * TEX_DIM)] = [0; (TEX_DIM * TEX_DIM)];
+        let mut tex_data: [u32; (TEX_DIM * TEX_DIM)] = [0; (TEX_DIM * TEX_DIM)];
         for i in 0..tex_data.len() {
             let col = i % TEX_DIM;
             let row = i / TEX_DIM;
@@ -94,8 +99,7 @@ impl sb6::App for SampleApp {
                 if col % 2 == 0 {
                     tex_data[i] = 0xffffffff;
                 }
-            }
-            else {
+            } else {
                 if col % 2 == 1 {
                     tex_data[i] = 0xffffffff;
                 }
@@ -106,12 +110,19 @@ impl sb6::App for SampleApp {
             gl::GenTextures(1, &mut self.tex_object[0]);
             gl::BindTexture(gl::TEXTURE_2D, self.tex_object[0]);
             gl::TexStorage2D(gl::TEXTURE_2D, 1, gl::RGB8, 16, 16);
-            gl::TexSubImage2D(gl::TEXTURE_2D, 0, 0, 0, 16, 16, gl::RGBA,
-                gl::UNSIGNED_BYTE, mem::transmute(tex_data.as_ptr()));
-            gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MIN_FILTER,
-                gl::NEAREST as i32);
-            gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MAG_FILTER,
-                gl::NEAREST as i32);
+            gl::TexSubImage2D(
+                gl::TEXTURE_2D,
+                0,
+                0,
+                0,
+                16,
+                16,
+                gl::RGBA,
+                gl::UNSIGNED_BYTE,
+                mem::transmute(tex_data.as_ptr()),
+            );
+            gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MIN_FILTER, gl::NEAREST as i32);
+            gl::TexParameteri(gl::TEXTURE_2D, gl::TEXTURE_MAG_FILTER, gl::NEAREST as i32);
         }
 
         self.tex_object[1] = load_ktx_or_panic!("media/textures/pattern1.ktx");
@@ -139,11 +150,10 @@ impl sb6::App for SampleApp {
     }
 
     fn render(&mut self, current_time: f64) {
-        let gray = [ 0.2, 0.2, 0.2, 1.0 ];
-        let ones = [ 1.0 ];
+        let gray = [0.2, 0.2, 0.2, 1.0];
+        let ones = [1.0];
 
-        let aspect = self.info.window_width as f32 /
-            self.info.window_height as f32;
+        let aspect = self.info.window_width as f32 / self.info.window_height as f32;
         let proj_matrix = vmath::perspective(60.0, aspect, 0.1, 1000.0);
         let mv_matrix = vmath::translate(0.0, 0.0, -3.0) *
             vmath::rotate(current_time as f32 * 19.3, 0.0, 1.0, 0.0) *
@@ -152,8 +162,12 @@ impl sb6::App for SampleApp {
         unsafe {
             gl::ClearBufferfv(gl::COLOR, 0, gray.as_ptr());
             gl::ClearBufferfv(gl::DEPTH, 0, ones.as_ptr());
-            gl::Viewport(0, 0, self.info.window_width as i32,
-                self.info.window_height as i32);
+            gl::Viewport(
+                0,
+                0,
+                self.info.window_width as i32,
+                self.info.window_height as i32,
+            );
             gl::BindTexture(gl::TEXTURE_2D, self.tex_object[self.tex_index as usize]);
             gl::UseProgram(self.render_prog);
             gl::UniformMatrix4fv(self.mv_matrix, 1, gl::FALSE, mv_matrix.as_ptr());
@@ -163,13 +177,12 @@ impl sb6::App for SampleApp {
         self.object.render();
     }
 
-    fn on_key(&mut self, key: sb6::Key, action: sb6::Action)
-    {
+    fn on_key(&mut self, key: sb6::Key, action: sb6::Action) {
         if action == sb6::Action::Release {
             match key {
                 sb6::Key::R => self.load_shaders(),
                 sb6::Key::T => self.tex_index = (self.tex_index + 1) % 2,
-                _ => ()
+                _ => (),
             };
         }
     }
@@ -181,4 +194,3 @@ fn main() {
     let mut app = SampleApp::new(init);
     sb6::run(&mut app);
 }
-

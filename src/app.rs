@@ -43,34 +43,37 @@ pub struct AppInfo {
     pub vsync: bool,
     pub cursor: bool,
     pub stereo: bool,
-    pub debug: bool
+    pub debug: bool,
 }
 
 impl AppInfo {
     #[cfg(use_gl_3_3)]
-    fn version() -> (u32, u32) { (3, 3) }
+    fn version() -> (u32, u32) {
+        (3, 3)
+    }
     #[cfg(not(use_gl_3_3))]
-    fn version() -> (u32, u32) { (4, 3) }
+    fn version() -> (u32, u32) {
+        (4, 3)
+    }
     pub fn default() -> AppInfo {
         let (major, minor) = AppInfo::version();
         AppInfo {
-        title: "SuperBible6 Example",
-        window_width: 800,
-        window_height: 600,
-        major_version: major,
-        minor_version: minor,
-        samples: 0,
-        fullscreen: false,
-        vsync: false,
-        cursor: true,
-        stereo: false,
-        debug: false
+            title: "SuperBible6 Example",
+            window_width: 800,
+            window_height: 600,
+            major_version: major,
+            minor_version: minor,
+            samples: 0,
+            fullscreen: false,
+            vsync: false,
+            cursor: true,
+            stereo: false,
+            debug: false,
         }
     }
 }
 
-pub trait App
-{
+pub trait App {
     fn get_app_info(&self) -> &AppInfo;
     fn startup(&mut self) {}
     fn update(&mut self, _: f64) {}
@@ -80,19 +83,14 @@ pub trait App
     fn on_key(&mut self, _: Key, _: Action) {}
 }
 
-fn handle_window_event<T: App>(app: &mut T, window: &mut glfw::Window,
-                               event: glfw::WindowEvent) {
+fn handle_window_event<T: App>(app: &mut T, window: &mut glfw::Window, event: glfw::WindowEvent) {
     match event {
         glfw::WindowEvent::Key(glfw::Key::Escape, _, glfw::Action::Press, _) => {
             window.set_should_close(true)
         }
-        glfw::WindowEvent::Key(key, _, action, _) => {
-            app.on_key(key, action)
-        },
-        glfw::WindowEvent::Size(w, h) => {
-            app.on_resize(w as isize, h as isize)
-        }
-        _ => ()
+        glfw::WindowEvent::Key(key, _, action, _) => app.on_key(key, action),
+        glfw::WindowEvent::Size(w, h) => app.on_resize(w as isize, h as isize),
+        _ => (),
     }
 }
 
@@ -101,12 +99,19 @@ pub fn run<T: App>(app: &mut T) {
     let (mut window, events) = {
         let info = app.get_app_info();
         glfw.window_hint(glfw::WindowHint::ContextVersion(
-                info.major_version, info.minor_version));
-        glfw.window_hint(glfw::WindowHint::OpenGlProfile(glfw::OpenGlProfileHint::Core));
+            info.major_version,
+            info.minor_version,
+        ));
+        glfw.window_hint(glfw::WindowHint::OpenGlProfile(
+            glfw::OpenGlProfileHint::Core,
+        ));
         glfw.window_hint(glfw::WindowHint::OpenGlForwardCompat(true));
         glfw.create_window(
-            info.window_width, info.window_height, &info.title,
-            glfw::WindowMode::Windowed).expect("Failed to create GLFW window.")
+            info.window_width,
+            info.window_height,
+            &info.title,
+            glfw::WindowMode::Windowed,
+        ).expect("Failed to create GLFW window.")
     };
 
     window.set_key_polling(true);

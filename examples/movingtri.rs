@@ -57,17 +57,23 @@ void main(void)                                                   \n\
 struct SampleApp {
     info: sb6::AppInfo,
     program: GLuint,
-    vao: GLuint
+    vao: GLuint,
 }
 
 impl SampleApp {
     fn new(init: sb6::AppInfo) -> SampleApp {
-        SampleApp { info: init, program: 0, vao: 0 }
+        SampleApp {
+            info: init,
+            program: 0,
+            vao: 0,
+        }
     }
 }
 
 impl sb6::App for SampleApp {
-    fn get_app_info(&self) -> &sb6::AppInfo { &self.info }
+    fn get_app_info(&self) -> &sb6::AppInfo {
+        &self.info
+    }
 
     fn startup(&mut self) {
         unsafe {
@@ -101,9 +107,9 @@ impl sb6::App for SampleApp {
     }
 
     fn render(&mut self, time: f64) {
-        const GREEN: [GLfloat; 4] = [ 0.0, 0.25, 0.0, 1.0 ];
+        const GREEN: [GLfloat; 4] = [0.0, 0.25, 0.0, 1.0];
         let (sin_time, cos_time) = (time as f32).sin_cos();
-        let attrib: [GLfloat; 4] = [ sin_time * 0.5, cos_time * 0.6, 0.0, 0.0 ];
+        let attrib: [GLfloat; 4] = [sin_time * 0.5, cos_time * 0.6, 0.0, 0.0];
 
         unsafe {
             gl::ClearBufferfv(gl::COLOR, 0, GREEN.as_ptr());
@@ -120,4 +126,3 @@ fn main() {
     let mut app = SampleApp::new(init);
     sb6::run(&mut app);
 }
-

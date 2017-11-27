@@ -22,7 +22,8 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-#[macro_use] extern crate log;
+#[macro_use]
+extern crate log;
 
 extern crate gl;
 extern crate glfw;

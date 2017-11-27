@@ -38,10 +38,12 @@ impl SampleApp {
 }
 
 impl sb6::App for SampleApp {
-    fn get_app_info(&self) -> &sb6::AppInfo { &self.info }
+    fn get_app_info(&self) -> &sb6::AppInfo {
+        &self.info
+    }
 
     fn render(&mut self, _: f64) {
-        const RED: [GLfloat; 4] = [ 1.0, 0.0, 0.0, 1.0 ];
+        const RED: [GLfloat; 4] = [1.0, 0.0, 0.0, 1.0];
         unsafe {
             gl::ClearBufferfv(gl::COLOR, 0, RED.as_ptr());
         }
@@ -54,4 +56,3 @@ fn main() {
     let mut app = SampleApp::new(init);
     sb6::run(&mut app);
 }
-

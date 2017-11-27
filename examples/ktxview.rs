@@ -58,7 +58,7 @@ struct SampleApp {
     info: sb6::AppInfo,
     texture: GLuint,
     program: GLuint,
-    vao: GLuint
+    vao: GLuint,
 }
 
 impl SampleApp {
@@ -67,13 +67,15 @@ impl SampleApp {
             info: init,
             texture: 0,
             program: 0,
-            vao: 0
+            vao: 0,
         }
     }
 }
 
 impl sb6::App for SampleApp {
-    fn get_app_info(&self) -> &sb6::AppInfo { &self.info }
+    fn get_app_info(&self) -> &sb6::AppInfo {
+        &self.info
+    }
     fn startup(&mut self) {
         unsafe {
             // Load texture from file
@@ -108,13 +110,17 @@ impl sb6::App for SampleApp {
     }
 
     fn render(&mut self, _: f64) {
-        const GREEN: [GLfloat; 4] = [ 0.0, 0.25, 0.0, 1.0 ];
+        const GREEN: [GLfloat; 4] = [0.0, 0.25, 0.0, 1.0];
 
         unsafe {
             gl::ClearBufferfv(gl::COLOR, 0, GREEN.as_ptr());
             gl::UseProgram(self.program);
-            gl::Viewport(0, 0, self.info.window_width as i32,
-                         self.info.window_height as i32);
+            gl::Viewport(
+                0,
+                0,
+                self.info.window_width as i32,
+                self.info.window_height as i32,
+            );
             gl::DrawArrays(gl::TRIANGLE_STRIP, 0, 4);
         }
     }
@@ -128,4 +134,3 @@ fn main() {
     let mut app = SampleApp::new(init);
     sb6::run(&mut app);
 }
-

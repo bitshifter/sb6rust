@@ -31,7 +31,7 @@ use std::ptr;
 
 #[derive(Clone, PartialEq, Debug)]
 pub enum ProgramError {
-    ProgramInfoLog(String)
+    ProgramInfoLog(String),
 }
 
 pub fn check_link_status(program: GLuint) -> Result<(), ProgramError> {
@@ -46,10 +46,17 @@ pub fn check_link_status(program: GLuint) -> Result<(), ProgramError> {
             gl::GetProgramiv(program, gl::INFO_LOG_LENGTH, &mut len);
             // subtract 1 to skip the trailing null character
             let mut buf: Vec<u8> = iter::repeat(0u8).take(len as usize - 1).collect();
-            gl::GetProgramInfoLog(program, len, ptr::null_mut(),
-                buf.as_mut_ptr() as *mut GLchar);
-            return Err(ProgramError::ProgramInfoLog(String::from_utf8(buf).unwrap_or(
-                String::from("ProgramInfoLog not valid utf8"))));
+            gl::GetProgramInfoLog(
+                program,
+                len,
+                ptr::null_mut(),
+                buf.as_mut_ptr() as *mut GLchar,
+            );
+            return Err(ProgramError::ProgramInfoLog(
+                String::from_utf8(buf).unwrap_or(String::from(
+                    "ProgramInfoLog not valid utf8",
+                )),
+            ));
         }
     }
     Ok(())
@@ -76,17 +83,23 @@ pub fn link_from_shaders(shaders: &[GLuint]) -> Result<GLuint, ProgramError> {
 
 #[derive(Clone, PartialEq, Debug)]
 pub enum UniformError {
-    UniformNotFound(GLuint, String, GLint)
+    UniformNotFound(GLuint, String, GLint),
 }
 
 pub fn get_uniform_location(program: GLuint, name: &str) -> Result<GLint, UniformError> {
     let result = unsafe {
-        gl::GetUniformLocation(program, ffi::CString::new(name.as_bytes()).unwrap().deref().as_ptr())
+        gl::GetUniformLocation(
+            program,
+            ffi::CString::new(name.as_bytes()).unwrap().deref().as_ptr(),
+        )
     };
     if result >= 0 {
         Ok(result)
-    }
-    else {
-        Err(UniformError::UniformNotFound(program, String::from(name), result))
+    } else {
+        Err(UniformError::UniformNotFound(
+            program,
+            String::from(name),
+            result,
+        ))
     }
 }
