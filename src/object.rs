@@ -81,12 +81,14 @@ struct VertexData {
 }
 
 #[repr(C)]
-struct VertexAttribName([u8;64]);
+struct VertexAttribName([u8; 64]);
 
 // TODO: #[derive(Clone)] is currently limited to arrays up to 32 length
 impl Clone for VertexAttribName {
     #[inline]
-    fn clone(&self) -> VertexAttribName { *self }
+    fn clone(&self) -> VertexAttribName {
+        *self
+    }
 }
 
 impl Copy for VertexAttribName {}
@@ -106,7 +108,7 @@ struct VertexAttribDecl {
 #[derive(Clone, Copy)]
 struct SubObjectDecl {
     first: u32,
-    count: u32
+    count: u32,
 }
 
 #[derive(Debug)]
@@ -207,40 +209,38 @@ impl Object {
                 INDEX_DATA_TYPE => {
                     debug!("INDX");
                     // read in index data struct
-                    index_data_chunk_ref = Some(
-                        unsafe { try!(reader.pop_value::<IndexData>()) });
+                    index_data_chunk_ref = Some(unsafe { try!(reader.pop_value::<IndexData>()) });
                 }
                 VERTEX_DATA_TYPE => {
                     debug!("VRTX");
                     // read in vertex data struct
-                    vertex_data_chunk_ref = Some(
-                        unsafe { try!(reader.pop_value::<VertexData>()) });
-                },
+                    vertex_data_chunk_ref = Some(unsafe { try!(reader.pop_value::<VertexData>()) });
+                }
                 VERTEX_ATTRIBS_TYPE => {
                     debug!("ATRB");
                     // read attribute count
                     let attrib_count = unsafe { try!(reader.pop_value::<u32>()) };
                     // read in all the attributes
-                    vertex_attrib_data_ref = Some(
-                        unsafe { try!(reader.pop_slice::<VertexAttribDecl>(
-                                *attrib_count as usize)) });
-                },
+                    vertex_attrib_data_ref = Some(unsafe {
+                        try!(reader.pop_slice::<VertexAttribDecl>(*attrib_count as usize))
+                    });
+                }
                 SUB_OBJECT_LIST_TYPE => {
                     debug!("OLST");
                     // read sub object count
                     let sub_object_count = unsafe { try!(reader.pop_value::<u32>()) };
                     debug!("sub_object_count: {}", sub_object_count);
                     // read in sub object data
-                    sub_object_data_ref = Some(
-                        unsafe { try!(reader.pop_slice::<SubObjectDecl>(
-                                    *sub_object_count as usize)) });
-                },
+                    sub_object_data_ref = Some(unsafe {
+                        try!(reader.pop_slice::<SubObjectDecl>(
+                            *sub_object_count as usize,
+                        ))
+                    });
+                }
                 COMMENT_TYPE => {
                     debug!("CMNT");
-                    let comment_len = chunk_header.size as usize -
-                        mem::size_of::<ChunkHeader>();
-                    let comment_bytes_ref = unsafe { try!(reader.pop_slice::<u8>(
-                            comment_len)) };
+                    let comment_len = chunk_header.size as usize - mem::size_of::<ChunkHeader>();
+                    let comment_bytes_ref = unsafe { try!(reader.pop_slice::<u8>(comment_len)) };
                     match str::from_utf8(comment_bytes_ref) {
                         Ok(v) => debug!("{}", v),
                         _ => panic!("couldn't read comment"),

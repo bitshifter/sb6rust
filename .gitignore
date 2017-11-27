@@ -1,4 +1,5 @@
 *.bk
+*.orig
 *.swp
 .DS_store
 .tmp
