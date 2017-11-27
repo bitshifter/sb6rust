@@ -35,7 +35,7 @@ use std::slice;
 
 const NUM_STARS: usize = 2000;
 
-const FS_SRC: &'static str = "\
+const FS_SRC: &str = "\
 #version 410 core                                              \n
                                                                \n
 layout (location = 0) out vec4 color;                          \n
@@ -49,7 +49,7 @@ void main(void)                                                \n
 }                                                              \n
 ";
 
-const VS_SRC: &'static str = "\
+const VS_SRC: &str = "\
 #version 410 core                                              \n
                                                                \n
 layout (location = 0) in vec4 position;                        \n

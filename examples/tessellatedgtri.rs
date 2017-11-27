@@ -27,7 +27,7 @@ extern crate sb6;
 
 use gl::types::*;
 
-const VS_SRC: &'static str = "\
+const VS_SRC: &str = "\
 #version 410 core                                                 \n\
                                                                   \n\
 void main(void)                                                   \n\
@@ -40,7 +40,7 @@ void main(void)                                                   \n\
 }                                                                 \n\
 ";
 
-const TCS_SRC: &'static str = "\
+const TCS_SRC: &str = "\
 #version 410 core                                                                 \n\
                                                                                   \n\
 layout (vertices = 3) out;                                                        \n\
@@ -58,7 +58,7 @@ void main(void)                                                                 
 }                                                                                 \n\
 ";
 
-const TES_SRC: &'static str = "\
+const TES_SRC: &str = "\
 #version 410 core                                                                 \n\
                                                                                   \n\
 layout (triangles, equal_spacing, cw) in;                                         \n\
@@ -71,7 +71,7 @@ void main(void)                                                                 
 }                                                                                 \n\
 ";
 
-const GS_SRC: &'static str = "\
+const GS_SRC: &str = "\
 #version 410 core                                                                  \n\
                                                                                    \n\
 layout (triangles) in;                                                             \n\
@@ -89,7 +89,7 @@ void main(void)                                                                 
 }                                                                                  \n\
 ";
 
-const FS_SRC: &'static str = "\
+const FS_SRC: &str = "\
 #version 410 core                                                 \n\
                                                                   \n\
 out vec4 color;                                                   \n\

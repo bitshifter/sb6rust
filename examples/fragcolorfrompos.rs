@@ -28,7 +28,7 @@ extern crate sb6;
 use gl::types::*;
 
 #[cfg(not(screen_space_color))]
-const VS_SRC: &'static str = "\
+const VS_SRC: &str = "\
 #version 420 core                                                          \n\
                                                                            \n\
 void main(void)                                                            \n\
@@ -42,7 +42,7 @@ void main(void)                                                            \n\
 ";
 
 #[cfg(not(screen_space_color))]
-const FS_SRC: &'static str = "\
+const FS_SRC: &str = "\
 #version 420 core                                                          \n\
                                                                            \n\
 out vec4 color;                                                            \n\
@@ -57,7 +57,7 @@ void main(void)                                                            \n\
 ";
 
 #[cfg(screen_space_color)]
-const VS_SRC: &'static str = "\
+const VS_SRC: &str = "\
 #version 420 core                                                          \n\
                                                                            \n\
 out vec4 vs_color;                                                         \n\
@@ -76,7 +76,7 @@ void main(void)                                                            \n\
 ";
 
 #[cfg(screen_space_color)]
-const FS_SRC: &'static str = "\
+const FS_SRC: &str = "\
 #version 420 core                                                          \n\
                                                                            \n\
 in vec4 vs_color;                                                          \n\

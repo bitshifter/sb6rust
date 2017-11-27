@@ -153,7 +153,7 @@ const VERTEX_POSITIONS: [GLfloat; 108] = [
     -0.25,
 ];
 
-const VS_SRC: &'static str = "\
+const VS_SRC: &str = "\
 #version 330 core                                                  \n
                                                                    \n
 in vec4 position;                                                  \n
@@ -173,7 +173,7 @@ void main(void)                                                    \n
 }                                                                  \n
 ";
 
-const FS_SRC: &'static str = "\
+const FS_SRC: &str = "\
 #version 330 core                                                  \n\
                                                                    \n\
 out vec4 color;                                                    \n\

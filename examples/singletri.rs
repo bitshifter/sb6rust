@@ -27,7 +27,7 @@ extern crate sb6;
 
 use gl::types::*;
 
-const VS_SRC: &'static str = "\
+const VS_SRC: &str = "\
 #version 420 core                                                 \n\
                                                                   \n\
 void main(void)                                                   \n\
@@ -40,7 +40,7 @@ void main(void)                                                   \n\
 }                                                                 \n\
 ";
 
-const FS_SRC: &'static str = "\
+const FS_SRC: &str = "\
 #version 420 core                                                 \n\
                                                                   \n\
 out vec4 color;                                                   \n\

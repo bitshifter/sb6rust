@@ -28,7 +28,7 @@ extern crate sb6;
 
 use gl::types::*;
 
-const VS_SRC: &'static str = "\
+const VS_SRC: &str = "\
 #version 330 core                                                              \n\
                                                                                \n\
 void main(void)                                                                \n\
@@ -42,7 +42,7 @@ void main(void)                                                                \
 }                                                                              \n\
 ";
 
-const FS_SRC: &'static str = "\
+const FS_SRC: &str = "\
 #version 330 core                                                              \n\
                                                                                \n\
 uniform sampler2D s;                                                           \n\
