@@ -18,7 +18,7 @@ env:
 before_install:
   - sudo apt-get update -qq
 
-install: sudo apt-get install cmake libXxf86vm-dev libxinerama-dev libxcursor-dev
+install: sudo apt-get install cmake libxinerama-dev libxcursor-dev
 
 script:
   - cargo build
