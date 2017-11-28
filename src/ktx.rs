@@ -66,10 +66,10 @@ impl From<io::Error> for LoadError {
 
 impl fmt::Display for LoadError {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
-        match self {
-            &LoadError::MagicError => write!(fmt, "Not a valid ktx file"),
-            &LoadError::HeaderError => write!(fmt, "Invalid ktx header"),
-            &LoadError::IoError(ref e) => e.fmt(fmt),
+        match *self {
+            LoadError::MagicError => write!(fmt, "Not a valid ktx file"),
+            LoadError::HeaderError => write!(fmt, "Invalid ktx header"),
+            LoadError::IoError(ref e) => e.fmt(fmt),
         }
     }
 }
@@ -99,14 +99,12 @@ fn calculate_stride(h: &Header, width: i32, pad: usize) -> Result<isize, LoadErr
     let channels = match h.gl_base_internal_format {
         gl::RED => 1,
         gl::RG => 2,
-        gl::BGR => 3,
-        gl::RGB => 3,
-        gl::BGRA => 4,
-        gl::RGBA => 4,
+        gl::BGR | gl::RGB => 3,
+        gl::BGRA | gl::RGBA => 4,
         _ => return Err(LoadError::HeaderError),
     };
     Ok(
-        (((h.gl_type_size * channels * width as u32) as usize + ((pad - 1)) & !(pad - 1))) as isize,
+        (((h.gl_type_size * channels * width as u32) as usize + (pad - 1)) & !(pad - 1)) as isize,
     )
 }
 
@@ -134,7 +132,7 @@ pub fn load(filename: &str) -> Result<GLuint, LoadError> {
 
     // check endianness
     let endianness = unsafe { try!(reader.pop_value::<u32>()) };
-    if *endianness == 0x01020304 {
+    if *endianness == 0x0102_0304 {
         // swap not impemented
         return Err(LoadError::MagicError);
     }
@@ -161,12 +159,10 @@ pub fn load(filename: &str) -> Result<GLuint, LoadError> {
             } else {
                 gl::TEXTURE_CUBE_MAP
             }
+        } else if h.faces == 0 {
+            gl::TEXTURE_2D_ARRAY
         } else {
-            if h.faces == 0 {
-                gl::TEXTURE_2D_ARRAY
-            } else {
-                gl::TEXTURE_CUBE_MAP_ARRAY
-            }
+            gl::TEXTURE_CUBE_MAP_ARRAY
         }
     } else {
         gl::TEXTURE_3D

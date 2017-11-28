@@ -47,7 +47,7 @@ const VERTEX_ATTRIBS_TYPE: u32 = fourcc!('A', 'T', 'R', 'B');
 const SUB_OBJECT_LIST_TYPE: u32 = fourcc!('O', 'L', 'S', 'T');
 const COMMENT_TYPE: u32 = fourcc!('C', 'M', 'N', 'T');
 
-const VERTEX_ATTRIB_FLAG_NORMALIZED: u32 = 0x00000001;
+const VERTEX_ATTRIB_FLAG_NORMALIZED: u32 = 0x0000_0001;
 
 #[repr(C)]
 #[derive(Clone, Copy)]
@@ -81,17 +81,8 @@ struct VertexData {
 }
 
 #[repr(C)]
+#[derive(Clone, Copy)]
 struct VertexAttribName([u8; 64]);
-
-// TODO: #[derive(Clone)] is currently limited to arrays up to 32 length
-impl Clone for VertexAttribName {
-    #[inline]
-    fn clone(&self) -> VertexAttribName {
-        *self
-    }
-}
-
-impl Copy for VertexAttribName {}
 
 #[repr(C)]
 #[derive(Clone, Copy)]
@@ -129,13 +120,13 @@ impl From<io::Error> for LoadError {
 
 impl fmt::Display for LoadError {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
-        match self {
-            &LoadError::MagicError(_) => write!(fmt, "Not a valid object file"),
-            &LoadError::ChunkTypeError(_) => write!(fmt, "Unexpected chunk type"),
-            &LoadError::ChunkSizeError(_, _) => write!(fmt, "Unexpected chunk size"),
-            &LoadError::VertexDataError => write!(fmt, "Missing vertex data"),
-            &LoadError::VertexAttribDataError => write!(fmt, "Missing vertex data attribute"),
-            &LoadError::IoError(ref ioerror) => ioerror.fmt(fmt),
+        match *self {
+            LoadError::MagicError(_) => write!(fmt, "Not a valid object file"),
+            LoadError::ChunkTypeError(_) => write!(fmt, "Unexpected chunk type"),
+            LoadError::ChunkSizeError(_, _) => write!(fmt, "Unexpected chunk size"),
+            LoadError::VertexDataError => write!(fmt, "Missing vertex data"),
+            LoadError::VertexAttribDataError => write!(fmt, "Missing vertex data attribute"),
+            LoadError::IoError(ref ioerror) => ioerror.fmt(fmt),
         }
     }
 }
@@ -316,7 +307,7 @@ impl Object {
                     attrib_decl.ty,
                     attrib_flags,
                     attrib_decl.stride as i32,
-                    mem::transmute(attrib_data_offset),
+                    attrib_data_offset as *const _,
                 );
                 gl::EnableVertexAttribArray(i as u32);
             }

@@ -26,17 +26,17 @@ use std::mem;
 use std::slice;
 
 /// Reads from an owned byte vector.
-/// This is similar to the built in std::io::MemReader, the main differences
+/// This is similar to the built in `std::io::MemReader`, the main differences
 /// being we are not concerned with endian conversion, and we don't copy the
 /// data out of the buffer, we just return references to in the internal
 /// buffer.
 pub struct BufferReader<'a> {
-    buf: &'a Vec<u8>,
+    buf: &'a [u8],
     pos: usize,
 }
 
 impl<'a> BufferReader<'a> {
-    pub fn new(buf: &'a Vec<u8>) -> BufferReader<'a> {
+    pub fn new(buf: &'a [u8]) -> BufferReader<'a> {
         BufferReader { buf: buf, pos: 0 }
     }
 

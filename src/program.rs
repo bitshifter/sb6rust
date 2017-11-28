@@ -37,11 +37,11 @@ pub enum ProgramError {
 pub fn check_link_status(program: GLuint) -> Result<(), ProgramError> {
     unsafe {
         // Get the link status
-        let mut status = gl::FALSE as GLint;
+        let mut status = GLint::from(gl::FALSE);
         gl::GetProgramiv(program, gl::LINK_STATUS, &mut status);
 
         // Fail on error
-        if status != (gl::TRUE as GLint) {
+        if status != GLint::from(gl::TRUE) {
             let mut len: GLint = 0;
             gl::GetProgramiv(program, gl::INFO_LOG_LENGTH, &mut len);
             // subtract 1 to skip the trailing null character
@@ -53,7 +53,7 @@ pub fn check_link_status(program: GLuint) -> Result<(), ProgramError> {
                 buf.as_mut_ptr() as *mut GLchar,
             );
             return Err(ProgramError::ProgramInfoLog(
-                String::from_utf8(buf).unwrap_or(String::from(
+                String::from_utf8(buf).unwrap_or_else(|_| String::from(
                     "ProgramInfoLog not valid utf8",
                 )),
             ));

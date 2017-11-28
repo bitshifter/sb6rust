@@ -192,7 +192,7 @@ impl sb6::App for SampleApp {
                 gl::FLOAT,
                 gl::FALSE,
                 mem::size_of::<Star>() as GLint,
-                mem::transmute(mem::size_of::<vmath::Vec3>()),
+                mem::size_of::<vmath::Vec3>() as *const _,
             );
             gl::EnableVertexAttribArray(0);
             gl::EnableVertexAttribArray(1);

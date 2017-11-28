@@ -277,7 +277,7 @@ impl sb6::App for SampleApp {
             gl::BufferData(
                 gl::UNIFORM_BUFFER,
                 mem::size_of::<SamplePoints>() as GLsizeiptr,
-                mem::transmute(&point_data),
+                &point_data as *const SamplePoints as *const _,
                 gl::STATIC_DRAW,
             );
         }

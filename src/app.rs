@@ -83,8 +83,8 @@ pub trait App {
     fn on_key(&mut self, _: Key, _: Action) {}
 }
 
-fn handle_window_event<T: App>(app: &mut T, window: &mut glfw::Window, event: glfw::WindowEvent) {
-    match event {
+fn handle_window_event<T: App>(app: &mut T, window: &mut glfw::Window, event: &glfw::WindowEvent) {
+    match *event {
         glfw::WindowEvent::Key(glfw::Key::Escape, _, glfw::Action::Press, _) => {
             window.set_should_close(true)
         }
@@ -109,7 +109,7 @@ pub fn run<T: App>(app: &mut T) {
         glfw.create_window(
             info.window_width,
             info.window_height,
-            &info.title,
+            info.title,
             glfw::WindowMode::Windowed,
         ).expect("Failed to create GLFW window.")
     };
@@ -132,7 +132,7 @@ pub fn run<T: App>(app: &mut T) {
 
         glfw.poll_events();
         for (_, event) in glfw::flush_messages(&events) {
-            handle_window_event::<T>(app, &mut window, event);
+            handle_window_event::<T>(app, &mut window, &event);
         }
     }
 

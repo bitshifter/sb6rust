@@ -97,12 +97,10 @@ impl sb6::App for SampleApp {
             let row = i / TEX_DIM;
             if row % 2 == 0 {
                 if col % 2 == 0 {
-                    tex_data[i] = 0xffffffff;
+                    tex_data[i] = 0xffff_ffff;
                 }
-            } else {
-                if col % 2 == 1 {
-                    tex_data[i] = 0xffffffff;
-                }
+            } else if col % 2 == 1 {
+                tex_data[i] = 0xffff_ffff;
             }
         }
 

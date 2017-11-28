@@ -54,9 +54,9 @@ impl From<io::Error> for LoadError {
 
 impl fmt::Display for LoadError {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
-        match self {
-            &LoadError::CompileError(ref e) => write!(fmt, "{}", e),
-            &LoadError::IoError(ref e) => e.fmt(fmt),
+        match *self {
+            LoadError::CompileError(ref e) => write!(fmt, "{}", e),
+            LoadError::IoError(ref e) => e.fmt(fmt),
         }
     }
 }
@@ -70,11 +70,11 @@ macro_rules! load_shader_or_panic {
 pub fn check_compile_status(shader: GLuint) -> Result<(), ShaderError> {
     unsafe {
         // Get the compile status
-        let mut status = gl::FALSE as GLint;
+        let mut status = GLint::from(gl::FALSE);
         gl::GetShaderiv(shader, gl::COMPILE_STATUS, &mut status);
 
         // Fail on error
-        if status != (gl::TRUE as GLint) {
+        if status != GLint::from(gl::TRUE) {
             let mut len = 0;
             gl::GetShaderiv(shader, gl::INFO_LOG_LENGTH, &mut len);
             // subtract 1 to skip the trailing null character
@@ -86,7 +86,7 @@ pub fn check_compile_status(shader: GLuint) -> Result<(), ShaderError> {
                 buf.as_mut_ptr() as *mut GLchar,
             );
             return Err(ShaderError::ShaderInfoLog(
-                String::from_utf8(buf).unwrap_or(String::from(
+                String::from_utf8(buf).unwrap_or_else(|_| String::from(
                     "ShaderInfoLog not valid utf8",
                 )),
             ));
