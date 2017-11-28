@@ -1,5 +1,5 @@
 # based on the glfw-rs .travis.yml
-
+dist: trusty
 language: rust
 
 rust:
@@ -14,12 +14,8 @@ matrix:
 env:
   global:
     - LD_LIBRARY_PATH: /usr/local/lib
-    # I don't know how to use this yet
-    # - secure: d0ai0sK6NFiz+822DaAKAGcJXjC6dBFLGOjqjACcsoqDtRH85HR9IVUnwCsNVPvH05frEutD5Ebd9SzrjqPriTNnzM0iwZZBxHgiHV+SAYcL/D+qyeEAB/IYU5jZxjYgq/6fHA2VhXI56rGqBRwoXe1sLsEAaTfDmo9gVi6xhQo=  echo "yes" | sudo add-apt-repository ppa:kalakris/cmake
 
 before_install:
-  # install a newer cmake since at this time Travis only has version 2.8.7
-  - yes | sudo add-apt-repository ppa:kalakris/cmake
   - sudo apt-get update -qq
 
 install: sudo apt-get install cmake libXxf86vm-dev libxinerama-dev libxcursor-dev
