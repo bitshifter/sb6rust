@@ -18,7 +18,7 @@ env:
 before_install:
   - sudo apt-get update -qq
 
-install: sudo apt-get install cmake libxinerama-dev libxcursor-dev
+install: sudo apt-get install cmake libxinerama-dev libxcursor-dev x11proto-randr-dev
 
 script:
   - cargo build
