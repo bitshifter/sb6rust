@@ -147,6 +147,12 @@ pub struct Object {
     sub_object: [SubObjectDecl; 256],
 }
 
+impl Default for Object {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Object {
     pub fn new() -> Object {
         Object {
@@ -264,9 +270,7 @@ impl Object {
             Some(sub_object_data) => {
                 debug!("sub_object_count: {}", sub_object_data.len());
                 self.num_sub_objects = sub_object_data.len();
-                for i in 0..self.num_sub_objects {
-                    self.sub_object[i] = sub_object_data[i];
-                }
+                self.sub_object.copy_from_slice(sub_object_data);
             }
             None => {
                 self.num_sub_objects = 1;
@@ -292,8 +296,7 @@ impl Object {
         }
 
         // bind vertex attributes
-        for i in 0..vertex_attrib_data.len() {
-            let attrib_decl = &vertex_attrib_data[i];
+        for (i, attrib_decl) in vertex_attrib_data.iter().enumerate() {
             let attrib_flags = if attrib_decl.flags & VERTEX_ATTRIB_FLAG_NORMALIZED != 0 {
                 gl::TRUE
             } else {

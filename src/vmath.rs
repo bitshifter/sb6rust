@@ -280,12 +280,12 @@ pub fn rotate(angle: f32, x: f32, y: f32, z: f32) -> Mat4 {
     let y2 = y * y;
     let z2 = z * z;
     let rads = deg_to_rad(angle);
-    let (s, c) = rads.sin_cos();
-    let omc = 1.0 - c;
+    let (sin, cos) = rads.sin_cos();
+    let omc = 1.0 - cos;
     Mat4 {
-        col0: vec4(x2 * omc + c, y * x * omc + z * s, x * z * omc - y * s, 0.0),
-        col1: vec4(x * y * omc - z * s, y2 * omc + c, y * z * omc + x * s, 0.0),
-        col2: vec4(x * z * omc + y * s, y * z * omc - x * s, z2 * omc + c, 0.0),
+        col0: vec4(x2 * omc + cos, y * x * omc + z * sin, x * z * omc - y * sin, 0.0),
+        col1: vec4(x * y * omc - z * sin, y2 * omc + cos, y * z * omc + x * sin, 0.0),
+        col2: vec4(x * z * omc + y * sin, y * z * omc - x * sin, z2 * omc + cos, 0.0),
         col3: vec4(0.0, 0.0, 0.0, 1.0),
     }
 }
