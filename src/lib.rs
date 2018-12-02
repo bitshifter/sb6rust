@@ -27,7 +27,6 @@ extern crate log;
 
 extern crate gl;
 extern crate glfw;
-extern crate num;
 
 pub use app::*;
 
