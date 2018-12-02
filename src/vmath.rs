@@ -42,7 +42,7 @@ pub struct Vec3 {
 
 #[allow(dead_code)]
 pub fn vec3(x: f32, y: f32, z: f32) -> Vec3 {
-    Vec3 { x: x, y: y, z: z }
+    Vec3 { x, y, z }
 }
 
 #[allow(dead_code)]
@@ -132,12 +132,7 @@ pub struct Vec4 {
 }
 
 pub fn vec4(x: f32, y: f32, z: f32, w: f32) -> Vec4 {
-    Vec4 {
-        x: x,
-        y: y,
-        z: z,
-        w: w,
-    }
+    Vec4 { x, y, z, w }
 }
 
 #[allow(dead_code)]
@@ -155,7 +150,6 @@ impl Vec4 {
     }
     pub fn length(&self) -> f32 {
         self.dot(self).sqrt()
-
     }
     pub fn normalize(&self) -> Vec4 {
         let inv_length = 1.0 / self.dot(self).sqrt();
@@ -228,10 +222,10 @@ pub struct Mat4 {
 #[allow(dead_code)]
 pub fn mat4(col0: Vec4, col1: Vec4, col2: Vec4, col3: Vec4) -> Mat4 {
     Mat4 {
-        col0: col0,
-        col1: col1,
-        col2: col2,
-        col3: col3,
+        col0,
+        col1,
+        col2,
+        col3,
     }
 }
 
@@ -283,9 +277,24 @@ pub fn rotate(angle: f32, x: f32, y: f32, z: f32) -> Mat4 {
     let (sin, cos) = rads.sin_cos();
     let omc = 1.0 - cos;
     Mat4 {
-        col0: vec4(x2 * omc + cos, y * x * omc + z * sin, x * z * omc - y * sin, 0.0),
-        col1: vec4(x * y * omc - z * sin, y2 * omc + cos, y * z * omc + x * sin, 0.0),
-        col2: vec4(x * z * omc + y * sin, y * z * omc - x * sin, z2 * omc + cos, 0.0),
+        col0: vec4(
+            x2 * omc + cos,
+            y * x * omc + z * sin,
+            x * z * omc - y * sin,
+            0.0,
+        ),
+        col1: vec4(
+            x * y * omc - z * sin,
+            y2 * omc + cos,
+            y * z * omc + x * sin,
+            0.0,
+        ),
+        col2: vec4(
+            x * z * omc + y * sin,
+            y * z * omc - x * sin,
+            z2 * omc + cos,
+            0.0,
+        ),
         col3: vec4(0.0, 0.0, 0.0, 1.0),
     }
 }
@@ -352,10 +361,7 @@ impl fmt::Display for Mat4 {
         write!(
             f,
             "[{}, {}, {}, {}]",
-            self.col0,
-            self.col1,
-            self.col2,
-            self.col3
+            self.col0, self.col1, self.col2, self.col3
         )
     }
 }

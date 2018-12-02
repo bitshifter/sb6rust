@@ -53,9 +53,8 @@ pub fn check_link_status(program: GLuint) -> Result<(), ProgramError> {
                 buf.as_mut_ptr() as *mut GLchar,
             );
             return Err(ProgramError::ProgramInfoLog(
-                String::from_utf8(buf).unwrap_or_else(|_| String::from(
-                    "ProgramInfoLog not valid utf8",
-                )),
+                String::from_utf8(buf)
+                    .unwrap_or_else(|_| String::from("ProgramInfoLog not valid utf8")),
             ));
         }
     }

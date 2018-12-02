@@ -37,7 +37,7 @@ pub struct BufferReader<'a> {
 
 impl<'a> BufferReader<'a> {
     pub fn new(buf: &'a [u8]) -> BufferReader<'a> {
-        BufferReader { buf: buf, pos: 0 }
+        BufferReader { buf, pos: 0 }
     }
 
     /// Returns the buffer length
@@ -76,7 +76,7 @@ impl<'a> BufferReader<'a> {
                 "Buffer overrun",
             ));
         }
-        let ptr = self.buf.as_ptr().offset(self.pos as isize) as *const T;
+        let ptr = self.buf.as_ptr().add(self.pos) as *const T;
         let out = slice::from_raw_parts(ptr, size);
         self.pos = pop_end;
         Ok(out)
@@ -94,7 +94,7 @@ impl<'a> BufferReader<'a> {
                 "Buffer overrun",
             ));
         }
-        let ptr = self.buf.as_ptr().offset(self.pos as isize);
+        let ptr = self.buf.as_ptr().add(self.pos);
         self.pos = pop_end;
         Ok(&*(ptr as *const T))
     }
@@ -107,8 +107,6 @@ impl<'a> BufferReader<'a> {
                 "Buffer overrun",
             ));
         }
-        Ok(unsafe {
-            slice::from_raw_parts(self.buf.as_ptr().offset(start as isize), end - start)
-        })
+        Ok(unsafe { slice::from_raw_parts(self.buf.as_ptr().add(start), end - start) })
     }
 }

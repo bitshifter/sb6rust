@@ -28,64 +28,63 @@ extern crate sb6;
 use gl::types::*;
 
 #[cfg(not(screen_space_color))]
-const VS_SRC: &str = "\
-#version 420 core                                                          \n\
-                                                                           \n\
-void main(void)                                                            \n\
-{                                                                          \n\
-    const vec4 vertices[] = vec4[](vec4( 0.25, -0.25, 0.5, 1.0),           \n\
-                                   vec4(-0.25, -0.25, 0.5, 1.0),           \n\
-                                   vec4( 0.25,  0.25, 0.5, 1.0));          \n\
-                                                                           \n\
-    gl_Position = vertices[gl_VertexID];                                   \n\
-}                                                                          \n\
+const VS_SRC: &str = r"
+#version 420 core
+
+void main(void)
+{
+    const vec4 vertices[] = vec4[](vec4( 0.25, -0.25, 0.5, 1.0),
+    vec4(-0.25, -0.25, 0.5, 1.0),
+    vec4( 0.25,  0.25, 0.5, 1.0));
+
+    gl_Position = vertices[gl_VertexID];
+}
 ";
 
 #[cfg(not(screen_space_color))]
-const FS_SRC: &str = "\
-#version 420 core                                                          \n\
-                                                                           \n\
-out vec4 color;                                                            \n\
-                                                                           \n\
-void main(void)                                                            \n\
-{                                                                          \n\
-    color = vec4(sin(gl_FragCoord.x * 0.25) * 0.5 + 0.5,                   \n\
-                 cos(gl_FragCoord.y * 0.25) * 0.5 + 0.5,                   \n\
-                 sin(gl_FragCoord.x * 0.15) * cos(gl_FragCoord.y * 0.1),   \n\
-                 1.0);                                                     \n\
-}                                                                          \n\
+const FS_SRC: &str = r"
+#version 420 core
+
+out vec4 color;
+
+void main(void)
+{
+    color = vec4(sin(gl_FragCoord.x * 0.25) * 0.5 + 0.5,
+        cos(gl_FragCoord.y * 0.25) * 0.5 + 0.5,
+        sin(gl_FragCoord.x * 0.15) * cos(gl_FragCoord.y * 0.1), 1.0);
+}
 ";
 
 #[cfg(screen_space_color)]
-const VS_SRC: &str = "\
-#version 420 core                                                          \n\
-                                                                           \n\
-out vec4 vs_color;                                                         \n\
-void main(void)                                                            \n\
-{                                                                          \n\
-    const vec4 vertices[] = vec4[](vec4( 0.25, -0.25, 0.5, 1.0),           \n\
-                                   vec4(-0.25, -0.25, 0.5, 1.0),           \n\
-                                   vec4( 0.25,  0.25, 0.5, 1.0));          \n\
-    const vec4 colors[] = vec4[](vec4(1.0, 0.0, 0.0, 1.0),                 \n\
-                                 vec4(0.0, 1.0, 0.0, 1.0),                 \n\
-                                 vec4(0.0, 0.0, 1.0, 1.0));                \n\
-                                                                           \n\
-    gl_Position = vertices[gl_VertexID];                                   \n\
-    vs_color = colors[gl_VertexID];                                        \n\
-}                                                                          \n\
+const VS_SRC: &str = r"
+#version 420 core
+
+out vec4 vs_color;
+void main(void)
+{
+    const vec4 vertices[] = vec4[](vec4( 0.25, -0.25, 0.5, 1.0),
+    vec4(-0.25, -0.25, 0.5, 1.0),
+    vec4( 0.25,  0.25, 0.5, 1.0));
+    const vec4 colors[] = vec4[](vec4(1.0, 0.0, 0.0, 1.0),
+    vec4(0.0, 1.0, 0.0, 1.0),
+    vec4(0.0, 0.0, 1.0, 1.0));
+
+    gl_Position = vertices[gl_VertexID];
+    vs_color = colors[gl_VertexID];
+}
 ";
 
 #[cfg(screen_space_color)]
-const FS_SRC: &str = "\
-#version 420 core                                                          \n\
-                                                                           \n\
-in vec4 vs_color;                                                          \n\
-out vec4 color;                                                            \n\
-                                                                           \n\
-void main(void)                                                            \n\
-{                                                                          \n\
-    color = vs_color;                                                      \n\
-}                                                                          \n\
+const FS_SRC: &str = r"
+#version 420 core
+
+in vec4 vs_color;
+out vec4 color;
+
+void main(void)
+{
+    color = vs_color;
+}
 ";
 
 struct SampleApp {

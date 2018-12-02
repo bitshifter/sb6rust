@@ -63,8 +63,10 @@ impl fmt::Display for LoadError {
 
 #[macro_export]
 macro_rules! load_shader_or_panic {
-    ($path:expr, $shader_type:expr) => (sb6::shader::load($path, $shader_type).unwrap_or_else(
-            |e| { panic!("Error loading '{}': {}", $path, e) }))
+    ($path:expr, $shader_type:expr) => {
+        sb6::shader::load($path, $shader_type)
+            .unwrap_or_else(|e| panic!("Error loading '{}': {}", $path, e))
+    };
 }
 
 pub fn check_compile_status(shader: GLuint) -> Result<(), ShaderError> {
@@ -86,9 +88,8 @@ pub fn check_compile_status(shader: GLuint) -> Result<(), ShaderError> {
                 buf.as_mut_ptr() as *mut GLchar,
             );
             return Err(ShaderError::ShaderInfoLog(
-                String::from_utf8(buf).unwrap_or_else(|_| String::from(
-                    "ShaderInfoLog not valid utf8",
-                )),
+                String::from_utf8(buf)
+                    .unwrap_or_else(|_| String::from("ShaderInfoLog not valid utf8")),
             ));
         }
     }

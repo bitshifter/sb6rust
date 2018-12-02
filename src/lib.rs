@@ -35,6 +35,6 @@ mod app;
 pub mod ktx;
 pub mod object;
 pub mod program;
+mod reader;
 pub mod shader;
 pub mod vmath;
-mod reader;

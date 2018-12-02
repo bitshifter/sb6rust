@@ -28,30 +28,30 @@ extern crate sb6;
 
 use gl::types::*;
 
-const VS_SRC: &str = "\
-#version 330 core                                                              \n\
-                                                                               \n\
-void main(void)                                                                \n\
-{                                                                              \n\
-    const vec4 vertices[] = vec4[](vec4(-1.0, -1.0, 0.5, 1.0),                 \n\
-                                   vec4( 1.0, -1.0, 0.5, 1.0),                 \n\
-                                   vec4(-1.0,  1.0, 0.5, 1.0),                 \n\
-                                   vec4( 1.0,  1.0, 0.5, 1.0));                \n\
-                                                                               \n\
-    gl_Position = vertices[gl_VertexID];                                       \n\
-}                                                                              \n\
+const VS_SRC: &str = r"
+#version 330 core
+
+void main(void)
+{
+    const vec4 vertices[] = vec4[](vec4(-1.0, -1.0, 0.5, 1.0),
+    vec4( 1.0, -1.0, 0.5, 1.0),
+    vec4(-1.0,  1.0, 0.5, 1.0),
+    vec4( 1.0,  1.0, 0.5, 1.0));
+
+    gl_Position = vertices[gl_VertexID];
+}
 ";
 
-const FS_SRC: &str = "\
-#version 330 core                                                              \n\
-                                                                               \n\
-uniform sampler2D s;                                                           \n\
-out vec4 color;                                                                \n\
-                                                                               \n\
-void main(void)                                                                \n\
-{                                                                              \n\
-    color = texture(s, gl_FragCoord.xy / textureSize(s, 0));                   \n\
-}                                                                              \n\
+const FS_SRC: &str = r"
+#version 330 core
+
+uniform sampler2D s;
+out vec4 color;
+
+void main(void)
+{
+    color = texture(s, gl_FragCoord.xy / textureSize(s, 0));
+}
 ";
 
 struct SampleApp {

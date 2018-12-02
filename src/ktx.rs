@@ -30,7 +30,6 @@ use std::fmt;
 use std::fs;
 use std::io;
 use std::io::Read;
-use std::mem;
 use std::path::Path;
 use std::str;
 
@@ -76,23 +75,13 @@ impl fmt::Display for LoadError {
 
 #[macro_export]
 macro_rules! load_ktx_or_panic {
-    ($path:expr) => (sb6::ktx::load($path).unwrap_or_else(
-            |e| { panic!("Error loading '{}': {}", $path, e) }))
+    ($path:expr) => {
+        sb6::ktx::load($path).unwrap_or_else(|e| panic!("Error loading '{}': {}", $path, e))
+    };
 }
 
 const IDENTIFIER: [u8; 12] = [
-    0xAB,
-    0x4B,
-    0x54,
-    0x58,
-    0x20,
-    0x31,
-    0x31,
-    0xBB,
-    0x0D,
-    0x0A,
-    0x1A,
-    0x0A,
+    0xAB, 0x4B, 0x54, 0x58, 0x20, 0x31, 0x31, 0xBB, 0x0D, 0x0A, 0x1A, 0x0A,
 ];
 
 fn calculate_stride(h: &Header, width: i32, pad: usize) -> Result<isize, LoadError> {
@@ -103,9 +92,7 @@ fn calculate_stride(h: &Header, width: i32, pad: usize) -> Result<isize, LoadErr
         gl::BGRA | gl::RGBA => 4,
         _ => return Err(LoadError::HeaderError),
     };
-    Ok(
-        (((h.gl_type_size * channels * width as u32) as usize + (pad - 1)) & !(pad - 1)) as isize,
-    )
+    Ok((((h.gl_type_size * channels * width as u32) as usize + (pad - 1)) & !(pad - 1)) as isize)
 }
 
 fn calculate_face_size(h: &Header) -> Result<isize, LoadError> {
@@ -201,7 +188,7 @@ pub fn load(filename: &str) -> Result<GLuint, LoadError> {
                     h.pixel_width,
                     h.gl_format,
                     h.gl_internal_format,
-                    mem::transmute(data.as_ptr()),
+                    data.as_ptr() as *const std::ffi::c_void,
                 );
             }
             gl::TEXTURE_2D => {
@@ -212,7 +199,7 @@ pub fn load(filename: &str) -> Result<GLuint, LoadError> {
                     h.pixel_width,
                     h.pixel_height,
                 );
-                let mut ptr = mem::transmute(data.as_ptr());
+                let mut ptr = data.as_ptr() as *const std::ffi::c_void;
                 let mut height = h.pixel_height;
                 let mut width = h.pixel_width;
                 gl::PixelStorei(gl::UNPACK_ALIGNMENT, 1);
@@ -257,7 +244,7 @@ pub fn load(filename: &str) -> Result<GLuint, LoadError> {
                     h.array_elements,
                     h.gl_format,
                     h.gl_type,
-                    mem::transmute(data.as_ptr()),
+                    data.as_ptr() as *const std::ffi::c_void,
                 );
             }
             gl::TEXTURE_2D_ARRAY => {
@@ -280,7 +267,7 @@ pub fn load(filename: &str) -> Result<GLuint, LoadError> {
                     h.array_elements,
                     h.gl_format,
                     h.gl_type,
-                    mem::transmute(data.as_ptr()),
+                    data.as_ptr() as *const std::ffi::c_void,
                 );
             }
             gl::TEXTURE_CUBE_MAP => {
@@ -291,7 +278,7 @@ pub fn load(filename: &str) -> Result<GLuint, LoadError> {
                     h.pixel_width,
                     h.pixel_height,
                 );
-                let mut ptr = mem::transmute(data.as_ptr());
+                let mut ptr = data.as_ptr() as *const std::ffi::c_void;
                 let face_size = try!(calculate_face_size(h));
                 for i in 0..h.faces as u32 {
                     gl::TexSubImage2D(
@@ -328,7 +315,7 @@ pub fn load(filename: &str) -> Result<GLuint, LoadError> {
                     h.faces * h.array_elements,
                     h.gl_format,
                     h.gl_type,
-                    mem::transmute(data.as_ptr()),
+                    data.as_ptr() as *const std::ffi::c_void,
                 );
             }
             _ => return Err(LoadError::HeaderError),

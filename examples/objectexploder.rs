@@ -29,80 +29,80 @@ extern crate sb6;
 use gl::types::*;
 use sb6::vmath;
 
-const VS_SRC: &str = "\
-#version 330 core                                                  \n\
-                                                                   \n\
-layout (location = 0) in vec4 position;                            \n\
-layout (location = 1) in vec3 normal;                              \n\
-                                                                   \n\
-out VS_OUT                                                         \n\
-{                                                                  \n\
-    vec3 normal;                                                   \n\
-    vec4 color;                                                    \n\
-} vs_out;                                                          \n\
-                                                                   \n\
-uniform mat4 mv_matrix;                                            \n\
-uniform mat4 proj_matrix;                                          \n\
-                                                                   \n\
-void main(void)                                                    \n\
-{                                                                  \n\
-    gl_Position = proj_matrix * mv_matrix * position;              \n\
-    vs_out.color = position * 2.0 + vec4(0.5, 0.5, 0.5, 0.0);      \n\
-    vs_out.normal = normalize(mat3(mv_matrix) * normal);           \n\
-}                                                                  \n\
+const VS_SRC: &str = r"
+#version 330 core
+
+layout (location = 0) in vec4 position;
+layout (location = 1) in vec3 normal;
+
+out VS_OUT
+{
+    vec3 normal;
+    vec4 color;
+} vs_out;
+
+uniform mat4 mv_matrix;
+uniform mat4 proj_matrix;
+
+void main(void)
+{
+    gl_Position = proj_matrix * mv_matrix * position;
+    vs_out.color = position * 2.0 + vec4(0.5, 0.5, 0.5, 0.0);
+    vs_out.normal = normalize(mat3(mv_matrix) * normal);
+}
 ";
 
-const GS_SRC: &str = "\
-#version 330 core                                                      \n\
-                                                                       \n\
-layout (triangles) in;                                                 \n\
-layout (triangle_strip, max_vertices = 3) out;                         \n\
-                                                                       \n\
-in VS_OUT                                                              \n\
-{                                                                      \n\
-    vec3 normal;                                                       \n\
-    vec4 color;                                                        \n\
-} gs_in[];                                                             \n\
-                                                                       \n\
-out GS_OUT                                                             \n\
-{                                                                      \n\
-    vec3 normal;                                                       \n\
-    vec4 color;                                                        \n\
-} gs_out;                                                              \n\
-                                                                       \n\
-uniform float explode_factor = 0.2;                                    \n\
-                                                                       \n\
-void main(void)                                                        \n\
-{                                                                      \n\
-    vec3 ab = gl_in[1].gl_Position.xyz - gl_in[0].gl_Position.xyz;     \n\
-    vec3 ac = gl_in[2].gl_Position.xyz - gl_in[0].gl_Position.xyz;     \n\
-    vec3 face_normal = -normalize(cross(ab, ac));                      \n\
-    for (int i = 0; i < gl_in.length(); i++)                           \n\
-    {                                                                  \n\
-        gl_Position = gl_in[i].gl_Position + vec4(face_normal * explode_factor, 0.0);    \n\
-        gs_out.normal = gs_in[i].normal;                               \n\
-        gs_out.color = gs_in[i].color;                                 \n\
-        EmitVertex();                                                  \n\
-    }                                                                  \n\
-    EndPrimitive();                                                    \n\
-}                                                                      \n\
+const GS_SRC: &str = r"
+#version 330 core
+
+layout (triangles) in;
+layout (triangle_strip, max_vertices = 3) out;
+
+in VS_OUT
+{
+    vec3 normal;
+    vec4 color;
+} gs_in[];
+
+out GS_OUT
+{
+    vec3 normal;
+    vec4 color;
+} gs_out;
+
+uniform float explode_factor = 0.2;
+
+void main(void)
+{
+    vec3 ab = gl_in[1].gl_Position.xyz - gl_in[0].gl_Position.xyz;
+    vec3 ac = gl_in[2].gl_Position.xyz - gl_in[0].gl_Position.xyz;
+    vec3 face_normal = -normalize(cross(ab, ac));
+    for (int i = 0; i < gl_in.length(); i++)
+    {
+        gl_Position = gl_in[i].gl_Position + vec4(face_normal * explode_factor, 0.0);
+        gs_out.normal = gs_in[i].normal;
+        gs_out.color = gs_in[i].color;
+        EmitVertex();
+    }
+    EndPrimitive();
+}
 ";
 
-const FS_SRC: &str = "\
-#version 330 core                                                  \n\
-                                                                   \n\
-out vec4 color;                                                    \n\
-                                                                   \n\
-in GS_OUT                                                          \n\
-{                                                                  \n\
-    vec3 normal;                                                   \n\
-    vec4 color;                                                    \n\
-} fs_in;                                                           \n\
-                                                                   \n\
-void main(void)                                                    \n\
-{                                                                  \n\
-    color = vec4(1.0) * abs(normalize(fs_in.normal).z);            \n\
-}                                                                  \n\
+const FS_SRC: &str = r"
+#version 330 core
+
+out vec4 color;
+
+in GS_OUT
+{
+    vec3 normal;
+    vec4 color;
+} fs_in;
+
+void main(void)
+{
+    color = vec4(1.0) * abs(normalize(fs_in.normal).z);
+}
 ";
 
 struct SampleApp {
@@ -150,10 +150,10 @@ impl sb6::App for SampleApp {
             gl::DeleteShader(gs);
             gl::DeleteShader(fs);
 
-            self.mv_location = sb6::program::get_uniform_location(self.program, "mv_matrix")
-                .unwrap();
-            self.proj_location = sb6::program::get_uniform_location(self.program, "proj_matrix")
-                .unwrap();
+            self.mv_location =
+                sb6::program::get_uniform_location(self.program, "mv_matrix").unwrap();
+            self.proj_location =
+                sb6::program::get_uniform_location(self.program, "proj_matrix").unwrap();
             self.explode_factor_location =
                 sb6::program::get_uniform_location(self.program, "explode_factor").unwrap();
 
@@ -182,9 +182,9 @@ impl sb6::App for SampleApp {
 
         let aspect = self.info.window_width as f32 / self.info.window_height as f32;
         let proj_matrix = vmath::perspective(50.0, aspect, 0.1, 1000.0);
-        let mv_matrix = vmath::translate(0.0, 0.0, -3.0) *
-            vmath::rotate(time * 45.0, 0.0, 1.0, 0.0) *
-            vmath::rotate(time * 81.0, 1.0, 0.0, 0.0);
+        let mv_matrix = vmath::translate(0.0, 0.0, -3.0)
+            * vmath::rotate(time * 45.0, 0.0, 1.0, 0.0)
+            * vmath::rotate(time * 81.0, 1.0, 0.0, 0.0);
         let explode_factor = (time * 8.0).sin() * (time * 6.0).cos() * 0.7 + 0.1;
 
         unsafe {

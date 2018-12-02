@@ -28,8 +28,8 @@ extern crate glfw;
 use glfw::Context;
 
 // Re-export some glfw enums required for event handling
-pub use glfw::Key;
 pub use glfw::Action;
+pub use glfw::Key;
 
 #[derive(Clone)]
 pub struct AppInfo {

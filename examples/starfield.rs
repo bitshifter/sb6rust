@@ -35,46 +35,46 @@ use std::slice;
 
 const NUM_STARS: usize = 2000;
 
-const FS_SRC: &str = "\
-#version 410 core                                              \n
-                                                               \n
-layout (location = 0) out vec4 color;                          \n
-                                                               \n
-uniform sampler2D tex_star;                                    \n
-flat in vec4 starColor;                                        \n
-                                                               \n
-void main(void)                                                \n
-{                                                              \n
-    color = starColor * texture(tex_star, gl_PointCoord);      \n
-}                                                              \n
+const FS_SRC: &str = r"
+#version 410 core
+
+layout (location = 0) out vec4 color;
+
+uniform sampler2D tex_star;
+flat in vec4 starColor;
+
+void main(void)
+{
+    color = starColor * texture(tex_star, gl_PointCoord);
+}
 ";
 
-const VS_SRC: &str = "\
-#version 410 core                                              \n
-                                                               \n
-layout (location = 0) in vec4 position;                        \n
-layout (location = 1) in vec4 color;                           \n
-                                                               \n
-uniform float time;                                            \n
-uniform mat4 proj_matrix;                                      \n
-                                                               \n
-flat out vec4 starColor;                                       \n
-                                                               \n
-void main(void)                                                \n
-{                                                              \n
-    vec4 newVertex = position;                                 \n
-                                                               \n
-    newVertex.z += time;                                       \n
-    newVertex.z = fract(newVertex.z);                          \n
-                                                               \n
-    float size = (20.0 * newVertex.z * newVertex.z);           \n
-                                                               \n
-    starColor = smoothstep(1.0, 7.0, size) * color;            \n
-                                                               \n
-    newVertex.z = (999.9 * newVertex.z) - 1000.0;              \n
-    gl_Position = proj_matrix * newVertex;                     \n
-    gl_PointSize = size;                                       \n
-}                                                              \n
+const VS_SRC: &str = r"
+#version 410 core
+
+layout (location = 0) in vec4 position;
+layout (location = 1) in vec4 color;
+
+uniform float time;
+uniform mat4 proj_matrix;
+
+flat out vec4 starColor;
+
+void main(void)
+{
+    vec4 newVertex = position;
+
+    newVertex.z += time;
+    newVertex.z = fract(newVertex.z);
+
+    float size = (20.0 * newVertex.z * newVertex.z);
+
+    starColor = smoothstep(1.0, 7.0, size) * color;
+
+    newVertex.z = (999.9 * newVertex.z) - 1000.0;
+    gl_Position = proj_matrix * newVertex;
+    gl_PointSize = size;
+}
 ";
 
 struct Star {

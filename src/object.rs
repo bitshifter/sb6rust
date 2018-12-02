@@ -25,6 +25,7 @@
 extern crate gl;
 
 use gl::types::*;
+use reader::BufferReader;
 use std::fmt;
 use std::fs;
 use std::io;
@@ -33,7 +34,6 @@ use std::mem;
 use std::path::Path;
 use std::ptr;
 use std::str;
-use reader::BufferReader;
 
 macro_rules! fourcc(
     ($a:expr, $b:expr, $c:expr, $d:expr) => (
@@ -133,8 +133,10 @@ impl fmt::Display for LoadError {
 
 #[macro_export]
 macro_rules! load_object_or_panic {
-    ($obj:expr, $path:expr) => ($obj.load($path)
-        .unwrap_or_else(|e| { panic!("Error loading '{}': {}", $path, e) }))
+    ($obj:expr, $path:expr) => {
+        $obj.load($path)
+            .unwrap_or_else(|e| panic!("Error loading '{}': {}", $path, e))
+    };
 }
 
 pub struct Object {
@@ -189,9 +191,7 @@ impl Object {
 
         debug!(
             "size: {}, num_chunks: {}, flags: {}",
-            header.size,
-            header.num_chunks,
-            header.flags
+            header.size, header.num_chunks, header.flags
         );
         assert!(bytes_read == reader.bytes_read());
 
@@ -229,9 +229,7 @@ impl Object {
                     debug!("sub_object_count: {}", sub_object_count);
                     // read in sub object data
                     sub_object_data_ref = Some(unsafe {
-                        try!(reader.pop_slice::<SubObjectDecl>(
-                            *sub_object_count as usize,
-                        ))
+                        try!(reader.pop_slice::<SubObjectDecl>(*sub_object_count as usize,))
                     });
                 }
                 COMMENT_TYPE => {
@@ -288,7 +286,7 @@ impl Object {
             gl::BufferData(
                 gl::ARRAY_BUFFER,
                 vertex_data_chunk.data_size as GLsizeiptr,
-                mem::transmute(vertex_data.as_ptr()),
+                vertex_data.as_ptr() as *const std::ffi::c_void,
                 gl::STATIC_DRAW,
             );
             gl::GenVertexArrays(1, &mut self.vao);
@@ -334,7 +332,7 @@ impl Object {
                     gl::BufferData(
                         gl::ELEMENT_ARRAY_BUFFER,
                         index_data_size as GLsizeiptr,
-                        mem::transmute(index_data.as_ptr()),
+                        index_data.as_ptr() as *const std::ffi::c_void,
                         gl::STATIC_DRAW,
                     );
                 }
@@ -376,7 +374,6 @@ impl Object {
     }
 
     pub fn render_sub_object(&self, object_index: u32, instance_count: u32, base_instance: u32) {
-
         unsafe {
             gl::BindVertexArray(self.vao);
 

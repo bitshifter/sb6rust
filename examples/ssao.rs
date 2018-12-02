@@ -28,9 +28,9 @@ extern crate rand;
 extern crate sb6;
 
 use gl::types::*;
+use rand::Rng;
 use sb6::vmath;
 use std::mem;
-use rand::Rng;
 
 struct SamplePoints {
     point: [vmath::Vec4; 256],
@@ -129,11 +129,10 @@ impl SampleApp {
             }
         }
 
-        let render_shaders =
-            [
-                load_shader_or_panic!("media/shaders/ssao/render.vs.glsl", gl::VERTEX_SHADER),
-                load_shader_or_panic!("media/shaders/ssao/render.fs.glsl", gl::FRAGMENT_SHADER),
-            ];
+        let render_shaders = [
+            load_shader_or_panic!("media/shaders/ssao/render.vs.glsl", gl::VERTEX_SHADER),
+            load_shader_or_panic!("media/shaders/ssao/render.fs.glsl", gl::FRAGMENT_SHADER),
+        ];
 
         self.render_program = sb6::program::link_from_shaders(&render_shaders).unwrap();
 
@@ -144,18 +143,17 @@ impl SampleApp {
         self.render.shading_level =
             sb6::program::get_uniform_location(self.render_program, "shading_level").unwrap();
 
-        let ssao_shaders =
-            [
-                load_shader_or_panic!("media/shaders/ssao/ssao.vs.glsl", gl::VERTEX_SHADER),
-                load_shader_or_panic!("media/shaders/ssao/ssao.fs.glsl", gl::FRAGMENT_SHADER),
-            ];
+        let ssao_shaders = [
+            load_shader_or_panic!("media/shaders/ssao/ssao.vs.glsl", gl::VERTEX_SHADER),
+            load_shader_or_panic!("media/shaders/ssao/ssao.fs.glsl", gl::FRAGMENT_SHADER),
+        ];
 
         self.ssao_program = sb6::program::link_from_shaders(&ssao_shaders).unwrap();
 
         self.ssao.ssao_radius =
             sb6::program::get_uniform_location(self.ssao_program, "ssao_radius").unwrap();
-        self.ssao.ssao_level = sb6::program::get_uniform_location(self.ssao_program, "ssao_level")
-            .unwrap();
+        self.ssao.ssao_level =
+            sb6::program::get_uniform_location(self.ssao_program, "ssao_level").unwrap();
         self.ssao.object_level =
             sb6::program::get_uniform_location(self.ssao_program, "object_level").unwrap();
         self.ssao.randomize_points =
@@ -319,13 +317,21 @@ impl sb6::App for SampleApp {
         let proj_matrix = vmath::perspective(50.0, aspect, 0.1, 1000.0);
 
         let shading_level = if self.show_shading {
-            if self.show_ao { 0.7 } else { 1.0 }
+            if self.show_ao {
+                0.7
+            } else {
+                1.0
+            }
         } else {
             0.0
         };
 
         let ssao_level = if self.show_ao {
-            if self.show_shading { 0.3 } else { 1.0 }
+            if self.show_shading {
+                0.3
+            } else {
+                1.0
+            }
         } else {
             0.0
         };
@@ -351,8 +357,8 @@ impl sb6::App for SampleApp {
 
             gl::UniformMatrix4fv(self.render.proj_matrix, 1, gl::FALSE, proj_matrix.as_ptr());
 
-            let mv_matrix = vmath::translate(0.0, -5.0, 0.0) *
-                vmath::rotate(f * 5.0, 0.0, 1.0, 0.0);
+            let mv_matrix =
+                vmath::translate(0.0, -5.0, 0.0) * vmath::rotate(f * 5.0, 0.0, 1.0, 0.0);
             gl::UniformMatrix4fv(
                 self.render.mv_matrix,
                 1,
@@ -366,9 +372,9 @@ impl sb6::App for SampleApp {
         }
 
         unsafe {
-            let mv_matrix = vmath::translate(0.0, -4.5, 0.0) *
-                vmath::rotate(f * 5.0, 0.0, 1.0, 0.0) *
-                vmath::scale(4000.0, 0.1, 4000.0);
+            let mv_matrix = vmath::translate(0.0, -4.5, 0.0)
+                * vmath::rotate(f * 5.0, 0.0, 1.0, 0.0)
+                * vmath::scale(4000.0, 0.1, 4000.0);
             gl::UniformMatrix4fv(
                 self.render.mv_matrix,
                 1,

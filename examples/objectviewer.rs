@@ -29,44 +29,44 @@ extern crate sb6;
 use gl::types::*;
 use sb6::vmath;
 
-const VS_SRC: &str = "\
-#version 330 core                                                  \n\
-                                                                   \n\
-layout (location = 0) in vec4 position;                            \n\
-layout (location = 1) in vec3 normal;                              \n\
-                                                                   \n\
-out VS_OUT                                                         \n\
-{                                                                  \n\
-    vec3 normal;                                                   \n\
-    vec4 color;                                                    \n\
-} vs_out;                                                          \n\
-                                                                   \n\
-uniform mat4 mv_matrix;                                            \n\
-uniform mat4 proj_matrix;                                          \n\
-                                                                   \n\
-void main(void)                                                    \n\
-{                                                                  \n\
-    gl_Position = proj_matrix * mv_matrix * position;              \n\
-    vs_out.color = position * 2.0 + vec4(0.5, 0.5, 0.5, 0.0);      \n\
-    vs_out.normal = normalize(mat3(mv_matrix) * normal);           \n\
-}                                                                  \n\
+const VS_SRC: &str = r"
+#version 330 core
+
+layout (location = 0) in vec4 position;
+layout (location = 1) in vec3 normal;
+
+out VS_OUT
+{
+    vec3 normal;
+    vec4 color;
+} vs_out;
+
+uniform mat4 mv_matrix;
+uniform mat4 proj_matrix;
+
+void main(void)
+{
+gl_Position = proj_matrix * mv_matrix * position;
+vs_out.color = position * 2.0 + vec4(0.5, 0.5, 0.5, 0.0);
+vs_out.normal = normalize(mat3(mv_matrix) * normal);
+}
 ";
 
-const FS_SRC: &str = "\
-#version 330 core                                                  \n\
-                                                                   \n\
-out vec4 color;                                                    \n\
-                                                                   \n\
-in VS_OUT                                                          \n\
-{                                                                  \n\
-    vec3 normal;                                                   \n\
-    vec4 color;                                                    \n\
-} fs_in;                                                           \n\
-                                                                   \n\
-void main(void)                                                    \n\
-{                                                                  \n\
-    color = vec4(1.0) * abs(normalize(fs_in.normal).z);            \n\
-}                                                                  \n\
+const FS_SRC: &str = r"
+#version 330 core
+
+out vec4 color;
+
+in VS_OUT
+{
+    vec3 normal;
+    vec4 color;
+} fs_in;
+
+void main(void)
+{
+    color = vec4(1.0) * abs(normalize(fs_in.normal).z);
+}
 ";
 
 struct SampleApp {
@@ -109,10 +109,10 @@ impl sb6::App for SampleApp {
             gl::DeleteShader(vs);
             gl::DeleteShader(fs);
 
-            self.mv_location = sb6::program::get_uniform_location(self.program, "mv_matrix")
-                .unwrap();
-            self.proj_location = sb6::program::get_uniform_location(self.program, "proj_matrix")
-                .unwrap();
+            self.mv_location =
+                sb6::program::get_uniform_location(self.program, "mv_matrix").unwrap();
+            self.proj_location =
+                sb6::program::get_uniform_location(self.program, "proj_matrix").unwrap();
 
             load_object_or_panic!(&mut self.object, "media/objects/bunny_1k.sbm");
 
@@ -138,9 +138,9 @@ impl sb6::App for SampleApp {
 
         let aspect = self.info.window_width as f32 / self.info.window_height as f32;
         let proj_matrix = vmath::perspective(50.0, aspect, 0.1, 1000.0);
-        let mv_matrix = vmath::translate(0.0, 0.0, -3.0) *
-            vmath::rotate(time * 45.0, 0.0, 1.0, 0.0) *
-            vmath::rotate(time * 81.0, 1.0, 0.0, 0.0);
+        let mv_matrix = vmath::translate(0.0, 0.0, -3.0)
+            * vmath::rotate(time * 45.0, 0.0, 1.0, 0.0)
+            * vmath::rotate(time * 81.0, 1.0, 0.0, 0.0);
 
         unsafe {
             gl::Viewport(

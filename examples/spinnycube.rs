@@ -26,167 +26,56 @@ extern crate gl;
 extern crate sb6;
 
 use gl::types::*;
-use std::mem;
-use std::ptr;
 use sb6::vmath;
 use sb6::vmath::Mat4;
+use std::mem;
+use std::ptr;
 
 const VERTEX_POSITIONS: [GLfloat; 108] = [
-    -0.25,
-    0.25,
-    -0.25,
-    -0.25,
-    -0.25,
-    -0.25,
-    0.25,
-    -0.25,
-    -0.25,
-
-    0.25,
-    -0.25,
-    -0.25,
-    0.25,
-    0.25,
-    -0.25,
-    -0.25,
-    0.25,
-    -0.25,
-
-    0.25,
-    -0.25,
-    -0.25,
-    0.25,
-    -0.25,
-    0.25,
-    0.25,
-    0.25,
-    -0.25,
-
-    0.25,
-    -0.25,
-    0.25,
-    0.25,
-    0.25,
-    0.25,
-    0.25,
-    0.25,
-    -0.25,
-
-    0.25,
-    -0.25,
-    0.25,
-    -0.25,
-    -0.25,
-    0.25,
-    0.25,
-    0.25,
-    0.25,
-
-    -0.25,
-    -0.25,
-    0.25,
-    -0.25,
-    0.25,
-    0.25,
-    0.25,
-    0.25,
-    0.25,
-
-    -0.25,
-    -0.25,
-    0.25,
-    -0.25,
-    -0.25,
-    -0.25,
-    -0.25,
-    0.25,
-    0.25,
-
-    -0.25,
-    -0.25,
-    -0.25,
-    -0.25,
-    0.25,
-    -0.25,
-    -0.25,
-    0.25,
-    0.25,
-
-    -0.25,
-    -0.25,
-    0.25,
-    0.25,
-    -0.25,
-    0.25,
-    0.25,
-    -0.25,
-    -0.25,
-
-    0.25,
-    -0.25,
-    -0.25,
-    -0.25,
-    -0.25,
-    -0.25,
-    -0.25,
-    -0.25,
-    0.25,
-
-    -0.25,
-    0.25,
-    -0.25,
-    0.25,
-    0.25,
-    -0.25,
-    0.25,
-    0.25,
-    0.25,
-
-    0.25,
-    0.25,
-    0.25,
-    -0.25,
-    0.25,
-    0.25,
-    -0.25,
-    0.25,
-    -0.25,
+    -0.25, 0.25, -0.25, -0.25, -0.25, -0.25, 0.25, -0.25, -0.25, 0.25, -0.25, -0.25, 0.25, 0.25,
+    -0.25, -0.25, 0.25, -0.25, 0.25, -0.25, -0.25, 0.25, -0.25, 0.25, 0.25, 0.25, -0.25, 0.25,
+    -0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, -0.25, 0.25, -0.25, 0.25, -0.25, -0.25, 0.25, 0.25,
+    0.25, 0.25, -0.25, -0.25, 0.25, -0.25, 0.25, 0.25, 0.25, 0.25, 0.25, -0.25, -0.25, 0.25, -0.25,
+    -0.25, -0.25, -0.25, 0.25, 0.25, -0.25, -0.25, -0.25, -0.25, 0.25, -0.25, -0.25, 0.25, 0.25,
+    -0.25, -0.25, 0.25, 0.25, -0.25, 0.25, 0.25, -0.25, -0.25, 0.25, -0.25, -0.25, -0.25, -0.25,
+    -0.25, -0.25, -0.25, 0.25, -0.25, 0.25, -0.25, 0.25, 0.25, -0.25, 0.25, 0.25, 0.25, 0.25, 0.25,
+    0.25, -0.25, 0.25, 0.25, -0.25, 0.25, -0.25,
 ];
 
-const VS_SRC: &str = "\
-#version 330 core                                                  \n
-                                                                   \n
-in vec4 position;                                                  \n
-                                                                   \n
-out VS_OUT                                                         \n
-{                                                                  \n
-    vec4 color;                                                    \n
-} vs_out;                                                          \n
-                                                                   \n
-uniform mat4 mv_matrix;                                            \n
-uniform mat4 proj_matrix;                                          \n
-                                                                   \n
-void main(void)                                                    \n
-{                                                                  \n
-    gl_Position = proj_matrix * mv_matrix * position;              \n
-    vs_out.color = position * 2.0 + vec4(0.5, 0.5, 0.5, 0.0);      \n
-}                                                                  \n
+const VS_SRC: &str = r"
+#version 330 core
+
+in vec4 position;
+
+out VS_OUT
+{
+    vec4 color;
+} vs_out;
+
+uniform mat4 mv_matrix;
+uniform mat4 proj_matrix;
+
+void main(void)
+{
+    gl_Position = proj_matrix * mv_matrix * position;
+    vs_out.color = position * 2.0 + vec4(0.5, 0.5, 0.5, 0.0);
+}
 ";
 
-const FS_SRC: &str = "\
-#version 330 core                                                  \n\
-                                                                   \n\
-out vec4 color;                                                    \n\
-                                                                   \n\
-in VS_OUT                                                          \n\
-{                                                                  \n\
-    vec4 color;                                                    \n\
-} fs_in;                                                           \n\
-                                                                   \n\
-void main(void)                                                    \n\
-{                                                                  \n\
-    color = fs_in.color;                                           \n\
-}                                                                  \n\
+const FS_SRC: &str = r"
+#version 330 core
+
+out vec4 color;
+
+in VS_OUT
+{
+    vec4 color;
+} fs_in;
+
+void main(void)
+{
+    color = fs_in.color;
+}
 ";
 
 struct SampleApp {
@@ -237,10 +126,10 @@ impl sb6::App for SampleApp {
             gl::DeleteShader(vs);
             gl::DeleteShader(fs);
 
-            self.mv_location = sb6::program::get_uniform_location(self.program, "mv_matrix")
-                .unwrap();
-            self.proj_location = sb6::program::get_uniform_location(self.program, "proj_matrix")
-                .unwrap();
+            self.mv_location =
+                sb6::program::get_uniform_location(self.program, "mv_matrix").unwrap();
+            self.proj_location =
+                sb6::program::get_uniform_location(self.program, "proj_matrix").unwrap();
 
             gl::GenVertexArrays(1, &mut self.vao);
             gl::BindVertexArray(self.vao);
@@ -304,13 +193,14 @@ impl sb6::App for SampleApp {
             gl::UniformMatrix4fv(self.proj_location, 1, gl::FALSE, self.proj_matrix.as_ptr());
 
             let f = time as f32 * 0.3;
-            let mv_matrix = vmath::translate(0.0, 0.0, -4.0) *
-                vmath::translate(
+            let mv_matrix = vmath::translate(0.0, 0.0, -4.0)
+                * vmath::translate(
                     (2.1 * f).sin() * 0.5,
                     (1.7 * f).cos() * 0.5,
                     (1.3 * f).sin() * (1.5 * f).cos() * 2.0,
-                ) * vmath::rotate(time as f32 * 45.0, 0.0, 1.0, 0.0) *
-                vmath::rotate(time as f32 * 81.0, 1.0, 0.0, 0.0);
+                )
+                * vmath::rotate(time as f32 * 45.0, 0.0, 1.0, 0.0)
+                * vmath::rotate(time as f32 * 81.0, 1.0, 0.0, 0.0);
             gl::UniformMatrix4fv(self.mv_location, 1, gl::FALSE, mv_matrix.as_ptr());
 
             gl::DrawArrays(gl::TRIANGLES, 0, 36);

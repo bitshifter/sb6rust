@@ -27,28 +27,28 @@ extern crate sb6;
 
 use gl::types::*;
 
-const VS_SRC: &str = "\
-#version 420 core                                                 \n\
-                                                                  \n\
-void main(void)                                                   \n\
-{                                                                 \n\
-    const vec4 vertices[] = vec4[](vec4( 0.25, -0.25, 0.5, 1.0),  \n\
-                                   vec4(-0.25, -0.25, 0.5, 1.0),  \n\
-                                   vec4( 0.25,  0.25, 0.5, 1.0)); \n\
-                                                                  \n\
-    gl_Position = vertices[gl_VertexID];                          \n\
-}                                                                 \n\
+const VS_SRC: &str = r"
+#version 420 core
+
+void main(void)
+{
+    const vec4 vertices[] = vec4[](vec4( 0.25, -0.25, 0.5, 1.0),
+    vec4(-0.25, -0.25, 0.5, 1.0),
+    vec4( 0.25,  0.25, 0.5, 1.0));
+
+    gl_Position = vertices[gl_VertexID];
+}
 ";
 
-const FS_SRC: &str = "\
-#version 420 core                                                 \n\
-                                                                  \n\
-out vec4 color;                                                   \n\
-                                                                  \n\
-void main(void)                                                   \n\
-{                                                                 \n\
-    color = vec4(0.0, 0.8, 1.0, 1.0);                             \n\
-}                                                                 \n\
+const FS_SRC: &str = r"
+#version 420 core
+
+out vec4 color;
+
+void main(void)
+{
+    color = vec4(0.0, 0.8, 1.0, 1.0);
+}
 ";
 
 struct SampleApp {
