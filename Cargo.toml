@@ -9,3 +9,5 @@ gl = "0.11"
 glfw = "0.25"
 log = "0.4"
 rand = "0.4"
+
+glam = { git = "https://github.com/bitshifter/glam-rs" }

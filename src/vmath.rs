@@ -28,11 +28,14 @@ use std::ops::Add;
 use std::ops::Mul;
 use std::ops::Sub;
 
+use glam::Vec3;
+
 #[inline]
 fn deg_to_rad(a: f32) -> f32 {
     f32::consts::PI * 2.0 * a / 360.0
 }
 
+/*
 #[derive(Clone, Copy, Debug)]
 pub struct Vec3 {
     pub x: f32,
@@ -122,6 +125,7 @@ impl Sub for Vec3 {
         }
     }
 }
+*/
 
 #[derive(Clone, Copy, Debug)]
 pub struct Vec4 {
@@ -258,13 +262,13 @@ pub fn translate(x: f32, y: f32, z: f32) -> Mat4 {
 pub fn look_at(eye: Vec3, center: Vec3, up: Vec3) -> Mat4 {
     let f = (center - eye).normalize();
     let up_n = up.normalize();
-    let s = f.cross(&up_n);
-    let u = s.cross(&f);
+    let s = f.cross(up_n);
+    let u = s.cross(f);
     Mat4 {
-        col0: vec4(s.x, u.x, -f.x, 0.0),
-        col1: vec4(s.y, u.y, -f.y, 0.0),
-        col2: vec4(s.z, u.z, -f.z, 0.0),
-        col3: vec4(-s.dot(&eye), -u.dot(&eye), f.dot(&eye), 1.0),
+        col0: vec4(s.get_x(), u.get_x(), -f.get_x(), 0.0),
+        col1: vec4(s.get_y(), u.get_y(), -f.get_y(), 0.0),
+        col2: vec4(s.get_z(), u.get_z(), -f.get_z(), 0.0),
+        col3: vec4(-s.dot(eye), -u.dot(eye), f.dot(eye), 1.0),
     }
 }
 

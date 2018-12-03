@@ -23,6 +23,7 @@
  */
 
 extern crate gl;
+extern crate glam;
 extern crate rand;
 extern crate sb6;
 
@@ -78,8 +79,8 @@ void main(void)
 ";
 
 struct Star {
-    position: vmath::Vec3,
-    color: vmath::Vec3,
+    position: (f32, f32, f32),
+    color: (f32, f32, f32),
 }
 
 struct Uniforms {
@@ -167,12 +168,12 @@ impl sb6::App for SampleApp {
         let mut rng = rand::weak_rng();
 
         for star in &mut stars[..] {
-            star.position.x = (rng.gen::<f32>() * 2.0 - 1.0) * 100.0;
-            star.position.y = (rng.gen::<f32>() * 2.0 - 1.0) * 100.0;
-            star.position.z = rng.gen::<f32>();
-            star.color.x = 0.8 + rng.gen::<f32>() * 0.2;
-            star.color.y = 0.8 + rng.gen::<f32>() * 0.2;
-            star.color.z = 0.8 + rng.gen::<f32>() * 0.2;
+            star.position.0 = (rng.gen::<f32>() * 2.0 - 1.0) * 100.0;
+            star.position.1 = (rng.gen::<f32>() * 2.0 - 1.0) * 100.0;
+            star.position.2 = rng.gen::<f32>();
+            star.color.0 = 0.8 + rng.gen::<f32>() * 0.2;
+            star.color.1 = 0.8 + rng.gen::<f32>() * 0.2;
+            star.color.2 = 0.8 + rng.gen::<f32>() * 0.2;
         }
 
         unsafe {
@@ -192,7 +193,7 @@ impl sb6::App for SampleApp {
                 gl::FLOAT,
                 gl::FALSE,
                 mem::size_of::<Star>() as GLint,
-                mem::size_of::<vmath::Vec3>() as *const _,
+                mem::size_of::<(f32, f32, f32)>() as *const _,
             );
             gl::EnableVertexAttribArray(0);
             gl::EnableVertexAttribArray(1);
