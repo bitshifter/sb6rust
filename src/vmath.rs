@@ -22,6 +22,7 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
+pub use glam::{vec3, Vec3};
 use std::f32;
 use std::fmt;
 use std::ops::Add;
@@ -31,96 +32,6 @@ use std::ops::Sub;
 #[inline]
 fn deg_to_rad(a: f32) -> f32 {
     f32::consts::PI * 2.0 * a / 360.0
-}
-
-#[derive(Clone, Copy, Debug)]
-pub struct Vec3 {
-    pub x: f32,
-    pub y: f32,
-    pub z: f32,
-}
-
-#[allow(dead_code)]
-pub fn vec3(x: f32, y: f32, z: f32) -> Vec3 {
-    Vec3 { x, y, z }
-}
-
-#[allow(dead_code)]
-impl Vec3 {
-    pub fn zero() -> Vec3 {
-        Vec3 {
-            x: 0.0,
-            y: 0.0,
-            z: 0.0,
-        }
-    }
-    pub fn dot(&self, rhs: &Vec3) -> f32 {
-        (self.x * rhs.x) + (self.y * rhs.y) + (self.z * rhs.z)
-    }
-    pub fn cross(&self, rhs: &Vec3) -> Vec3 {
-        Vec3 {
-            x: self.y * rhs.z - rhs.y * self.z,
-            y: self.z * rhs.x - rhs.z * self.x,
-            z: self.x * rhs.y - rhs.x * self.y,
-        }
-    }
-    pub fn length(&self) -> f32 {
-        self.dot(self).sqrt()
-    }
-    pub fn normalize(&self) -> Vec3 {
-        let inv_length = 1.0 / self.dot(self).sqrt();
-        *self * inv_length
-    }
-}
-
-impl fmt::Display for Vec3 {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "[{}, {}, {}]", self.x, self.y, self.z)
-    }
-}
-
-impl Mul<Vec3> for Vec3 {
-    type Output = Vec3;
-    fn mul(self, rhs: Vec3) -> Vec3 {
-        Vec3 {
-            x: self.x * rhs.x,
-            y: self.y * rhs.y,
-            z: self.z * rhs.z,
-        }
-    }
-}
-
-impl Mul<f32> for Vec3 {
-    type Output = Vec3;
-    fn mul(self, rhs: f32) -> Vec3 {
-        Vec3 {
-            x: self.x * rhs,
-            y: self.y * rhs,
-            z: self.z * rhs,
-        }
-    }
-}
-
-impl Add for Vec3 {
-    type Output = Vec3;
-    fn add(self, rhs: Vec3) -> Vec3 {
-        Vec3 {
-            x: self.x + rhs.x,
-            y: self.y + rhs.y,
-            z: self.z + rhs.z,
-        }
-    }
-}
-
-impl Sub for Vec3 {
-    type Output = Vec3;
-    fn sub(self, rhs: Vec3) -> Vec3 {
-        Vec3 {
-            x: self.x - rhs.x,
-            y: self.y - rhs.y,
-            z: self.z - rhs.z,
-        }
-    }
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -258,13 +169,13 @@ pub fn translate(x: f32, y: f32, z: f32) -> Mat4 {
 pub fn look_at(eye: Vec3, center: Vec3, up: Vec3) -> Mat4 {
     let f = (center - eye).normalize();
     let up_n = up.normalize();
-    let s = f.cross(&up_n);
-    let u = s.cross(&f);
+    let s = f.cross(up_n);
+    let u = s.cross(f);
     Mat4 {
-        col0: vec4(s.x, u.x, -f.x, 0.0),
-        col1: vec4(s.y, u.y, -f.y, 0.0),
-        col2: vec4(s.z, u.z, -f.z, 0.0),
-        col3: vec4(-s.dot(&eye), -u.dot(&eye), f.dot(&eye), 1.0),
+        col0: vec4(s.get_x(), u.get_x(), -f.get_x(), 0.0),
+        col1: vec4(s.get_x(), u.get_x(), -f.get_x(), 0.0),
+        col2: vec4(s.get_z(), u.get_z(), -f.get_z(), 0.0),
+        col3: vec4(-s.dot(eye), -u.dot(eye), f.dot(eye), 1.0),
     }
 }
 

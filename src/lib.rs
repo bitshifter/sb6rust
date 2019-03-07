@@ -28,6 +28,8 @@ extern crate log;
 extern crate gl;
 extern crate glfw;
 
+extern crate glam;
+
 pub use app::*;
 
 mod app;

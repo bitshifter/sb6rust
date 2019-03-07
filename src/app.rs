@@ -111,7 +111,8 @@ pub fn run<T: App>(app: &mut T) {
             info.window_height,
             info.title,
             glfw::WindowMode::Windowed,
-        ).expect("Failed to create GLFW window.")
+        )
+        .expect("Failed to create GLFW window.")
     };
 
     window.set_key_polling(true);
