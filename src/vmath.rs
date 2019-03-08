@@ -22,104 +22,15 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-pub use glam::{vec3, Vec3};
+pub use glam::{vec3, vec4, Vec3, Vec4};
 use std::f32;
 use std::fmt;
-use std::ops::Add;
+use std::mem;
 use std::ops::Mul;
-use std::ops::Sub;
 
 #[inline]
 fn deg_to_rad(a: f32) -> f32 {
     f32::consts::PI * 2.0 * a / 360.0
-}
-
-#[derive(Clone, Copy, Debug)]
-pub struct Vec4 {
-    pub x: f32,
-    pub y: f32,
-    pub z: f32,
-    pub w: f32,
-}
-
-pub fn vec4(x: f32, y: f32, z: f32, w: f32) -> Vec4 {
-    Vec4 { x, y, z, w }
-}
-
-#[allow(dead_code)]
-impl Vec4 {
-    pub fn zero() -> Vec4 {
-        Vec4 {
-            x: 0.0,
-            y: 0.0,
-            z: 0.0,
-            w: 0.0,
-        }
-    }
-    pub fn dot(&self, rhs: &Vec4) -> f32 {
-        (self.x * rhs.x) + (self.y * rhs.y) + (self.z * rhs.z) + (self.w * rhs.w)
-    }
-    pub fn length(&self) -> f32 {
-        self.dot(self).sqrt()
-    }
-    pub fn normalize(&self) -> Vec4 {
-        let inv_length = 1.0 / self.dot(self).sqrt();
-        *self * inv_length
-    }
-}
-
-impl Mul<Vec4> for Vec4 {
-    type Output = Vec4;
-    fn mul(self, rhs: Vec4) -> Vec4 {
-        Vec4 {
-            x: self.x * rhs.x,
-            y: self.y * rhs.y,
-            z: self.z * rhs.z,
-            w: self.w * rhs.w,
-        }
-    }
-}
-
-impl Mul<f32> for Vec4 {
-    type Output = Vec4;
-    fn mul(self, rhs: f32) -> Vec4 {
-        Vec4 {
-            x: self.x * rhs,
-            y: self.y * rhs,
-            z: self.z * rhs,
-            w: self.w * rhs,
-        }
-    }
-}
-
-impl Add for Vec4 {
-    type Output = Vec4;
-    fn add(self, rhs: Vec4) -> Vec4 {
-        Vec4 {
-            x: self.x + rhs.x,
-            y: self.y + rhs.y,
-            z: self.z + rhs.z,
-            w: self.w + rhs.w,
-        }
-    }
-}
-
-impl Sub for Vec4 {
-    type Output = Vec4;
-    fn sub(self, rhs: Vec4) -> Vec4 {
-        Vec4 {
-            x: self.x - rhs.x,
-            y: self.y - rhs.y,
-            z: self.z - rhs.z,
-            w: self.w - rhs.w,
-        }
-    }
-}
-
-impl fmt::Display for Vec4 {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "[{}, {}, {}, {}]", self.x, self.y, self.z, self.w)
-    }
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -232,15 +143,32 @@ pub fn identity() -> Mat4 {
 
 #[allow(dead_code)]
 impl Mat4 {
-    pub fn as_ptr(&self) -> *const f32 {
-        &self.col0.x as *const f32
-    }
     pub fn zero() -> Mat4 {
         Mat4 {
             col0: Vec4::zero(),
             col1: Vec4::zero(),
             col2: Vec4::zero(),
             col3: Vec4::zero(),
+        }
+    }
+
+    pub fn store_to_slice(&self, slice: &mut [f32]) {
+        self.col0.store_to_slice(&mut slice[0..4]);
+        self.col1.store_to_slice(&mut slice[4..8]);
+        self.col2.store_to_slice(&mut slice[8..12]);
+        self.col3.store_to_slice(&mut slice[12..16]);
+    }
+}
+
+impl From<Mat4> for [f32; 16] {
+    fn from(m: Mat4) -> Self {
+        unsafe {
+            let mut out: [f32; 16] = mem::uninitialized();
+            m.col0.store_to_slice(&mut out[0..4]); 
+            m.col1.store_to_slice(&mut out[4..8]); 
+            m.col2.store_to_slice(&mut out[8..12]); 
+            m.col3.store_to_slice(&mut out[12..16]); 
+            out
         }
     }
 }
@@ -259,10 +187,10 @@ impl Mul for Mat4 {
         let b3 = rhs.col3;
 
         Mat4 {
-            col0: (a0 * b0.x) + (a1 * b0.y) + (a2 * b0.z) + (a3 * b0.w),
-            col1: (a0 * b1.x) + (a1 * b1.y) + (a2 * b1.z) + (a3 * b1.w),
-            col2: (a0 * b2.x) + (a1 * b2.y) + (a2 * b2.z) + (a3 * b2.w),
-            col3: (a0 * b3.x) + (a1 * b3.y) + (a2 * b3.z) + (a3 * b3.w),
+            col0: (a0 * b0.get_x()) + (a1 * b0.get_y()) + (a2 * b0.get_z()) + (a3 * b0.get_w()),
+            col1: (a0 * b1.get_x()) + (a1 * b1.get_y()) + (a2 * b1.get_z()) + (a3 * b1.get_w()),
+            col2: (a0 * b2.get_x()) + (a1 * b2.get_y()) + (a2 * b2.get_z()) + (a3 * b2.get_w()),
+            col3: (a0 * b3.get_x()) + (a1 * b3.get_y()) + (a2 * b3.get_z()) + (a3 * b3.get_w()),
         }
     }
 }
