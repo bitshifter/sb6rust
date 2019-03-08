@@ -84,7 +84,7 @@ pub fn look_at(eye: Vec3, center: Vec3, up: Vec3) -> Mat4 {
     let u = s.cross(f);
     Mat4 {
         col0: vec4(s.get_x(), u.get_x(), -f.get_x(), 0.0),
-        col1: vec4(s.get_x(), u.get_x(), -f.get_x(), 0.0),
+        col1: vec4(s.get_y(), u.get_y(), -f.get_y(), 0.0),
         col2: vec4(s.get_z(), u.get_z(), -f.get_z(), 0.0),
         col3: vec4(-s.dot(eye), -u.dot(eye), f.dot(eye), 1.0),
     }
