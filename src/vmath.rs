@@ -152,6 +152,11 @@ impl Mat4 {
         }
     }
 
+    #[inline]
+    pub unsafe fn as_ptr(&self) -> *const f32 {
+        std::mem::transmute(&self.col0)
+    }
+
     pub fn store_to_slice(&self, slice: &mut [f32]) {
         self.col0.store_to_slice(&mut slice[0..4]);
         self.col1.store_to_slice(&mut slice[4..8]);
@@ -164,10 +169,10 @@ impl From<Mat4> for [f32; 16] {
     fn from(m: Mat4) -> Self {
         unsafe {
             let mut out: [f32; 16] = mem::uninitialized();
-            m.col0.store_to_slice(&mut out[0..4]); 
-            m.col1.store_to_slice(&mut out[4..8]); 
-            m.col2.store_to_slice(&mut out[8..12]); 
-            m.col3.store_to_slice(&mut out[12..16]); 
+            m.col0.store_to_slice(&mut out[0..4]);
+            m.col1.store_to_slice(&mut out[4..8]);
+            m.col2.store_to_slice(&mut out[8..12]);
+            m.col3.store_to_slice(&mut out[12..16]);
             out
         }
     }

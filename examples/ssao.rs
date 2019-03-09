@@ -240,7 +240,7 @@ impl sb6::App for SampleApp {
             gl::Enable(gl::CULL_FACE);
         }
 
-        let mut rng = rand::weak_rng();
+        let mut rng = rand::thread_rng();
         let mut point_data = SamplePoints {
             point: [vmath::Vec4::zero(); 256],
             random_vectors: [vmath::Vec4::zero(); 256],
@@ -261,12 +261,7 @@ impl sb6::App for SampleApp {
             point_data.point[i].normalize();
         }
         for i in 0..256 {
-            point_data.random_vectors[i] = vmath::vec4(
-                rng.gen::<f32>(),
-                rng.gen::<f32>(),
-                rng.gen::<f32>(),
-                rng.gen::<f32>(),
-            );
+            point_data.random_vectors[i] = rng.gen::<vmath::Vec4>();
         }
 
         unsafe {
@@ -309,12 +304,12 @@ impl sb6::App for SampleApp {
         let f = self.total_time as f32;
 
         let lookat_matrix = vmath::look_at(
-            glam::vec3(0.0, 3.0, 15.0),
-            glam::vec3(0.0, 0.0, 0.0),
-            glam::vec3(0.0, 1.0, 0.0),
+            vmath::vec3(0.0, 3.0, 15.0),
+            vmath::vec3(0.0, 0.0, 0.0),
+            vmath::vec3(0.0, 1.0, 0.0),
         );
         let aspect = self.info.window_width as f32 / self.info.window_height as f32;
-        let proj_matrix: [f32; 16] = vmath::perspective(50.0, aspect, 0.1, 1000.0).into();
+        let proj_matrix = vmath::perspective(50.0, aspect, 0.1, 1000.0);
 
         let shading_level = if self.show_shading {
             if self.show_ao {
@@ -359,12 +354,11 @@ impl sb6::App for SampleApp {
 
             let mv_matrix =
                 vmath::translate(0.0, -5.0, 0.0) * vmath::rotate(f * 5.0, 0.0, 1.0, 0.0);
-            let mv_matrix: [f32; 16] = (lookat_matrix * mv_matrix).into();
             gl::UniformMatrix4fv(
                 self.render.mv_matrix,
                 1,
                 gl::FALSE,
-                mv_matrix.as_ptr(),
+                (lookat_matrix * mv_matrix).as_ptr(),
             );
 
             gl::Uniform1f(self.render.shading_level, shading_level);
@@ -376,12 +370,11 @@ impl sb6::App for SampleApp {
             let mv_matrix = vmath::translate(0.0, -4.5, 0.0)
                 * vmath::rotate(f * 5.0, 0.0, 1.0, 0.0)
                 * vmath::scale(4000.0, 0.1, 4000.0);
-            let mv_matrix: [f32; 16] = (lookat_matrix * mv_matrix).into();
             gl::UniformMatrix4fv(
                 self.render.mv_matrix,
                 1,
                 gl::FALSE,
-                mv_matrix.as_ptr(),
+                (lookat_matrix * mv_matrix).as_ptr(),
             );
 
             self.cube.render();

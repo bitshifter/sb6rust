@@ -181,10 +181,10 @@ impl sb6::App for SampleApp {
         let time = time as f32;
 
         let aspect = self.info.window_width as f32 / self.info.window_height as f32;
-        let proj_matrix: [f32; 16] = vmath::perspective(50.0, aspect, 0.1, 1000.0).into();
-        let mv_matrix: [f32; 16] = (vmath::translate(0.0, 0.0, -3.0)
+        let proj_matrix = vmath::perspective(50.0, aspect, 0.1, 1000.0);
+        let mv_matrix = vmath::translate(0.0, 0.0, -3.0)
             * vmath::rotate(time * 45.0, 0.0, 1.0, 0.0)
-            * vmath::rotate(time * 81.0, 1.0, 0.0, 0.0)).into();
+            * vmath::rotate(time * 81.0, 1.0, 0.0, 0.0);
         let explode_factor = (time * 8.0).sin() * (time * 6.0).cos() * 0.7 + 0.1;
 
         unsafe {

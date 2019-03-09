@@ -164,7 +164,7 @@ impl sb6::App for SampleApp {
             )
         };
 
-        let mut rng = rand::weak_rng();
+        let mut rng = rand::thread_rng();
 
         for star in &mut stars[..] {
             star.position = (
@@ -207,12 +207,12 @@ impl sb6::App for SampleApp {
         const BLACK: [GLfloat; 4] = [0.0, 0.0, 0.0, 0.0];
         const ONE: [GLfloat; 1] = [1.0];
 
-        let proj_matrix: [f32; 16] = vmath::perspective(
+        let proj_matrix = vmath::perspective(
             50.0,
             self.info.window_width as f32 / self.info.window_height as f32,
             0.1,
             1000.0,
-        ).into();
+        );
 
         let mut t = time as f32;
         t *= 0.1;
