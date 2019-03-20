@@ -10,4 +10,4 @@ glfw = "0.25"
 log = "0.4"
 rand = "0.6"
 
-glam = { git = "https://github.com/bitshifter/glam-rs" }
+glam = { git = "https://github.com/bitshifter/glam-rs", branch="mat4" }

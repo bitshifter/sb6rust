@@ -192,14 +192,14 @@ impl sb6::App for SampleApp {
             gl::UniformMatrix4fv(self.proj_location, 1, gl::FALSE, self.proj_matrix.as_ptr());
 
             let f = time as f32 * 0.3;
-            let mv_matrix = vmath::translate(0.0, 0.0, -4.0)
+            let mv_matrix = vmath::rotate(time as f32 * 81.0, 1.0, 0.0, 0.0)
+                * vmath::rotate(time as f32 * 45.0, 0.0, 1.0, 0.0)
                 * vmath::translate(
                     (2.1 * f).sin() * 0.5,
                     (1.7 * f).cos() * 0.5,
                     (1.3 * f).sin() * (1.5 * f).cos() * 2.0,
                 )
-                * vmath::rotate(time as f32 * 45.0, 0.0, 1.0, 0.0)
-                * vmath::rotate(time as f32 * 81.0, 1.0, 0.0, 0.0);
+                * vmath::translate(0.0, 0.0, -4.0);
             gl::UniformMatrix4fv(self.mv_location, 1, gl::FALSE, mv_matrix.as_ptr());
 
             gl::DrawArrays(gl::TRIANGLES, 0, 36);
