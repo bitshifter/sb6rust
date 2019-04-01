@@ -358,12 +358,12 @@ impl sb6::App for SampleApp {
             );
 
             let mv_matrix =
-                vmath::translate(0.0, -5.0, 0.0) * vmath::rotate(f * 5.0, 0.0, 1.0, 0.0);
+                vmath::rotate(f * 5.0, 0.0, 1.0, 0.0) * vmath::translate(0.0, -5.0, 0.0);
             gl::UniformMatrix4fv(
                 self.render.mv_matrix,
                 1,
                 gl::FALSE,
-                (lookat_matrix * mv_matrix).as_ref() as *const f32,
+                (mv_matrix * lookat_matrix).as_ref() as *const f32,
             );
 
             gl::Uniform1f(self.render.shading_level, shading_level);
@@ -372,14 +372,15 @@ impl sb6::App for SampleApp {
         }
 
         unsafe {
-            let mv_matrix = vmath::translate(0.0, -4.5, 0.0)
+            let mv_matrix = 
+                vmath::scale(4000.0, 0.1, 4000.0)
                 * vmath::rotate(f * 5.0, 0.0, 1.0, 0.0)
-                * vmath::scale(4000.0, 0.1, 4000.0);
+                * vmath::translate(0.0, -4.5, 0.0);
             gl::UniformMatrix4fv(
                 self.render.mv_matrix,
                 1,
                 gl::FALSE,
-                (lookat_matrix * mv_matrix).as_ref() as *const f32,
+                (mv_matrix * lookat_matrix).as_ref() as *const f32,
             );
 
             self.cube.render();
