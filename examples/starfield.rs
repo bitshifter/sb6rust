@@ -235,7 +235,7 @@ impl sb6::App for SampleApp {
                 self.uniforms.proj_matrix,
                 1,
                 gl::FALSE,
-                proj_matrix.as_ptr(),
+                proj_matrix.as_ref() as *const f32,
             );
 
             gl::Enable(gl::BLEND);

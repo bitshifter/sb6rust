@@ -350,7 +350,12 @@ impl sb6::App for SampleApp {
 
             gl::UseProgram(self.render_program);
 
-            gl::UniformMatrix4fv(self.render.proj_matrix, 1, gl::FALSE, proj_matrix.as_ptr());
+            gl::UniformMatrix4fv(
+                self.render.proj_matrix,
+                1,
+                gl::FALSE,
+                proj_matrix.as_ref() as *const f32,
+            );
 
             let mv_matrix =
                 vmath::translate(0.0, -5.0, 0.0) * vmath::rotate(f * 5.0, 0.0, 1.0, 0.0);
@@ -358,7 +363,7 @@ impl sb6::App for SampleApp {
                 self.render.mv_matrix,
                 1,
                 gl::FALSE,
-                (lookat_matrix * mv_matrix).as_ptr(),
+                (lookat_matrix * mv_matrix).as_ref() as *const f32,
             );
 
             gl::Uniform1f(self.render.shading_level, shading_level);
@@ -374,7 +379,7 @@ impl sb6::App for SampleApp {
                 self.render.mv_matrix,
                 1,
                 gl::FALSE,
-                (lookat_matrix * mv_matrix).as_ptr(),
+                (lookat_matrix * mv_matrix).as_ref() as *const f32,
             );
 
             self.cube.render();

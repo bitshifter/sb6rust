@@ -199,9 +199,19 @@ impl sb6::App for SampleApp {
 
             gl::UseProgram(self.program);
 
-            gl::UniformMatrix4fv(self.proj_location, 1, gl::FALSE, proj_matrix.as_ptr());
+            gl::UniformMatrix4fv(
+                self.proj_location,
+                1,
+                gl::FALSE,
+                proj_matrix.as_ref() as *const f32,
+            );
 
-            gl::UniformMatrix4fv(self.mv_location, 1, gl::FALSE, mv_matrix.as_ptr());
+            gl::UniformMatrix4fv(
+                self.mv_location,
+                1,
+                gl::FALSE,
+                mv_matrix.as_ref() as *const f32,
+            );
 
             gl::Uniform1f(self.explode_factor_location, explode_factor);
         }

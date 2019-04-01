@@ -168,8 +168,18 @@ impl sb6::App for SampleApp {
             );
             gl::BindTexture(gl::TEXTURE_2D, self.tex_object[self.tex_index as usize]);
             gl::UseProgram(self.render_prog);
-            gl::UniformMatrix4fv(self.mv_matrix, 1, gl::FALSE, mv_matrix.as_ptr());
-            gl::UniformMatrix4fv(self.proj_matrix, 1, gl::FALSE, proj_matrix.as_ptr());
+            gl::UniformMatrix4fv(
+                self.mv_matrix,
+                1,
+                gl::FALSE,
+                mv_matrix.as_ref() as *const f32,
+            );
+            gl::UniformMatrix4fv(
+                self.proj_matrix,
+                1,
+                gl::FALSE,
+                proj_matrix.as_ref() as *const f32,
+            );
         }
 
         self.object.render();
