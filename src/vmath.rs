@@ -27,7 +27,19 @@ use std::f32;
 
 #[allow(dead_code)]
 pub fn perspective(fovy: f32, aspect: f32, near: f32, far: f32) -> Mat4 {
-    Mat4::perspective(deg(fovy), aspect, near, far)
+    // glu perspective
+    let inv_length = 1.0 / (near - far);
+    let f = 1.0 / (0.5 * fovy.to_radians()).tan();
+    let a = f / aspect;
+    let q = f;
+    let b = (near + far) * inv_length;
+    let c = (2.0 * near * far) * inv_length;
+    Mat4::new(
+        Vec4::new(a, 0.0, 0.0, 0.0),
+        Vec4::new(0.0, q, 0.0, 0.0),
+        Vec4::new(0.0, 0.0, b, -1.0),
+        Vec4::new(0.0, 0.0, c, 0.0),
+    )
 }
 
 #[allow(dead_code)]
@@ -37,7 +49,7 @@ pub fn translate(x: f32, y: f32, z: f32) -> Mat4 {
 
 #[allow(dead_code)]
 pub fn look_at(eye: Vec3, center: Vec3, up: Vec3) -> Mat4 {
-    Mat4::look_at(eye, center, up.normalize())
+    Mat4::look_at_lh(eye, center, up.normalize())
 }
 
 #[allow(dead_code)]
