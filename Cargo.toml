@@ -1,12 +1,12 @@
 [package]
 name = "sb6"
-version = "0.1.0"
-authors = ["Cameron Hart <cam@bitshifter.net.nz>"]
+version = "0.1.1"
+authors = ["Cameron Hart <cameron.hart@gmail.com>"]
 description = "OpenGL Super Bible 6 Application Framework"
 
 [dependencies]
-gl = "0.11"
-glfw = "0.25"
-log = "0.4"
-rand = "0.6"
-glam = "0.4"
+gl = "~0.11"
+glfw = "~0.25"
+log = "~0.4"
+rand = "~0.6"
+glam = "~0.5"
