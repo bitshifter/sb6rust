@@ -372,8 +372,7 @@ impl sb6::App for SampleApp {
         }
 
         unsafe {
-            let mv_matrix = 
-                vmath::scale(4000.0, 0.1, 4000.0)
+            let mv_matrix = vmath::scale(4000.0, 0.1, 4000.0)
                 * vmath::rotate(f * 5.0, 0.0, 1.0, 0.0)
                 * vmath::translate(0.0, -4.5, 0.0);
             gl::UniformMatrix4fv(
